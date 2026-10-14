@@ -206,11 +206,11 @@ function animate(now) {
     const i = Math.min(4, Math.floor(p));
     model.rotation.y = THREE.MathUtils.lerp(yaw[i], yaw[i + 1], ease(p - i)) + Math.sin(now * .00035) * .025;
     model.rotation.x = -0.04 + Math.sin(p * 0.65) * 0.075;
-    const sides = host.clientWidth > 900 ? [.1, .5, -.5, .5, -.5, .5] : host.clientWidth > 620 ? [.1, .15, -.15, .15, -.15, .15] : [.1, .1, -.1, .1, -.1, .1];
+    const sides = host.clientWidth > 900 ? [.1, .5, -.5, .5, -.5, .5] : host.clientWidth > 620 ? [.1, .15, -.15, .15, -.15, .38] : [.1, .1, -.1, .1, -.1, .1];
     model.position.x = -center.x + THREE.MathUtils.lerp(sides[i], sides[i + 1], ease(p - i)) * extent;
     model.position.y = -center.y + Math.sin(p * 0.7) * extent * 0.02;
   }
-  const distances = [2.8, 2.7, 2.9, 3.1, 2.05, 2.8];
+  const distances = [2.8, 2.7, 2.9, 3.1, 2.05, 3.5];
   const at = Math.min(4, Math.floor(p));
   const distance = THREE.MathUtils.lerp(distances[at], distances[at + 1], ease(p - at));
   camera.position.set(extent * .3, extent * .55, extent * distance);
