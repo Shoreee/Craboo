@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f6f2ea" />
+    <title>Craboo · 一起，慢慢长大</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="src/field-lab.css" />
+    <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/","@mujoco/mujoco":"./vendor/mujoco/mujoco.js"}}</script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="./" aria-label="Craboo 首页"
+        ><span class="brand-mark">c</span>craboo<span class="brand-dot"
+          >®</span
+        ></a
+      ><span class="header-note">陪伴与探索</span
+      ><button id="open-library" class="quiet">声音手记 <span>↗</span></button>
+    </header>
+    <main>
+      <div class="eyebrow">
+        <span class="status-dot"></span
+        ><span id="profile-label">我们的日常 · 本地存档</span>
+      </div>
+      <section class="intro">
+        <h1>它也需要，<em>被你照顾。</em></h1>
+        <p>把世界的声音带给它，让陪伴慢慢发生。</p>
+      </section>
+      <section id="stage" class="stage" aria-label="Craboo 二维互动空间">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="stage-label left">
+          <span class="small-star">✳</span
+          ><span>柔软的身体<br /><small>接住每一次温柔</small></span>
+        </div>
+        <div class="stage-label right">
+          <span>好奇的甲壳<br /><small>收藏世界的小声音</small></span
+          ><span>⌁</span>
+        </div>
+        <div class="robot-shadow"></div>
+        <div id="robot" class="robot" data-mood="curious">
+          <img
+            id="plush"
+            src="assets/craboo-plush.png"
+            alt="米白色 Craboo 毛绒身体"
+            draggable="false"
+          /><img
+            id="shell"
+            src="assets/craboo-shell.png"
+            alt="可拖动拆下的硬质甲壳"
+            draggable="false"
+          /><button
+            id="pet-hit"
+            aria-label="抚摸 Craboo"
+            title="轻轻抚摸我"
+          ></button
+          ><button
+            id="shell-hit"
+            aria-label="拖动甲壳，或点击触摸发声"
+            title="拖动拆下甲壳 · 点击发声"
+          ></button
+          ><span id="heart" aria-hidden="true">♡</span>
+        </div>
+        <div class="robot-caption">
+          <span id="mood-dot"></span><span id="mood-label">正在好奇地听</span
+          ><span class="caption-divider">/</span
+          ><button id="detach" class="text-button">取下甲壳 ↗</button>
+        </div>
+      </section>
+      <section class="field-lab" aria-labelledby="field-title">
+        <div class="field-heading"><div><h2 id="field-title">两种形态，一起听见世界</h2></div><span class="simulation">实时物理仿真</span></div>
+        <div class="form-note"><strong>2D 毛绒陪伴</strong><span>触摸、声音收藏与情绪回应；无腿部控制。</span><strong>3D 具身探索</strong><span>查看外观、两层上壳与实时物理仿真。</span></div>
+        <div class="model-view" id="model-view"><div id="model-canvas" aria-label="可拖动查看的 Craboo 三维模型"></div><div class="model-copy"><strong>具身探索形态 · 3D</strong><span id="model-status">正在载入模型…</span><small>拖动旋转 · 滚轮缩放</small></div></div>
+        <div class="field-grid"><div class="field-screen"><div id="sim-canvas" aria-label="实时 MuJoCo 机器人和桌面场景"></div><div class="sim-toolbar"><button id="sim-toggle" class="secondary">启动仿真</button><button id="sim-reset" class="secondary">重置</button><button data-sim-view="robot" class="secondary">看机器人</button><button data-sim-view="desk" class="secondary">看桌面</button><button data-sim-view="room" class="secondary">看房间</button><label>前进 <input id="sim-forward" type="range" min="0" max="1" step="0.1" value="0"></label><label>转向 <input id="sim-turn" type="range" min="-1" max="1" step="0.1" value="0"></label></div><p id="sim-status" aria-live="polite">正在准备 MuJoCo 场景…</p><p>拖动画面转动视角；点击机器人可触摸；Ctrl＋拖动机器人施加外力；拖动上面两片壳可旋转。前进与转向采用交替三足步态。</p></div>
+        <div class="field-controls"><div class="live-readout"><span id="live-state">尚未开始聆听</span><strong id="live-level">0%</strong></div><div class="meter" aria-label="实时输入音量"><span id="live-bar"></span></div><p id="live-response" aria-live="polite">开启后，环境音量会影响它的陪伴状态。</p><button id="live-toggle" class="primary">开启实时聆听</button><label class="noise-option"><input id="noise-filter" type="checkbox" checked> 浏览器回声消除、噪声抑制与自动增益</label><small>仅分析音量，不录制或上传。</small></div></div>
+        <div class="shell-controls"><div><h3>两层上壳 · 独立旋转</h3><p>分别设置转速与定时停止；实体电机尚未连接。</p></div><div id="shell-rotors"></div></div>
+      </section>
+      <section class="leg-study" aria-labelledby="leg-title">
+        <div class="leg-study-heading"><h2 id="leg-title">一只足，三个关节</h2><p>单独观察水平转向、连杆抬落与足端弯折；下方是可操作的单足结构演示。</p></div>
+        <iframe src="leg-demo.html" title="三自由度单足交互演示" loading="lazy"></iframe>
+      </section>
+      <section class="conversation">
+        <p id="speech" aria-live="polite">“今天，可以带我认识一种新声音吗？”</p>
+        <span id="detail">从一个声音开始，慢慢认识彼此。</span>
+        <button id="sound-speak" class="text-button">听它用采集的声音回应 ↗</button>
+      </section>
+      <nav class="modes" aria-label="陪伴方式">
+        <button data-mode="explore" class="active">
+          <span class="mode-icon">⌁</span><strong>探索声音</strong
+          ><small>把世界，带给它</small></button
+        ><button data-mode="care">
+          <span class="mode-icon">♡</span><strong>照料一下</strong
+          ><small>温柔，也会被记住</small></button
+        ><button data-mode="sleep">
+          <span class="mode-icon">☾</span><strong>睡前陪伴</strong
+          ><small>让声音，慢慢变轻</small>
+        </button>
+      </nav>
+      <section id="action-panel" class="action-panel">
+        <div id="explore-panel">
+          <button id="record" class="primary">● 录下一段声音</button
+          ><label class="button secondary"
+            >导入声音<input id="audio-file" type="file" accept="audio/*" hidden
+          /></label>
+          <p>真实采集 · 最长 60 秒 · 只保存在此浏览器</p>
+          <label class="noise-option"><input id="record-noise" type="checkbox" checked> 录音启用浏览器回声消除、噪声抑制与自动增益</label>
+        </div>
+        <div id="care-panel" hidden>
+          <button id="pet" class="primary">♡ 轻轻抚摸</button
+          ><button id="care-detach" class="secondary">让它出来透透气</button>
+          <p>抚摸毛绒身体，或轻触甲壳，听见它的回应。</p>
+        </div>
+        <div id="sleep-panel" hidden>
+          <div class="sleep-choices" role="group" aria-label="模拟睡眠状态">
+            <button data-sleep="awake" class="selected">清醒</button
+            ><button data-sleep="drowsy">渐困</button
+            ><button data-sleep="asleep">熟睡</button
+            ><span class="simulation">模拟睡眠</span>
+          </div>
+          <button id="bedtime" class="primary">☾ 播放陪伴序列</button>
+          <p>根据模拟状态调整音量与间隔，不检测真实睡眠。</p>
+        </div>
+      </section>
+      <div class="player-bar">
+        <span id="playing">还没有声音在播放</span
+        ><label
+          >音量
+          <input
+            id="volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.65" /></label
+        ><button id="stop" class="quiet">停止 ■</button>
+      </div>
+      <footer>
+        <span>Craboo · 陪伴与探索</span
+        ><button id="open-growth" class="text-button">
+          我们的成长 <span id="growth-count">0</span> ↗</button
+        ><span>网页交互演示</span>
+      </footer>
+    </main>
+    <dialog id="library">
+      <div class="dialog-heading">
+        <div>
+          <h2>我们的声音手记</h2>
+        </div>
+        <div class="dialog-tools">
+          <button class="quiet" data-stop>停止 ■</button
+          ><button class="close quiet" aria-label="关闭声音手记">✕</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <button data-tab="sounds" class="selected">收藏</button
+        ><button data-tab="training">学习</button
+        ><button data-tab="sequence">重组</button
+        ><button data-tab="memories">成长与存档</button>
+      </div>
+      <section id="tab-sounds">
+        <div class="section-title">
+          <p>每一种声音，都是一次认识。</p>
+          <select id="filter" aria-label="筛选收藏">
+            <option value="">全部声音</option>
+            <option>安抚</option>
+            <option>好奇</option>
+            <option>不喜欢</option>
+          </select>
+        </div>
+        <div id="clips"></div>
+        <button id="sample" class="secondary">＋ 添加一段合成示例</button>
+        <p class="muted">示例是程序合成声音，非真实环境录音。</p>
+      </section>
+      <section id="tab-training" hidden>
+        <p class="muted">
+          你教它辨认声音，也教它理解你的偏好。两个小型分类模型在本机真实训练，不上传音频。
+        </p>
+        <div id="models"></div>
+        <form id="category-form" class="inline">
+          <input
+            id="new-category"
+            maxlength="40"
+            placeholder="新的声音类别"
+            aria-label="新的声音类别"
+            required
+          /><button class="secondary">添加类别</button>
+        </form>
+        <p class="muted">
+          每个模型至少两个标签，每个标签三个独立录音。同一录音的裁剪片段只算一个来源。每标签达到五个来源后提供留出验证；结果仅反映当前样本。
+        </p>
+      </section>
+      <section id="tab-sequence" hidden>
+        <p class="muted">
+          排列小声音，拼成属于你们的陪伴。明确不喜欢或模型预测不喜欢的声音会跳过。
+        </p>
+        <div id="sequence"></div>
+        <div class="inline">
+          <button id="recompose" class="secondary">按学到的类别交错重组</button
+          ><button id="play-sequence" class="primary">播放序列</button
+          ><label><input id="loop" type="checkbox" checked /> 循环</label>
+        </div>
+      </section>
+      <section id="tab-memories" hidden>
+        <div class="growth-summary">
+          <span>慢慢熟悉彼此</span><strong id="trust">0</strong
+          ><small>亲近度 · 规则驱动养成</small>
+        </div>
+        <div id="history"></div>
+        <div class="archive-actions">
+          <button id="export" class="secondary">导出完整存档</button
+          ><label class="button secondary"
+            >导入存档<input
+              id="archive-file"
+              type="file"
+              accept=".json"
+              hidden /></label
+          ><button id="demo" class="secondary">进入课堂演示存档</button>
+        </div>
+        <p class="muted">
+          存档包含声音、标注、两个模型和成长记录。个人与演示存档隔离；请定期导出备份，浏览器清理数据会删除本地存档。
+        </p>
+      </section>
+    </dialog>
+    <dialog id="editor">
+      <div class="dialog-heading">
+        <h2>留住这个小声音</h2>
+        <div class="dialog-tools">
+          <button class="quiet" data-stop>停止 ■</button
+          ><button class="close quiet" aria-label="关闭声音编辑">✕</button>
+        </div>
+      </div>
+      <p class="muted">先听一听，留下想教给 Craboo 的部分。</p>
+      <canvas id="wave" width="700" height="110" aria-label="声音波形"></canvas>
+      <div class="trim">
+        <label
+          >起点 / 秒<input
+            id="trim-start"
+            type="number"
+            min="0"
+            step="0.1"
+            value="0" /></label
+        ><label
+          >终点 / 秒<input
+            id="trim-end"
+            type="number"
+            min="0"
+            step="0.1" /></label
+        ><button id="preview" class="secondary">试听选段</button>
+      </div>
+      <label class="field"
+        >声音的名字<input
+          id="clip-name"
+          maxlength="100"
+          placeholder="例如：指尖划过毛衣"
+          required
+      /></label>
+      <div class="label-grid">
+        <label class="field"
+          >它是什么声音？<select id="clip-category"></select></label
+        ><label class="field"
+          >它让你感觉如何？<select id="clip-preference">
+            <option value="">暂不标注</option>
+            <option>安抚</option>
+            <option>好奇</option>
+            <option>不喜欢</option>
+          </select></label
+        >
+      </div>
+      <p id="prediction" class="prediction"></p>
+      <button id="save-clip" class="primary">收藏，并教给它</button>
+    </dialog>
+    <dialog id="import-confirm">
+      <h2>恢复这份记忆？</h2>
+      <p id="import-summary"></p>
+      <p class="muted">
+        将替换当前档案，其他档案不受影响。建议先导出当前存档。
+      </p>
+      <button id="confirm-import" class="primary">确认恢复</button
+      ><button class="close secondary">取消</button>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="src/app.js"></script>
+    <script type="module" src="src/field-lab.js"></script>
+    <script type="module" src="src/model-view.js"></script>
+    <script type="module" src="src/simulation.js"></script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@mujoco/mujoco':
+        specifier: ^3.15.0
+        version: 3.15.0
+      three:
+        specifier: ^0.186.1
+        version: 0.186.1
+
+packages:
+
+  '@mujoco/mujoco@3.15.0':
+    resolution: {integrity: sha512-79j0h4Tok+igTkVBxMPkRvTmztJoyEaNyDrSbHC0s0yOsSmLcyMp+sIS1zGvYKeXYmSt9xV4vXVwLu/CvfHvMg==}
+
+  three@0.186.1:
+    resolution: {integrity: sha512-blFeqb49wRCSGUGj7gtpfnSGHy2lwDk94RhUmS1c/hTby70kvChbWpkJ4Pm1390LqzzvTmzgXKHPEafJwCb8jA==}
+
+snapshots:
+
+  '@mujoco/mujoco@3.15.0': {}
+
+  three@0.186.1: {}

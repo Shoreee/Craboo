@@ -1,0 +1,11 @@
+{
+  "mode": "turn",
+  "method": "restricted-amplitude turning candidate; requires new turn validation",
+  "parameters": {
+    "yaw_amp": 0.11164125380044013,
+    "lift_amp": 0.1,
+    "knee_amp": 0.35,
+    "period_s": 0.35937279121661914,
+    "sign_mode": "side"
+  }
+}

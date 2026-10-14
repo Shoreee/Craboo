@@ -1,0 +1,13 @@
+{
+  "mode": "walk",
+  "method": "independent 11 cm visual-safe lifted tripod candidate; 10 s no-policy MuJoCo preview",
+  "parameters": {
+    "yaw_amp": 0.1,
+    "lift_amp": 0.1,
+    "knee_amp": 0.35,
+    "stance_pitch_rad": 0.15,
+    "period_s": 0.7,
+    "sign_mode": "side"
+  },
+  "evidence": "outputs/speed_diagnosis_11cm_v2/lifted_tripod_visual_audit.json"
+}

@@ -1,0 +1,823 @@
+<mujoco model="Crabo_11cm_hand_authored_collisions">
+  <compiler angle="radian" />
+
+  <option iterations="60" />
+
+  <default>
+    <default class="bedroom_main">
+      <geom condim="4" friction="0.5 0.01 0.0005" density="600" material="appearance_29" />
+    </default>
+  </default>
+
+  <asset>
+    <texture type="skybox" colorspace="auto" name="sky" builtin="gradient" rgb1="0.16 0.2 0.25" rgb2="0.55 0.62 0.68" width="512" height="3072" />
+    <texture type="2d" colorspace="linear" name="face_idle_texture" file="files/face_idle.png" />
+    <texture type="2d" colorspace="linear" name="face_moving_texture" file="files/face_moving.png" />
+    <texture type="2d" colorspace="linear" name="face_tapping_texture" file="files/face_tapping.png" />
+    <texture type="2d" colorspace="linear" name="face_surprised_texture" file="files/face_surprised.png" />
+    <texture type="2d" colorspace="linear" name="face_blink_texture" file="files/face_blink.png" />
+    <texture type="skybox" colorspace="auto" name="bedroom_skybox" builtin="gradient" rgb1="0.2 0.2 0.22" rgb2="0.35 0.35 0.37" width="256" height="1536" />
+    <texture type="2d" colorspace="linear" name="bedroom_tex_floor_oak" file="files/bedroom_tex_floor_oak.png" />
+    <texture type="2d" colorspace="linear" name="bedroom_tex_bedding" file="files/bedroom_tex_bedding.png" />
+    <texture type="2d" colorspace="linear" name="bedroom_tex_art_blocks" file="files/bedroom_art_blocks.png" />
+    <texture type="2d" colorspace="linear" name="bedroom_tex_art_arcs" file="files/bedroom_art_arcs.png" />
+    <texture type="2d" colorspace="linear" name="bedroom_tex_art_grid" file="files/bedroom_art_grid.png" />
+    <texture type="2d" colorspace="linear" name="bedroom_tex_sofa_fabric" file="files/bedroom_tex_sofa_fabric.png" />
+    <texture type="2d" colorspace="linear" name="bedroom_tex_sofa_cushion" file="files/bedroom_tex_sofa_cushion.png" />
+    <texture type="2d" colorspace="linear" name="bedroom_tex_stair_runner" file="files/bedroom_tex_stair_runner.png" />
+    <material name="face_idle_material" texture="face_idle_texture" />
+    <material name="face_moving_material" texture="face_moving_texture" />
+    <material name="face_tapping_material" texture="face_tapping_texture" />
+    <material name="face_surprised_material" texture="face_surprised_texture" />
+    <material name="face_blink_material" texture="face_blink_texture" />
+    <material name="bedroom_wall_cream" specular="0.1" shininess="0.1" reflectance="0.02" rgba="0.8 0.78 0.74 1" />
+    <material name="bedroom_wood_warm" specular="0.25" shininess="0.25" reflectance="0.06" rgba="0.7 0.5 0.32 1" />
+    <material name="bedroom_wood_walnut" specular="0.3" shininess="0.3" reflectance="0.06" rgba="0.38 0.25 0.16 1" />
+    <material name="bedroom_floor_oak" texture="bedroom_tex_floor_oak" texuniform="true" texrepeat="3.2 3.2" specular="0.22" shininess="0.18" reflectance="0.08" roughness="0.55" />
+    <material name="bedroom_window_glass" specular="0.9" shininess="0.9" reflectance="0.3" roughness="0.05" rgba="0.62 0.76 0.82 0.28" />
+    <material name="bedroom_window_frame" specular="0.9" shininess="0.9" reflectance="0.45" metallic="1" roughness="0.18" rgba="0.28 0.29 0.31 1" />
+    <material name="bedroom_bedding" texture="bedroom_tex_bedding" texrepeat="12 12" specular="0.08" shininess="0.22" rgba="1 0.99 0.96 1" />
+    <material name="bedroom_frame_black" specular="0.15" shininess="0.2" reflectance="0.06" rgba="0.12 0.12 0.14 1" />
+    <material name="bedroom_art_blocks" texture="bedroom_tex_art_blocks" emission="0.16" specular="0.12" shininess="0.12" roughness="0.75" />
+    <material name="bedroom_art_arcs" texture="bedroom_tex_art_arcs" emission="0.16" specular="0.12" shininess="0.12" roughness="0.75" />
+    <material name="bedroom_art_grid" texture="bedroom_tex_art_grid" emission="0.16" specular="0.12" shininess="0.12" roughness="0.75" />
+    <material name="bedroom_cardboard" specular="0.1" shininess="0.05" rgba="0.76 0.63 0.44 1" />
+    <material name="bedroom_plastic_white" specular="0.4" roughness="0.35" rgba="0.92 0.92 0.9 1" />
+    <material name="bedroom_lamp_shade" emission="0.25" specular="0.05" shininess="0.02" rgba="0.95 0.88 0.7 1" />
+    <material name="bedroom_plastic_blue" specular="0.45" roughness="0.4" rgba="0.2 0.42 0.85 1" />
+    <material name="bedroom_lamp_panel" emission="0.9" specular="0.1" shininess="0.1" rgba="1 0.97 0.9 1" />
+    <material name="bedroom_sofa_fabric" texture="bedroom_tex_sofa_fabric" texrepeat="9 9" specular="0.08" shininess="0.45" />
+    <material name="bedroom_sofa_leg" specular="0.3" shininess="0.3" reflectance="0.06" rgba="0.3 0.2 0.13 1" />
+    <material name="bedroom_sofa_cushion" texture="bedroom_tex_sofa_cushion" texrepeat="9 9" specular="0.08" shininess="0.45" rgba="1.12 1.12 1.12 1" />
+    <material name="bedroom_slipper_felt" specular="0.05" shininess="0.02" roughness="0.98" rgba="0.62 0.4 0.34 1" />
+    <material name="bedroom_stair_runner" texture="bedroom_tex_stair_runner" texuniform="true" texrepeat="10 10" shininess="0.35" rgba="0.74 0.16 0.14 1" />
+    <material name="bedroom_metal" specular="0.8" shininess="0.85" reflectance="0.35" metallic="0.9" roughness="0.25" rgba="0.7 0.73 0.78 1" />
+    <material name="bedroom_steel_dark" specular="0.6" shininess="0.7" reflectance="0.25" metallic="0.85" roughness="0.4" rgba="0.38 0.4 0.44 1" />
+    <material name="bedroom_glass_clear" specular="0.9" shininess="0.85" reflectance="0.3" roughness="0.05" rgba="0.78 0.86 0.88 0.35" />
+    <material name="bedroom_appearance_29" metallic="0" roughness="0.9" />
+    <mesh name="body_cube_035_mesh" file="files/body_cube_035.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="body_cube_038_mesh" file="files/body_cube_038.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="body_cube_039_mesh" file="files/body_cube_039.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="body_cube_040_mesh" file="files/body_cube_040.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="body_cube_041_mesh" file="files/body_cube_041.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LA_arm_collision_mesh" file="files/LA_arm_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RA_arm_collision_mesh" file="files/RA_arm_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LA_hand_ball_collision_mesh" file="files/LA_hand_ball_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RA_hand_ball_collision_mesh" file="files/RA_hand_ball_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RM_mount_collision_mesh" file="files/RM_mount_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RM_coxa_collision_mesh" file="files/RM_coxa_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RM_joint12_collision_mesh" file="files/RM_joint12_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RM_femur_collision_mesh" file="files/RM_femur_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RM_foot_ball_collision_mesh" file="files/RM_foot_ball_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RR_mount_collision_mesh" file="files/RR_mount_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RR_coxa_collision_mesh" file="files/RR_coxa_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RR_joint12_collision_mesh" file="files/RR_joint12_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RR_femur_collision_mesh" file="files/RR_femur_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RR_foot_ball_collision_mesh" file="files/RR_foot_ball_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LR_mount_collision_mesh" file="files/LR_mount_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LR_coxa_collision_mesh" file="files/LR_coxa_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LR_joint12_collision_mesh" file="files/LR_joint12_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LR_femur_collision_mesh" file="files/LR_femur_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LR_foot_ball_collision_mesh" file="files/LR_foot_ball_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LM_mount_collision_mesh" file="files/LM_mount_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LM_coxa_collision_mesh" file="files/LM_coxa_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LM_joint12_collision_mesh" file="files/LM_joint12_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LM_femur_collision_mesh" file="files/LM_femur_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LM_foot_ball_collision_mesh" file="files/LM_foot_ball_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LF_mount_collision_mesh" file="files/LF_mount_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LF_coxa_collision_mesh" file="files/LF_coxa_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LF_joint12_collision_mesh" file="files/LF_joint12_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LF_femur_collision_mesh" file="files/LF_femur_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="LF_foot_ball_collision_mesh" file="files/LF_foot_ball_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RF_mount_collision_mesh" file="files/RF_mount_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RF_coxa_collision_mesh" file="files/RF_coxa_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RF_joint12_collision_mesh" file="files/RF_joint12_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RF_femur_collision_mesh" file="files/RF_femur_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="RF_foot_ball_collision_mesh" file="files/RF_foot_ball_collision.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_body_Retopo_part_1_003_0_mesh" file="files/visual_body_Retopo_part_1_003_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_body_Retopo_part_1_004_0_mesh" file="files/visual_body_Retopo_part_1_004_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_body_plane_008_0_mesh" file="files/visual_body_plane_008_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_body_plane_009_0_mesh" file="files/visual_body_plane_009_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_body_plane_010_0_mesh" file="files/visual_body_plane_010_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_body_plane_010_1_mesh" file="files/visual_body_plane_010_1.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_body_cylinder_014_0_mesh" file="files/visual_body_cylinder_014_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_body_cylinder_023_0_mesh" file="files/visual_body_cylinder_023_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_base_link_cylinder_001_0_mesh" file="files/visual_RF_base_link_cylinder_001_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_base_link_cylinder_002_0_mesh" file="files/visual_RF_base_link_cylinder_002_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_hip_yaw_cylinder_011_0_mesh" file="files/visual_RF_hip_yaw_cylinder_011_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_hip_yaw_cylinder_012_0_mesh" file="files/visual_RF_hip_yaw_cylinder_012_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_hip_pitch_cylinder_016_0_mesh" file="files/visual_RF_hip_pitch_cylinder_016_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_hip_pitch_cylinder_017_0_mesh" file="files/visual_RF_hip_pitch_cylinder_017_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_knee_cylinder_007_0_mesh" file="files/visual_RF_knee_cylinder_007_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_knee_cylinder_025_0_mesh" file="files/visual_RF_knee_cylinder_025_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RF_knee_cylinder_026_0_mesh" file="files/visual_RF_knee_cylinder_026_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_base_link_cylinder_027_0_mesh" file="files/visual_RM_base_link_cylinder_027_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_base_link_cylinder_028_0_mesh" file="files/visual_RM_base_link_cylinder_028_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_hip_yaw_cylinder_034_0_mesh" file="files/visual_RM_hip_yaw_cylinder_034_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_hip_yaw_cylinder_035_0_mesh" file="files/visual_RM_hip_yaw_cylinder_035_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_hip_pitch_cylinder_036_0_mesh" file="files/visual_RM_hip_pitch_cylinder_036_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_hip_pitch_cylinder_037_0_mesh" file="files/visual_RM_hip_pitch_cylinder_037_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_knee_cylinder_030_0_mesh" file="files/visual_RM_knee_cylinder_030_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_knee_cylinder_038_0_mesh" file="files/visual_RM_knee_cylinder_038_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RM_knee_cylinder_039_0_mesh" file="files/visual_RM_knee_cylinder_039_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_base_link_cylinder_040_0_mesh" file="files/visual_RR_base_link_cylinder_040_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_base_link_cylinder_041_0_mesh" file="files/visual_RR_base_link_cylinder_041_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_hip_yaw_cylinder_043_0_mesh" file="files/visual_RR_hip_yaw_cylinder_043_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_hip_yaw_cylinder_044_0_mesh" file="files/visual_RR_hip_yaw_cylinder_044_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_hip_pitch_cylinder_045_0_mesh" file="files/visual_RR_hip_pitch_cylinder_045_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_hip_pitch_cylinder_046_0_mesh" file="files/visual_RR_hip_pitch_cylinder_046_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_knee_cylinder_042_0_mesh" file="files/visual_RR_knee_cylinder_042_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_knee_cylinder_047_0_mesh" file="files/visual_RR_knee_cylinder_047_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RR_knee_cylinder_048_0_mesh" file="files/visual_RR_knee_cylinder_048_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_base_link_cylinder_049_0_mesh" file="files/visual_LF_base_link_cylinder_049_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_base_link_cylinder_050_0_mesh" file="files/visual_LF_base_link_cylinder_050_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_hip_yaw_cylinder_052_0_mesh" file="files/visual_LF_hip_yaw_cylinder_052_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_hip_yaw_cylinder_053_0_mesh" file="files/visual_LF_hip_yaw_cylinder_053_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_hip_pitch_cylinder_054_0_mesh" file="files/visual_LF_hip_pitch_cylinder_054_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_hip_pitch_cylinder_055_0_mesh" file="files/visual_LF_hip_pitch_cylinder_055_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_knee_cylinder_010_0_mesh" file="files/visual_LF_knee_cylinder_010_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_knee_cylinder_056_0_mesh" file="files/visual_LF_knee_cylinder_056_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LF_knee_cylinder_057_0_mesh" file="files/visual_LF_knee_cylinder_057_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_base_link_cylinder_058_0_mesh" file="files/visual_LM_base_link_cylinder_058_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_base_link_cylinder_059_0_mesh" file="files/visual_LM_base_link_cylinder_059_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_hip_yaw_cylinder_061_0_mesh" file="files/visual_LM_hip_yaw_cylinder_061_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_hip_yaw_cylinder_062_0_mesh" file="files/visual_LM_hip_yaw_cylinder_062_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_hip_pitch_cylinder_063_0_mesh" file="files/visual_LM_hip_pitch_cylinder_063_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_hip_pitch_cylinder_064_0_mesh" file="files/visual_LM_hip_pitch_cylinder_064_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_knee_cylinder_060_0_mesh" file="files/visual_LM_knee_cylinder_060_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_knee_cylinder_065_0_mesh" file="files/visual_LM_knee_cylinder_065_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LM_knee_cylinder_066_0_mesh" file="files/visual_LM_knee_cylinder_066_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_base_link_cylinder_067_0_mesh" file="files/visual_LR_base_link_cylinder_067_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_base_link_cylinder_068_0_mesh" file="files/visual_LR_base_link_cylinder_068_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_hip_yaw_cylinder_070_0_mesh" file="files/visual_LR_hip_yaw_cylinder_070_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_hip_yaw_cylinder_071_0_mesh" file="files/visual_LR_hip_yaw_cylinder_071_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_hip_pitch_cylinder_072_0_mesh" file="files/visual_LR_hip_pitch_cylinder_072_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_hip_pitch_cylinder_073_0_mesh" file="files/visual_LR_hip_pitch_cylinder_073_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_knee_cylinder_069_0_mesh" file="files/visual_LR_knee_cylinder_069_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_knee_cylinder_074_0_mesh" file="files/visual_LR_knee_cylinder_074_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LR_knee_cylinder_075_0_mesh" file="files/visual_LR_knee_cylinder_075_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RA_arm_extend_Retopo_part_6_001_mesh" file="files/visual_RA_arm_extend_Retopo_part_6_001.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LA_arm_extend_Retopo_part_6_001_mesh" file="files/visual_LA_arm_extend_Retopo_part_6_001.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RA_arm_pitch_cylinder_031_mesh" file="files/visual_RA_arm_pitch_cylinder_031.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LA_arm_pitch_cylinder_031_mesh" file="files/visual_LA_arm_pitch_cylinder_031.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RA_arm_pitch_cylinder_033_mesh" file="files/visual_RA_arm_pitch_cylinder_033.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LA_arm_pitch_cylinder_033_mesh" file="files/visual_LA_arm_pitch_cylinder_033.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_LA_arm_yaw_cylinder_015_0_mesh" file="files/visual_LA_arm_yaw_cylinder_015_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RA_arm_yaw_cylinder_024_0_mesh" file="files/visual_RA_arm_yaw_cylinder_024_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="visual_RA_arm_yaw_cube_037_0_mesh" file="files/visual_RA_arm_yaw_cube_037_0.obj" scale="0.130692 0.130692 0.130692" />
+    <mesh name="bedroom_bed_frame" content_type="model/obj" file="files/bedroom_mesh_bed_frame.obj" />
+    <mesh name="bedroom_bed_mattress" content_type="model/obj" file="files/bedroom_mesh_bed_mattress.obj" />
+    <mesh name="bedroom_bed_headboard" content_type="model/obj" file="files/bedroom_mesh_bed_headboard.obj" />
+    <mesh name="bedroom_pillow" content_type="model/obj" file="files/bedroom_mesh_pillow.obj" />
+    <mesh name="bedroom_sofa_base" content_type="model/obj" file="files/bedroom_mesh_sofa_base.obj" />
+    <mesh name="bedroom_sofa_back" content_type="model/obj" file="files/bedroom_mesh_sofa_back.obj" />
+    <mesh name="bedroom_sofa_arm" content_type="model/obj" file="files/bedroom_mesh_sofa_arm.obj" />
+    <mesh name="bedroom_sofa_seat" content_type="model/obj" file="files/bedroom_mesh_sofa_seat.obj" />
+    <mesh name="bedroom_sofa_pillow" content_type="model/obj" file="files/bedroom_mesh_sofa_pillow.obj" />
+    <mesh name="bedroom_slipper_l" content_type="model/obj" file="files/bedroom_slipper_l.obj" />
+    <mesh name="bedroom_slipper_r" content_type="model/obj" file="files/bedroom_slipper_r.obj" />
+  </asset>
+
+  <worldbody>
+    <light name="key_light" pos="0 -0.4 0.6" dir="0 0 -1" />
+    <body name="base_link" pos="-0.08 1.84 0.754023442" quat="1 0 0 0">
+      <inertial pos="0 0 0.045" mass="0.0586265" diaginertia="0.000100399 0.000120004 0.000126833" />
+      <joint name="root" type="free" />
+      <geom name="body_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="body_cube_035_mesh" />
+      <geom name="body_cube_038" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="body_cube_038_mesh" />
+      <geom name="body_cube_039" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="body_cube_039_mesh" />
+      <geom name="body_cube_040" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="body_cube_040_mesh" />
+      <geom name="body_cube_041" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="body_cube_041_mesh" />
+      <geom name="RM_mount_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RM_mount_collision_mesh" />
+      <geom name="RR_mount_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RR_mount_collision_mesh" />
+      <geom name="LR_mount_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LR_mount_collision_mesh" />
+      <geom name="LM_mount_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LM_mount_collision_mesh" />
+      <geom name="LF_mount_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LF_mount_collision_mesh" />
+      <geom name="RF_mount_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RF_mount_collision_mesh" />
+      <geom name="source_face_screen_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" material="face_idle_material" rgba="1 1 1 1" mesh="visual_body_Retopo_part_1_003_0_mesh" />
+      <geom name="visual_body_Retopo_part_1_004_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_body_Retopo_part_1_004_0_mesh" />
+      <geom name="visual_body_plane_008_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_body_plane_008_0_mesh" />
+      <geom name="visual_body_cylinder_014_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_body_cylinder_014_0_mesh" />
+      <geom name="visual_body_cylinder_023_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_body_cylinder_023_0_mesh" />
+      <geom name="visual_RF_base_link_cylinder_001_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RF_base_link_cylinder_001_0_mesh" />
+      <geom name="visual_RF_base_link_cylinder_002_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RF_base_link_cylinder_002_0_mesh" />
+      <geom name="visual_RM_base_link_cylinder_027_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RM_base_link_cylinder_027_0_mesh" />
+      <geom name="visual_RM_base_link_cylinder_028_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RM_base_link_cylinder_028_0_mesh" />
+      <geom name="visual_RR_base_link_cylinder_040_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RR_base_link_cylinder_040_0_mesh" />
+      <geom name="visual_RR_base_link_cylinder_041_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RR_base_link_cylinder_041_0_mesh" />
+      <geom name="visual_LF_base_link_cylinder_049_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LF_base_link_cylinder_049_0_mesh" />
+      <geom name="visual_LF_base_link_cylinder_050_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LF_base_link_cylinder_050_0_mesh" />
+      <geom name="visual_LM_base_link_cylinder_058_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LM_base_link_cylinder_058_0_mesh" />
+      <geom name="visual_LM_base_link_cylinder_059_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LM_base_link_cylinder_059_0_mesh" />
+      <geom name="visual_LR_base_link_cylinder_067_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LR_base_link_cylinder_067_0_mesh" />
+      <geom name="visual_LR_base_link_cylinder_068_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LR_base_link_cylinder_068_0_mesh" />
+      <body name="LF_hip_yaw_link" pos="-0.00513237 -0.0126039 0.0265939" quat="-0.5 0 0 0.866025">
+        <inertial pos="0 0 0" mass="0.00125628" diaginertia="1.80567e-08 1.70519e-08 2.70918e-08" />
+        <joint name="LF_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+        <geom name="LF_coxa_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LF_coxa_collision_mesh" />
+        <geom name="LF_joint12_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LF_joint12_collision_mesh" />
+        <geom name="visual_LF_hip_yaw_cylinder_052_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LF_hip_yaw_cylinder_052_0_mesh" />
+        <geom name="visual_LF_hip_yaw_cylinder_053_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LF_hip_yaw_cylinder_053_0_mesh" />
+        <body name="LF_hip_pitch_link" pos="0.0078669 -1.65131e-06 -0.00197327">
+          <inertial pos="0 0 0" mass="0.00167504" diaginertia="4.10137e-08 3.18676e-08 3.81402e-08" />
+          <joint name="LF_hip_pitch" pos="0 0 0" axis="0 1 0" range="-0.872665 0.872665" armature="0.000147658" damping="0.000479042" />
+          <geom name="LF_femur_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LF_femur_collision_mesh" />
+          <geom name="visual_LF_hip_pitch_cylinder_054_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LF_hip_pitch_cylinder_054_0_mesh" />
+          <geom name="visual_LF_hip_pitch_cylinder_055_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LF_hip_pitch_cylinder_055_0_mesh" />
+          <body name="LF_knee_link" pos="0.00907082 1.6548e-06 -0.00645446">
+            <inertial pos="0 0 0" mass="0.0031407" diaginertia="3.00992e-07 3.01119e-07 3.49964e-07" />
+            <joint name="LF_knee" pos="0 0 0" axis="0 1 0" range="-1.0472 1.0472" armature="0.000147658" damping="0.000479042" />
+            <geom name="LF_foot_ball_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LF_foot_ball_collision_mesh" />
+            <geom name="visual_LF_knee_cylinder_010_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LF_knee_cylinder_010_0_mesh" />
+            <geom name="visual_LF_knee_cylinder_056_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LF_knee_cylinder_056_0_mesh" />
+            <geom name="visual_LF_knee_cylinder_057_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LF_knee_cylinder_057_0_mesh" />
+            <site name="LF_foot_center" pos="3.41167e-05 -0.000103048 -0.0108009" size="0.0001" rgba="0 0 0 0" />
+          </body>
+        </body>
+      </body>
+      <body name="LM_hip_yaw_link" pos="-0.00872988 -0.00220323 0.0265939" quat="0 0 0 1">
+        <inertial pos="0 0 0" mass="0.00125628" diaginertia="1.40525e-08 1.28905e-08 1.89262e-08" />
+        <joint name="LM_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+        <geom name="LM_coxa_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LM_coxa_collision_mesh" />
+        <geom name="LM_joint12_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LM_joint12_collision_mesh" />
+        <geom name="visual_LM_hip_yaw_cylinder_061_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LM_hip_yaw_cylinder_061_0_mesh" />
+        <geom name="visual_LM_hip_yaw_cylinder_062_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LM_hip_yaw_cylinder_062_0_mesh" />
+        <body name="LM_hip_pitch_link" pos="0.0078669 -1.65364e-06 -0.00197327">
+          <inertial pos="0 0 0" mass="0.00167504" diaginertia="2.03716e-08 3.86639e-08 2.42943e-08" />
+          <joint name="LM_hip_pitch" pos="0 0 0" axis="0 1 0" range="-0.872665 0.872665" armature="0.000147658" damping="0.000479042" />
+          <geom name="LM_femur_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LM_femur_collision_mesh" />
+          <geom name="visual_LM_hip_pitch_cylinder_063_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LM_hip_pitch_cylinder_063_0_mesh" />
+          <geom name="visual_LM_hip_pitch_cylinder_064_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LM_hip_pitch_cylinder_064_0_mesh" />
+          <body name="LM_knee_link" pos="0.00907082 1.65218e-06 -0.00645446">
+            <inertial pos="0 0 0" mass="0.0031407" diaginertia="2.98488e-07 2.9828e-07 3.44621e-07" />
+            <joint name="LM_knee" pos="0 0 0" axis="0 1 0" range="-1.0472 1.0472" armature="0.000147658" damping="0.000479042" />
+            <geom name="LM_foot_ball_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LM_foot_ball_collision_mesh" />
+            <geom name="visual_LM_knee_cylinder_060_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LM_knee_cylinder_060_0_mesh" />
+            <geom name="visual_LM_knee_cylinder_065_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LM_knee_cylinder_065_0_mesh" />
+            <geom name="visual_LM_knee_cylinder_066_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LM_knee_cylinder_066_0_mesh" />
+            <site name="LM_foot_center" pos="3.65007e-05 -0.000103048 -0.0108009" size="0.0001" rgba="0 0 0 0" />
+          </body>
+        </body>
+      </body>
+      <body name="LR_hip_yaw_link" pos="-0.00513236 0.00811264 0.0265939" quat="0.5 0 0 0.866025">
+        <inertial pos="0 0 0" mass="0.00125628" diaginertia="1.80607e-08 1.70519e-08 2.70959e-08" />
+        <joint name="LR_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+        <geom name="LR_coxa_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LR_coxa_collision_mesh" />
+        <geom name="LR_joint12_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LR_joint12_collision_mesh" />
+        <geom name="visual_LR_hip_yaw_cylinder_070_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LR_hip_yaw_cylinder_070_0_mesh" />
+        <geom name="visual_LR_hip_yaw_cylinder_071_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LR_hip_yaw_cylinder_071_0_mesh" />
+        <body name="LR_hip_pitch_link" pos="0.0078669 -1.65388e-06 -0.00197327">
+          <inertial pos="0 0 0" mass="0.00167504" diaginertia="4.10137e-08 3.18676e-08 3.81401e-08" />
+          <joint name="LR_hip_pitch" pos="0 0 0" axis="0 1 0" range="-0.872665 0.872665" armature="0.000147658" damping="0.000479042" />
+          <geom name="LR_femur_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LR_femur_collision_mesh" />
+          <geom name="visual_LR_hip_pitch_cylinder_072_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LR_hip_pitch_cylinder_072_0_mesh" />
+          <geom name="visual_LR_hip_pitch_cylinder_073_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_LR_hip_pitch_cylinder_073_0_mesh" />
+          <body name="LR_knee_link" pos="0.00907082 1.65063e-06 -0.00645446">
+            <inertial pos="0 0 0" mass="0.0031407" diaginertia="3.00992e-07 3.01119e-07 3.49964e-07" />
+            <joint name="LR_knee" pos="0 0 0" axis="0 1 0" range="-1.0472 1.0472" armature="0.000147658" damping="0.000479042" />
+            <geom name="LR_foot_ball_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LR_foot_ball_collision_mesh" />
+            <geom name="visual_LR_knee_cylinder_069_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LR_knee_cylinder_069_0_mesh" />
+            <geom name="visual_LR_knee_cylinder_074_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LR_knee_cylinder_074_0_mesh" />
+            <geom name="visual_LR_knee_cylinder_075_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_LR_knee_cylinder_075_0_mesh" />
+            <site name="LR_foot_center" pos="3.41164e-05 -0.000103046 -0.0108009" size="0.0001" rgba="0 0 0 0" />
+          </body>
+        </body>
+      </body>
+      <body name="RF_hip_yaw_link" pos="0.00513237 -0.0126039 0.0265939" quat="-0.866025 0 0 0.5">
+        <inertial pos="0 0 0" mass="0.00125628" diaginertia="1.80607e-08 1.70519e-08 2.70959e-08" />
+        <joint name="RF_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+        <geom name="RF_coxa_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RF_coxa_collision_mesh" />
+        <geom name="RF_joint12_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RF_joint12_collision_mesh" />
+        <geom name="visual_RF_hip_yaw_cylinder_011_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RF_hip_yaw_cylinder_011_0_mesh" />
+        <geom name="visual_RF_hip_yaw_cylinder_012_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RF_hip_yaw_cylinder_012_0_mesh" />
+        <body name="RF_hip_pitch_link" pos="0.0078669 -1.65321e-06 -0.00197327">
+          <inertial pos="0 0 0" mass="0.00167504" diaginertia="4.10137e-08 3.18676e-08 3.81402e-08" />
+          <joint name="RF_hip_pitch" pos="0 0 0" axis="0 1 0" range="-0.872665 0.872665" armature="0.000147658" damping="0.000479042" />
+          <geom name="RF_femur_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RF_femur_collision_mesh" />
+          <geom name="visual_RF_hip_pitch_cylinder_016_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RF_hip_pitch_cylinder_016_0_mesh" />
+          <geom name="visual_RF_hip_pitch_cylinder_017_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RF_hip_pitch_cylinder_017_0_mesh" />
+          <body name="RF_knee_link" pos="0.00907082 1.65196e-06 -0.00645446">
+            <inertial pos="0 0 0" mass="0.0031407" diaginertia="3.00992e-07 3.01119e-07 3.49964e-07" />
+            <joint name="RF_knee" pos="0 0 0" axis="0 1 0" range="-1.0472 1.0472" armature="0.000147658" damping="0.000479042" />
+            <geom name="RF_foot_ball_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RF_foot_ball_collision_mesh" />
+            <geom name="visual_RF_knee_cylinder_007_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RF_knee_cylinder_007_0_mesh" />
+            <geom name="visual_RF_knee_cylinder_025_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RF_knee_cylinder_025_0_mesh" />
+            <geom name="visual_RF_knee_cylinder_026_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RF_knee_cylinder_026_0_mesh" />
+            <site name="RF_foot_center" pos="3.41185e-05 -0.000103048 -0.0108009" size="0.0001" rgba="0 0 0 0" />
+          </body>
+        </body>
+      </body>
+      <body name="RM_hip_yaw_link" pos="0.00872988 -0.00220324 0.0265939">
+        <inertial pos="0 0 0" mass="0.00125628" diaginertia="1.40525e-08 1.28905e-08 1.89262e-08" />
+        <joint name="RM_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+        <geom name="RM_coxa_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RM_coxa_collision_mesh" />
+        <geom name="RM_joint12_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RM_joint12_collision_mesh" />
+        <geom name="visual_RM_hip_yaw_cylinder_034_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RM_hip_yaw_cylinder_034_0_mesh" />
+        <geom name="visual_RM_hip_yaw_cylinder_035_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RM_hip_yaw_cylinder_035_0_mesh" />
+        <body name="RM_hip_pitch_link" pos="0.0078669 -1.65291e-06 -0.00197327">
+          <inertial pos="0 0 0" mass="0.00167504" diaginertia="2.03716e-08 3.86639e-08 2.42943e-08" />
+          <joint name="RM_hip_pitch" pos="0 0 0" axis="0 1 0" range="-0.872665 0.872665" armature="0.000147658" damping="0.000479042" />
+          <geom name="RM_femur_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RM_femur_collision_mesh" />
+          <geom name="visual_RM_hip_pitch_cylinder_036_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RM_hip_pitch_cylinder_036_0_mesh" />
+          <geom name="visual_RM_hip_pitch_cylinder_037_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RM_hip_pitch_cylinder_037_0_mesh" />
+          <body name="RM_knee_link" pos="0.00907082 1.65291e-06 -0.00645446">
+            <inertial pos="0 0 0" mass="0.0031407" diaginertia="2.98488e-07 2.9828e-07 3.44621e-07" />
+            <joint name="RM_knee" pos="0 0 0" axis="0 1 0" range="-1.0472 1.0472" armature="0.000147658" damping="0.000479042" />
+            <geom name="RM_foot_ball_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RM_foot_ball_collision_mesh" />
+            <geom name="visual_RM_knee_cylinder_030_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RM_knee_cylinder_030_0_mesh" />
+            <geom name="visual_RM_knee_cylinder_038_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RM_knee_cylinder_038_0_mesh" />
+            <geom name="visual_RM_knee_cylinder_039_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RM_knee_cylinder_039_0_mesh" />
+            <site name="RM_foot_center" pos="3.65007e-05 -0.000103048 -0.0108009" size="0.0001" rgba="0 0 0 0" />
+          </body>
+        </body>
+      </body>
+      <body name="RR_hip_yaw_link" pos="0.00513237 0.00811263 0.0265939" quat="0.866025 0 0 0.5">
+        <inertial pos="0 0 0" mass="0.00125628" diaginertia="1.80567e-08 1.70519e-08 2.70918e-08" />
+        <joint name="RR_hip_yaw" pos="0 0 0" axis="0 0 1" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+        <geom name="RR_coxa_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RR_coxa_collision_mesh" />
+        <geom name="RR_joint12_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RR_joint12_collision_mesh" />
+        <geom name="visual_RR_hip_yaw_cylinder_043_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RR_hip_yaw_cylinder_043_0_mesh" />
+        <geom name="visual_RR_hip_yaw_cylinder_044_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RR_hip_yaw_cylinder_044_0_mesh" />
+        <body name="RR_hip_pitch_link" pos="0.0078669 -1.65222e-06 -0.00197327">
+          <inertial pos="0 0 0" mass="0.00167504" diaginertia="4.10137e-08 3.18676e-08 3.81402e-08" />
+          <joint name="RR_hip_pitch" pos="0 0 0" axis="0 1 0" range="-0.872665 0.872665" armature="0.000147658" damping="0.000479042" />
+          <geom name="RR_femur_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RR_femur_collision_mesh" />
+          <geom name="visual_RR_hip_pitch_cylinder_045_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RR_hip_pitch_cylinder_045_0_mesh" />
+          <geom name="visual_RR_hip_pitch_cylinder_046_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.64 0.67 0.7 1" mesh="visual_RR_hip_pitch_cylinder_046_0_mesh" />
+          <body name="RR_knee_link" pos="0.00907083 1.65396e-06 -0.00645446">
+            <inertial pos="0 0 0" mass="0.0031407" diaginertia="3.00992e-07 3.01119e-07 3.49964e-07" />
+            <joint name="RR_knee" pos="0 0 0" axis="0 1 0" range="-1.0472 1.0472" armature="0.000147658" damping="0.000479042" />
+            <geom name="RR_foot_ball_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RR_foot_ball_collision_mesh" />
+            <geom name="visual_RR_knee_cylinder_042_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RR_knee_cylinder_042_0_mesh" />
+            <geom name="visual_RR_knee_cylinder_047_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RR_knee_cylinder_047_0_mesh" />
+            <geom name="visual_RR_knee_cylinder_048_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.11 0.12 0.14 1" mesh="visual_RR_knee_cylinder_048_0_mesh" />
+            <site name="RR_foot_center" pos="3.41172e-05 -0.000103048 -0.0108009" size="0.0001" rgba="0 0 0 0" />
+          </body>
+        </body>
+      </body>
+      <body name="LA_arm_yaw_link" pos="-0.0326729 -0.0248314 0.0444352">
+        <inertial pos="0 0 0" mass="0.00125628" diaginertia="3.35008e-09 3.35008e-09 3.35008e-09" />
+        <joint name="LA_arm_yaw" pos="0 0 0" axis="0 0 1" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+        <geom name="visual_LA_arm_yaw_cylinder_015_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_LA_arm_yaw_cylinder_015_0_mesh" />
+        <body name="LA_arm_pitch_link">
+          <inertial pos="0 0 0" mass="0.00167504" diaginertia="3.05349e-07 7.22995e-08 3.48657e-07" />
+          <joint name="LA_arm_pitch" pos="0 0 0" axis="1 0 0" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+          <geom name="LA_arm_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="LA_arm_collision_mesh" />
+          <geom name="visual_LA_arm_pitch_cylinder_031_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_LA_arm_pitch_cylinder_031_mesh" />
+          <geom name="visual_LA_arm_pitch_cylinder_033_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_LA_arm_pitch_cylinder_033_mesh" />
+          <body name="LA_arm_extend_link" pos="0 -0.0104553 0">
+            <inertial pos="0 0 0" mass="0.00293132" diaginertia="7.66014e-07 8.94334e-07 6.81116e-07" />
+            <joint name="LA_arm_extend" pos="0 0 0" axis="0 -1 0" type="slide" range="0 0.012" armature="0.0004" damping="0.001" />
+            <geom name="LA_hand_ball_collision" type="mesh" contype="2" friction="1.2" density="0" rgba="0 0 0 0" mesh="LA_hand_ball_collision_mesh" />
+            <geom name="visual_LA_arm_extend_Retopo_part_6_001_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.72 0.25 0.14 1" mesh="visual_LA_arm_extend_Retopo_part_6_001_mesh" />
+          </body>
+        </body>
+      </body>
+      <body name="RA_arm_yaw_link" pos="0.0326729 -0.0248314 0.0444352">
+        <inertial pos="0 0 0" mass="0.00125628" diaginertia="3.35008e-09 3.35008e-09 3.35008e-09" />
+        <joint name="RA_arm_yaw" pos="0 0 0" axis="0 0 1" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+        <geom name="visual_RA_arm_yaw_cylinder_024_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_RA_arm_yaw_cylinder_024_0_mesh" />
+        <geom name="visual_RA_arm_yaw_cube_037_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_RA_arm_yaw_cube_037_0_mesh" />
+        <body name="RA_arm_pitch_link">
+          <inertial pos="0 0 0" mass="0.00167504" diaginertia="3.05349e-07 7.22995e-08 3.48657e-07" />
+          <joint name="RA_arm_pitch" pos="0 0 0" axis="1 0 0" range="-0.610865 0.610865" armature="0.000147658" damping="0.000479042" />
+          <geom name="RA_arm_collision" type="mesh" contype="2" density="0" rgba="0 0 0 0" mesh="RA_arm_collision_mesh" />
+          <geom name="visual_RA_arm_pitch_cylinder_031_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_RA_arm_pitch_cylinder_031_mesh" />
+          <geom name="visual_RA_arm_pitch_cylinder_033_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_RA_arm_pitch_cylinder_033_mesh" />
+          <body name="RA_arm_extend_link" pos="0 -0.0104553 0">
+            <inertial pos="0 0 0" mass="0.00293132" diaginertia="7.66014e-07 8.94334e-07 6.81116e-07" />
+            <joint name="RA_arm_extend" pos="0 0 0" axis="0 -1 0" type="slide" range="0 0.012" armature="0.0004" damping="0.001" />
+            <geom name="RA_hand_ball_collision" type="mesh" contype="2" friction="1.2" density="0" rgba="0 0 0 0" mesh="RA_hand_ball_collision_mesh" />
+            <geom name="visual_RA_arm_extend_Retopo_part_6_001_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.72 0.25 0.14 1" mesh="visual_RA_arm_extend_Retopo_part_6_001_mesh" />
+          </body>
+        </body>
+      </body>
+    <body name="shell_top_body" pos="-0.001786560 0.034932665 0.091002147"><inertial pos="0 0 0" mass="0.001" diaginertia="1e-6 1e-6 1e-6" /><joint name="shell_top_joint" type="hinge" axis="0.000000 0.621820 0.783160" damping="0.00001" /><geom name="visual_body_plane_010_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_body_plane_010_0_mesh" pos="0.001786560 -0.034932665 -0.091002147" />
+      <geom name="visual_body_plane_010_1_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_body_plane_010_1_mesh" pos="0.001786560 -0.034932665 -0.091002147" />
+      </body><body name="shell_second_body" pos="-0.001794401 0.024268197 0.078876543"><inertial pos="0 0 0" mass="0.001" diaginertia="1e-6 1e-6 1e-6" /><joint name="shell_second_joint" type="hinge" axis="0.000000 0.621070 0.783760" damping="0.00001" /><geom name="visual_body_plane_009_0_visual" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.86 0.88 0.89 1" mesh="visual_body_plane_009_0_mesh" pos="0.001794401 -0.024268197 -0.078876543" />
+      </body></body>
+    <site name="bedroom_spawn" pos="-0.13 -2.48 0" quat="0.707107 0 0 0.707107" size="0.02" group="4" rgba="0.2 0.9 0.4 0.5" />
+    <camera name="bedroom_cam_door" pos="0.2 -3.7 1.8" quat="0.773778 0.633009 0.0150631 0.0184128" fovy="62" />
+    <camera name="bedroom_cam_bed" pos="1.1 -0.8 1.6" quat="0.732557 0.523174 0.253096 0.354388" fovy="58" />
+    <camera name="bedroom_cam_window" pos="1.6 0.2 1.5" quat="0.524194 0.48725 0.475511 0.511564" fovy="60" />
+    <camera name="bedroom_cam_desk" pos="-0.4 0.5 1.45" quat="0.74453 0.533681 -0.233662 -0.325978" fovy="50" />
+    <camera name="bedroom_cam_books" pos="1.7 0.82 0.88" quat="0.742304 0.670064 0 0" fovy="34" />
+    <camera name="bedroom_cam_sofa" pos="0.55 -1.05 1.35" quat="0.613489 0.373833 -0.361969 -0.594018" fovy="52" />
+    <camera name="bedroom_cam_stair" pos="0.9 -1.5 1.6" quat="0.675129 0.532567 -0.316149 -0.400779" fovy="60" />
+    <camera name="bedroom_cam_kettle" pos="1.25 -1.95 0.75" quat="0.532387 0.3087 -0.395376 -0.681869" fovy="42" />
+    <light name="bedroom_ceiling_panel_1" pos="-0.08 0.02 2.6" dir="0 0 -1" cutoff="85" exponent="0" diffuse="0.0612 0.0586 0.054" specular="0.05 0.05 0.05" />
+    <light name="bedroom_ceiling_panel_2" pos="0.28 0.02 2.6" dir="0 0 -1" cutoff="85" exponent="0" diffuse="0.0612 0.0586 0.054" specular="0.05 0.05 0.05" />
+    <light name="bedroom_ceiling_panel_3" pos="-0.08 0.38 2.6" dir="0 0 -1" cutoff="85" exponent="0" diffuse="0.0612 0.0586 0.054" specular="0.05 0.05 0.05" />
+    <light name="bedroom_ceiling_panel_4" pos="0.28 0.38 2.6" dir="0 0 -1" cutoff="85" exponent="0" diffuse="0.0612 0.0586 0.054" specular="0.05 0.05 0.05" />
+    <light name="bedroom_window_sun" pos="-4 -0.6 2.4" dir="0.899438 0.22486 -0.374766" type="directional" castshadow="false" diffuse="0.7728 0.8 0.8" specular="0.115 0.115 0.138" />
+    <light name="bedroom_wall_wash_n" pos="0 -2 2.3" dir="0 0.985031 -0.17238" type="directional" castshadow="false" diffuse="0.4784 0.46 0.4232" specular="0 0 0" />
+    <light name="bedroom_bounce_fill" pos="1.5 1.5 0.15" dir="-0.609208 -0.609208 0.507673" type="directional" castshadow="false" diffuse="0.2944 0.276 0.2576" specular="0 0 0" />
+    <light name="bedroom_bedside_lamp" pos="0.85 1.75 1.05" dir="0 0 -1" type="point" castshadow="false" attenuation="1 0 1.4" diffuse="0.8 0.552 0.2576" specular="0.2 0.2 0.2" />
+    <body name="bedroom_walls" pos="0 -0.5 0">
+      <body name="bedroom_walls_wall_north" pos="0 2.54 1.35">
+        <geom name="bedroom_walls_wall_north_geom" size="2.65 0.06 1.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+    </body>
+    <body name="bedroom_desk" pos="0.45 1.68 0">
+      <body name="bedroom_desk_top" pos="0 0 0.725">
+        <geom name="bedroom_desk_top_geom" size="0.65 0.3 0.025" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_warm" />
+      </body>
+      <body name="bedroom_desk_leg_nn" pos="-0.57 -0.22 0.35">
+        <geom name="bedroom_desk_leg_nn_geom" size="0.05 0.05 0.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_desk_leg_np" pos="-0.57 0.22 0.35">
+        <geom name="bedroom_desk_leg_np_geom" size="0.05 0.05 0.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_desk_leg_pn" pos="0.57 -0.22 0.35">
+        <geom name="bedroom_desk_leg_pn_geom" size="0.05 0.05 0.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_desk_leg_pp" pos="0.57 0.22 0.35">
+        <geom name="bedroom_desk_leg_pp_geom" size="0.05 0.05 0.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" />
+      </body>
+    </body>
+    <body name="bedroom_wardrobe" pos="1.7 1.73 0" quat="0 0 0 1">
+      <body name="bedroom_wardrobe_side_l" pos="-0.5825 0 0.95">
+        <geom name="bedroom_wardrobe_side_l_geom" size="0.0175 0.25 0.95" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_wardrobe_side_r" pos="0.5825 0 0.95">
+        <geom name="bedroom_wardrobe_side_r_geom" size="0.0175 0.25 0.95" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_wardrobe_back" pos="0 -0.2325 0.95">
+        <geom name="bedroom_wardrobe_back_geom" size="0.6 0.0175 0.95" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_wardrobe_level_0" pos="0 0 0.0175">
+        <geom name="bedroom_wardrobe_level_0_geom" size="0.565 0.25 0.0175" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_warm" />
+      </body>
+      <body name="bedroom_wardrobe_level_1" pos="0 0 0.639167">
+        <geom name="bedroom_wardrobe_level_1_geom" size="0.565 0.25 0.0175" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_warm" />
+      </body>
+      <body name="bedroom_wardrobe_level_2" pos="0 0 1.26083">
+        <geom name="bedroom_wardrobe_level_2_geom" size="0.565 0.25 0.0175" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_warm" />
+      </body>
+      <body name="bedroom_wardrobe_level_3" pos="0 0 1.8825">
+        <geom name="bedroom_wardrobe_level_3_geom" size="0.565 0.25 0.0175" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_warm" />
+      </body>
+    </body>
+    <body name="bedroom_stair" pos="3.095 -1.855 0" quat="0.707107 0 0 0.707107">
+      <body name="bedroom_stair_step_0" pos="0.1475 0 0.075">
+        <geom name="bedroom_stair_step_0_geom" size="0.1475 0.565 0.075" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_1" pos="0.4425 0 0.15">
+        <geom name="bedroom_stair_step_1_geom" size="0.1475 0.565 0.15" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_2" pos="0.7375 0 0.225">
+        <geom name="bedroom_stair_step_2_geom" size="0.1475 0.565 0.225" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_3" pos="1.0325 0 0.3">
+        <geom name="bedroom_stair_step_3_geom" size="0.1475 0.565 0.3" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_4" pos="1.3275 0 0.375">
+        <geom name="bedroom_stair_step_4_geom" size="0.1475 0.565 0.375" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_5" pos="1.6225 0 0.45">
+        <geom name="bedroom_stair_step_5_geom" size="0.1475 0.565 0.45" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_6" pos="1.9175 0 0.525">
+        <geom name="bedroom_stair_step_6_geom" size="0.1475 0.565 0.525" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_7" pos="2.2125 0 0.6">
+        <geom name="bedroom_stair_step_7_geom" size="0.1475 0.565 0.6" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_8" pos="2.5075 0 0.675">
+        <geom name="bedroom_stair_step_8_geom" size="0.1475 0.565 0.675" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_9" pos="2.8025 0 0.75">
+        <geom name="bedroom_stair_step_9_geom" size="0.1475 0.565 0.75" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_10" pos="3.0975 0 0.825">
+        <geom name="bedroom_stair_step_10_geom" size="0.1475 0.565 0.825" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_11" pos="3.3925 0 0.9">
+        <geom name="bedroom_stair_step_11_geom" size="0.1475 0.565 0.9" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_stair_step_12" pos="3.6875 0 0.975">
+        <geom name="bedroom_stair_step_12_geom" size="0.1475 0.565 0.975" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+    </body>
+    <body name="bedroom_floor" pos="0 -0.5 -0.02">
+      <geom name="bedroom_floor_geom" size="2.53 2.48 0.02" type="box" friction="0.5 0.01 0.0005" density="600" material="bedroom_floor_oak" />
+    </body>
+    <body name="bedroom_window_wall" pos="-2.59 0 0">
+      <body name="bedroom_win_stub_s" pos="0 -1.65 1.35">
+        <geom name="bedroom_win_stub_s_geom" size="0.06 0.45 1.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_win_stub_n" pos="0 1.65 1.35">
+        <geom name="bedroom_win_stub_n_geom" size="0.06 0.45 1.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+      </body>
+      <body name="bedroom_win_glass" pos="0 0 1.35">
+        <geom name="bedroom_win_glass_geom" size="0.012 1.2 1.33" type="box" friction="0.35" density="600" material="bedroom_window_glass" />
+      </body>
+      <body name="bedroom_win_rail_bottom" pos="0 0 0.03">
+        <geom name="bedroom_win_rail_bottom_geom" size="0.05 1.22 0.03" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_window_frame" />
+      </body>
+      <body name="bedroom_win_rail_top" pos="0 0 2.67">
+        <geom name="bedroom_win_rail_top_geom" size="0.05 1.22 0.03" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_window_frame" />
+      </body>
+      <body name="bedroom_win_mullion_s" pos="0 -1.2 1.35">
+        <geom name="bedroom_win_mullion_s_geom" size="0.05 0.03 1.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_window_frame" />
+      </body>
+      <body name="bedroom_win_mullion_m" pos="0 0 1.35">
+        <geom name="bedroom_win_mullion_m_geom" size="0.045 0.025 1.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_window_frame" />
+      </body>
+      <body name="bedroom_win_mullion_n" pos="0 1.2 1.35">
+        <geom name="bedroom_win_mullion_n_geom" size="0.05 0.03 1.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_window_frame" />
+      </body>
+    </body>
+    <body name="bedroom_bed" pos="-1.15 0.99 0">
+      <body name="bedroom_bed_frame" pos="0 0 0.14">
+        <geom name="bedroom_bed_frame_geom" type="mesh" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" mesh="bedroom_bed_frame" />
+      </body>
+      <body name="bedroom_bed_mattress" pos="0 0 0.41">
+        <geom name="bedroom_bed_mattress_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" solref="0.005" solimp="0.95 0.99 0.0005" density="600" material="bedroom_bedding" mesh="bedroom_bed_mattress" />
+      </body>
+      <body name="bedroom_bed_headboard" pos="0 1.01 0.5">
+        <geom name="bedroom_bed_headboard_geom" type="mesh" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wood_walnut" mesh="bedroom_bed_headboard" />
+      </body>
+    </body>
+    <body name="bedroom_chair" pos="0.45 1.05 0.01">
+      <joint name="bedroom_chair_free" type="free" />
+      <body name="bedroom_chair_seat" pos="0 0 0.44">
+        <geom name="bedroom_chair_seat_geom" size="0.21 0.21 0.025" type="box" condim="4" friction="0.5 0.01 0.0005" mass="1.6" material="bedroom_wood_warm" />
+      </body>
+      <body name="bedroom_chair_back" pos="0 -0.19 0.7">
+        <geom name="bedroom_chair_back_geom" size="0.21 0.022 0.24" type="box" condim="4" friction="0.5 0.01 0.0005" mass="1" material="bedroom_wood_warm" />
+      </body>
+      <body name="bedroom_chair_leg_a" pos="0.175 0.175 0.208">
+        <geom name="bedroom_chair_leg_a_geom" size="0.022 0.022 0.208" type="box" condim="4" friction="0.5 0.01 0.0005" mass="0.35" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_chair_leg_b" pos="-0.175 0.175 0.208">
+        <geom name="bedroom_chair_leg_b_geom" size="0.022 0.022 0.208" type="box" condim="4" friction="0.5 0.01 0.0005" mass="0.35" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_chair_leg_c" pos="0.175 -0.175 0.208">
+        <geom name="bedroom_chair_leg_c_geom" size="0.022 0.022 0.208" type="box" condim="4" friction="0.5 0.01 0.0005" mass="0.35" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_chair_leg_d" pos="-0.175 -0.175 0.208">
+        <geom name="bedroom_chair_leg_d_geom" size="0.022 0.022 0.208" type="box" condim="4" friction="0.5 0.01 0.0005" mass="0.35" material="bedroom_wood_walnut" />
+      </body>
+    </body>
+    <body name="bedroom_art_bed" pos="-1.15 1.96 1.88">
+      <body name="bedroom_art_bed_frame">
+        <geom name="bedroom_art_bed_frame_geom" size="0.46 0.02 0.32" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_frame_black" />
+      </body>
+      <body name="bedroom_art_bed_canvas" pos="0 -0.015 0">
+        <geom name="bedroom_art_bed_canvas_geom" size="0.42 0.012 0.28" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_art_blocks" />
+      </body>
+    </body>
+    <body name="bedroom_art_desk" pos="0.42 1.96 1.78">
+      <body name="bedroom_art_desk_frame">
+        <geom name="bedroom_art_desk_frame_geom" size="0.3 0.02 0.4" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_frame_black" />
+      </body>
+      <body name="bedroom_art_desk_canvas" pos="0 -0.015 0">
+        <geom name="bedroom_art_desk_canvas_geom" size="0.26 0.012 0.36" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_art_arcs" />
+      </body>
+    </body>
+    <body name="bedroom_art_east" pos="3.64 -0.55 1.45" quat="0.707107 0 0 -0.707107">
+      <body name="bedroom_art_east_frame">
+        <geom name="bedroom_art_east_frame_geom" size="0.36 0.02 0.36" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_frame_black" />
+      </body>
+      <body name="bedroom_art_east_canvas" pos="0 -0.015 0">
+        <geom name="bedroom_art_east_canvas_geom" size="0.32 0.012 0.32" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_art_grid" />
+      </body>
+    </body>
+    <body name="bedroom_pillow_l" pos="-1.58 1.62 0.62">
+      <joint name="bedroom_pillow_l_free" type="free" />
+      <geom name="bedroom_pillow_l_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" solref="0.005" solimp="0.95 0.99 0.0005" mass="0.6" material="bedroom_bedding" mesh="bedroom_pillow" />
+    </body>
+    <body name="bedroom_pillow_r" pos="-0.72 1.62 0.62" quat="0.99863 0 0 0.052336">
+      <joint name="bedroom_pillow_r_free" type="free" />
+      <geom name="bedroom_pillow_r_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" solref="0.005" solimp="0.95 0.99 0.0005" mass="0.6" material="bedroom_bedding" mesh="bedroom_pillow" />
+    </body>
+    <body name="bedroom_book" pos="0.25 1.62 0.79" quat="0.994522 0 0 0.104528">
+      <joint name="bedroom_book_free" type="free" />
+      <geom name="bedroom_book_geom" size="0.11 0.08 0.018" type="box" condim="4" friction="0.7 0.02 0.001" mass="0.4" material="bedroom_cardboard" />
+    </body>
+    <body name="bedroom_cup" pos="0.65 1.55 0.82">
+      <joint name="bedroom_cup_free" type="free" />
+      <geom name="bedroom_cup_geom" size="0.035 0.05" type="cylinder" condim="4" friction="0.75 0.015 0.0005" mass="0.25" material="bedroom_plastic_white" />
+    </body>
+    <body name="bedroom_lamp" pos="0.85 1.75 0.84">
+      <joint name="bedroom_lamp_free" type="free" />
+      <geom name="bedroom_lamp_geom" size="0.07 0.09" type="cylinder" condim="4" friction="0.75 0.015 0.0005" mass="0.8" material="bedroom_lamp_shade" />
+    </body>
+    <body name="bedroom_ball" pos="0.75 -0.45 0.3">
+      <joint name="bedroom_ball_free" type="free" />
+      <geom name="bedroom_ball_geom" size="0.055" condim="6" friction="1.3 0.05 0.005" mass="0.15" material="bedroom_plastic_blue" />
+    </body>
+    <body name="bedroom_ceiling_lamp" pos="0.1 0.2 2.66">
+      <geom name="bedroom_ceiling_lamp_geom" size="0.28 0.28 0.02" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_lamp_panel" />
+    </body>
+    <body name="bedroom_sofa" pos="2.105 -1 0" quat="0.707107 0 0 -0.707107">
+      <body name="bedroom_sofa_base" pos="0 0 0.145">
+        <geom name="bedroom_sofa_base_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" solref="0.005" solimp="0.95 0.99 0.0005" density="600" material="bedroom_sofa_fabric" mesh="bedroom_sofa_base" />
+      </body>
+      <body name="bedroom_sofa_back" pos="0 0.335 0.48">
+        <geom name="bedroom_sofa_back_geom" type="mesh" condim="4" friction="0.5 0.01 0.0005" solref="0.005" solimp="0.95 0.99 0.0005" density="600" material="bedroom_sofa_fabric" mesh="bedroom_sofa_back" />
+      </body>
+      <body name="bedroom_sofa_arm_l" pos="-0.71 0 0.38">
+        <geom name="bedroom_sofa_arm_l_geom" type="mesh" condim="4" friction="0.5 0.01 0.0005" solref="0.005" solimp="0.95 0.99 0.0005" density="600" material="bedroom_sofa_fabric" mesh="bedroom_sofa_arm" />
+      </body>
+      <body name="bedroom_sofa_arm_r" pos="0.71 0 0.38">
+        <geom name="bedroom_sofa_arm_r_geom" type="mesh" condim="4" friction="0.5 0.01 0.0005" solref="0.005" solimp="0.95 0.99 0.0005" density="600" material="bedroom_sofa_fabric" mesh="bedroom_sofa_arm" />
+      </body>
+      <body name="bedroom_sofa_leg_1" pos="-0.72 -0.36 0.03">
+        <geom name="bedroom_sofa_leg_1_geom" size="0.04 0.04 0.03" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_sofa_leg" />
+      </body>
+      <body name="bedroom_sofa_leg_2" pos="0.72 -0.36 0.03">
+        <geom name="bedroom_sofa_leg_2_geom" size="0.04 0.04 0.03" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_sofa_leg" />
+      </body>
+      <body name="bedroom_sofa_leg_3" pos="-0.72 0.36 0.03">
+        <geom name="bedroom_sofa_leg_3_geom" size="0.04 0.04 0.03" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_sofa_leg" />
+      </body>
+      <body name="bedroom_sofa_leg_4" pos="0.72 0.36 0.03">
+        <geom name="bedroom_sofa_leg_4_geom" size="0.04 0.04 0.03" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_sofa_leg" />
+      </body>
+    </body>
+    <body name="bedroom_sofa_seat_1" pos="2.015 -0.69 0.295" quat="0.707107 0 0 -0.707107">
+      <joint name="bedroom_sofa_seat_1_free" type="free" />
+      <geom name="bedroom_sofa_seat_1_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" solref="0.005" solimp="0.95 0.99 0.0005" mass="1.2" material="bedroom_sofa_cushion" mesh="bedroom_sofa_seat" />
+    </body>
+    <body name="bedroom_sofa_pillow_1" pos="2.2 -0.6 0.51" quat="0.731354 0 0 -0.681998">
+      <joint name="bedroom_sofa_pillow_1_free" type="free" />
+      <geom name="bedroom_sofa_pillow_1_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" solref="0.005" solimp="0.95 0.99 0.0005" mass="0.5" material="bedroom_sofa_cushion" mesh="bedroom_sofa_pillow" />
+    </body>
+    <body name="bedroom_sofa_seat_2" pos="2.015 -1.31 0.295" quat="0.707107 0 0 -0.707107">
+      <joint name="bedroom_sofa_seat_2_free" type="free" />
+      <geom name="bedroom_sofa_seat_2_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" solref="0.005" solimp="0.95 0.99 0.0005" mass="1.2" material="bedroom_sofa_cushion" mesh="bedroom_sofa_seat" />
+    </body>
+    <body name="bedroom_sofa_pillow_2" pos="2.2 -1.4 0.51" quat="0.681998 0 0 -0.731354">
+      <joint name="bedroom_sofa_pillow_2_free" type="free" />
+      <geom name="bedroom_sofa_pillow_2_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" solref="0.005" solimp="0.95 0.99 0.0005" mass="0.5" material="bedroom_sofa_cushion" mesh="bedroom_sofa_pillow" />
+    </body>
+    <body name="bedroom_slipper_left" pos="-1.15 -0.38 0.02" quat="0.992546 0 0 -0.121869">
+      <joint name="bedroom_slipper_left_free" type="free" />
+      <geom name="bedroom_slipper_left_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" mass="0.18" material="bedroom_slipper_felt" mesh="bedroom_slipper_l" />
+    </body>
+    <body name="bedroom_slipper_right" pos="-1.13 -0.2 0.02" quat="0.999657 0 0 -0.0261769">
+      <joint name="bedroom_slipper_right_free" type="free" />
+      <geom name="bedroom_slipper_right_geom" type="mesh" condim="4" friction="1.1 0.05 0.01" mass="0.18" material="bedroom_slipper_felt" mesh="bedroom_slipper_r" />
+    </body>
+    <body name="bedroom_stair_floor" pos="3.095 -0.5 -0.02">
+      <geom name="bedroom_stair_floor_geom" size="0.565 2.48 0.02" type="box" friction="0.5 0.01 0.0005" density="600" material="bedroom_floor_oak" />
+    </body>
+    <body name="bedroom_stair_wall" pos="3.72 -0.5 1.35">
+      <geom name="bedroom_stair_wall_geom" size="0.06 2.48 1.35" type="box" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_wall_cream" />
+    </body>
+    <body name="bedroom_runner_tread_00" pos="3.095 -1.7075 0.1535">
+      <geom name="bedroom_runner_tread_00_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_00" pos="3.095 -1.861 0.075">
+      <geom name="bedroom_runner_riser_00_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_01" pos="3.095 -1.4125 0.3035">
+      <geom name="bedroom_runner_tread_01_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_01" pos="3.095 -1.566 0.225">
+      <geom name="bedroom_runner_riser_01_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_02" pos="3.095 -1.1175 0.4535">
+      <geom name="bedroom_runner_tread_02_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_02" pos="3.095 -1.271 0.375">
+      <geom name="bedroom_runner_riser_02_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_03" pos="3.095 -0.8225 0.6035">
+      <geom name="bedroom_runner_tread_03_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_03" pos="3.095 -0.976 0.525">
+      <geom name="bedroom_runner_riser_03_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_04" pos="3.095 -0.5275 0.7535">
+      <geom name="bedroom_runner_tread_04_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_04" pos="3.095 -0.681 0.675">
+      <geom name="bedroom_runner_riser_04_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_05" pos="3.095 -0.2325 0.9035">
+      <geom name="bedroom_runner_tread_05_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_05" pos="3.095 -0.386 0.825">
+      <geom name="bedroom_runner_riser_05_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_06" pos="3.095 0.0625 1.0535">
+      <geom name="bedroom_runner_tread_06_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_06" pos="3.095 -0.091 0.975">
+      <geom name="bedroom_runner_riser_06_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_07" pos="3.095 0.3575 1.2035">
+      <geom name="bedroom_runner_tread_07_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_07" pos="3.095 0.204 1.125">
+      <geom name="bedroom_runner_riser_07_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_08" pos="3.095 0.6525 1.3535">
+      <geom name="bedroom_runner_tread_08_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_08" pos="3.095 0.499 1.275">
+      <geom name="bedroom_runner_riser_08_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_09" pos="3.095 0.9475 1.5035">
+      <geom name="bedroom_runner_tread_09_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_09" pos="3.095 0.794 1.425">
+      <geom name="bedroom_runner_riser_09_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_10" pos="3.095 1.2425 1.6535">
+      <geom name="bedroom_runner_tread_10_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_10" pos="3.095 1.089 1.575">
+      <geom name="bedroom_runner_riser_10_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_11" pos="3.095 1.5375 1.8035">
+      <geom name="bedroom_runner_tread_11_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_11" pos="3.095 1.384 1.725">
+      <geom name="bedroom_runner_riser_11_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_tread_12" pos="3.095 1.8325 1.9535">
+      <geom name="bedroom_runner_tread_12_geom" size="0.33 0.1475 0.0035" type="box" condim="4" friction="1.1 0.05 0.01" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_runner_riser_12" pos="3.095 1.679 1.875">
+      <geom name="bedroom_runner_riser_12_geom" size="0.33 0.0035 0.075" type="box" contype="0" conaffinity="0" condim="4" friction="0.5 0.01 0.0005" density="600" material="bedroom_stair_runner" />
+    </body>
+    <body name="bedroom_kettle" pos="2.3 -2.15 0.012" quat="0.976296 0 0 -0.21644">
+      <joint name="bedroom_kettle_free" type="free" />
+      <body name="bedroom_kettle_body" pos="0 0 0.105">
+        <geom name="bedroom_kettle_body_geom" size="0.083 0.105" type="cylinder" condim="4" friction="0.6 0.01 0.0002" mass="0.85" material="bedroom_metal" />
+      </body>
+      <body name="bedroom_kettle_lid" pos="0 0 0.223">
+        <geom name="bedroom_kettle_lid_geom" size="0.058 0.013" type="cylinder" condim="4" friction="0.5 0.01 0.0005" mass="0.08" material="bedroom_metal" />
+      </body>
+      <body name="bedroom_kettle_knob" pos="0 0 0.245">
+        <geom name="bedroom_kettle_knob_geom" size="0.016" condim="4" friction="0.5 0.01 0.0005" mass="0.02" material="bedroom_wood_walnut" />
+      </body>
+      <body name="bedroom_kettle_spout">
+        <geom name="bedroom_kettle_spout_geom" size="0.016 0.0583631" pos="0.1125 0 0.16" quat="0.396633 0 -0.917977 0" type="capsule" condim="4" friction="0.5 0.01 0.0005" mass="0.06" material="bedroom_metal" />
+      </body>
+      <body name="bedroom_kettle_handle_l">
+        <geom name="bedroom_kettle_handle_l_geom" size="0.008 0.0488723" pos="0 -0.0665 0.2625" quat="0.118488 0.992955 0 0" type="capsule" condim="4" friction="0.5 0.01 0.0005" mass="0.03" material="bedroom_steel_dark" />
+      </body>
+      <body name="bedroom_kettle_handle_t">
+        <geom name="bedroom_kettle_handle_t_geom" size="0.008 0.055" pos="0 0 0.31" quat="0.707107 0.707107 0 0" type="capsule" condim="4" friction="0.5 0.01 0.0005" mass="0.04" material="bedroom_steel_dark" />
+      </body>
+      <body name="bedroom_kettle_handle_r">
+        <geom name="bedroom_kettle_handle_r_geom" size="0.008 0.0488723" pos="0 0.0665 0.2625" quat="0.992955 0.118488 0 0" type="capsule" condim="4" friction="0.5 0.01 0.0005" mass="0.03" material="bedroom_steel_dark" />
+      </body>
+    </body>
+    <body name="bedroom_glass_cup" pos="2.1 -2.3 0.068">
+      <joint name="bedroom_glass_cup_free" type="free" />
+      <geom name="bedroom_glass_cup_geom" size="0.036 0.055" type="cylinder" condim="4" friction="0.35" mass="0.22" material="bedroom_glass_clear" />
+    </body>
+  </worldbody>
+
+  <contact>
+    <exclude body1="base_link" body2="LF_hip_pitch_link" />
+    <exclude body1="base_link" body2="LF_knee_link" />
+    <exclude body1="base_link" body2="LM_hip_pitch_link" />
+    <exclude body1="base_link" body2="LM_knee_link" />
+    <exclude body1="base_link" body2="LR_hip_pitch_link" />
+    <exclude body1="base_link" body2="LR_knee_link" />
+    <exclude body1="base_link" body2="RF_hip_pitch_link" />
+    <exclude body1="base_link" body2="RF_knee_link" />
+    <exclude body1="base_link" body2="RM_hip_pitch_link" />
+    <exclude body1="base_link" body2="RM_knee_link" />
+    <exclude body1="base_link" body2="RR_hip_pitch_link" />
+    <exclude body1="base_link" body2="RR_knee_link" />
+    <exclude body1="base_link" body2="LA_arm_pitch_link" />
+    <exclude body1="base_link" body2="LA_arm_extend_link" />
+    <exclude body1="base_link" body2="RA_arm_pitch_link" />
+    <exclude body1="base_link" body2="RA_arm_extend_link" />
+  </contact>
+
+  <actuator>
+    <general name="LF_hip_yaw_act" joint="LF_hip_yaw" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LF_hip_pitch_act" joint="LF_hip_pitch" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LF_knee_act" joint="LF_knee" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LM_hip_yaw_act" joint="LM_hip_yaw" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LM_hip_pitch_act" joint="LM_hip_pitch" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LM_knee_act" joint="LM_knee" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LR_hip_yaw_act" joint="LR_hip_yaw" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LR_hip_pitch_act" joint="LR_hip_pitch" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LR_knee_act" joint="LR_knee" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RF_hip_yaw_act" joint="RF_hip_yaw" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RF_hip_pitch_act" joint="RF_hip_pitch" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RF_knee_act" joint="RF_knee" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RM_hip_yaw_act" joint="RM_hip_yaw" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RM_hip_pitch_act" joint="RM_hip_pitch" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RM_knee_act" joint="RM_knee" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RR_hip_yaw_act" joint="RR_hip_yaw" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RR_hip_pitch_act" joint="RR_hip_pitch" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RR_knee_act" joint="RR_knee" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LA_arm_yaw_act" joint="LA_arm_yaw" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LA_arm_pitch_act" joint="LA_arm_pitch" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="LA_arm_extend_act" joint="LA_arm_extend" forcelimited="true" forcerange="-1 1" biastype="affine" gainprm="35" biasprm="0 -35 -0.3" />
+    <general name="RA_arm_yaw_act" joint="RA_arm_yaw" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RA_arm_pitch_act" joint="RA_arm_pitch" forcelimited="true" forcerange="-0.043516 0.043516" biastype="affine" gainprm="0.124331" biasprm="0 -0.124331 -0.00479042" />
+    <general name="RA_arm_extend_act" joint="RA_arm_extend" forcelimited="true" forcerange="-1 1" biastype="affine" gainprm="35" biasprm="0 -35 -0.3" />
+  <velocity name="shell_top_spin" joint="shell_top_joint" kv="0.00001" ctrlrange="-5 5" ctrllimited="true" /><velocity name="shell_second_spin" joint="shell_second_joint" kv="0.00001" ctrlrange="-5 5" ctrllimited="true" /></actuator>
+</mujoco>

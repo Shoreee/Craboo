@@ -1,0 +1,765 @@
+import { AudioEngine, wav, dataURL, synthetic } from "./audio.js";
+import { features } from "./features.js";
+import { readiness, predict } from "./model.js";
+import {
+  fresh,
+  care,
+  reward,
+  sleepSettings,
+  playable,
+  preferences,
+} from "./state.js";
+import { load, save, encode, decode } from "./storage.js";
+import { makeUtterance } from "./sound-language.js";
+const $ = (s) => document.querySelector(s),
+  $$ = (s) => [...document.querySelectorAll(s)];
+const audio = new AudioEngine();
+let profile = "personal",
+  state = fresh(),
+  draft = null,
+  pendingImport = null,
+  recording = false,
+  separated = false,
+  mode = "explore",
+  training = false,
+  saveQueue = Promise.resolve();
+const escape = (s) =>
+  String(s).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+function toast(message) {
+  const host = $$("dialog[open]").at(-1) || document.body;
+  host.append($("#toast"));
+  $("#toast").textContent = message;
+  $("#toast").classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => $("#toast").classList.remove("show"), 4200);
+}
+function error(e) {
+  console.error(e);
+  toast(
+    e.name === "NotAllowedError"
+      ? "麦克风权限未开启，可以导入音频继续。"
+      : e.name === "QuotaExceededError"
+        ? "本地空间不足，请导出备份并删除不需要的声音。"
+        : e.message || "操作失败，请重试。",
+  );
+}
+function on(selector, event, fn) {
+  $(selector).addEventListener(event, (e) =>
+    Promise.resolve()
+      .then(() => fn(e))
+      .catch(error),
+  );
+}
+function persist() {
+  const snapshot = structuredClone(state),
+    target = profile;
+  saveQueue = saveQueue.catch(() => {}).then(() => save(target, snapshot));
+  saveQueue.catch(error);
+  return saveQueue;
+}
+function say(text, detail) {
+  $("#speech").textContent = "“" + text + "”";
+  if (detail) $("#detail").textContent = detail;
+}
+function mood(name, label) {
+  $("#robot").dataset.mood = name;
+  $("#mood-label").textContent = label;
+}
+function respond(clip) {
+  const p = predict(state.models.preference, clip.features),
+    c = predict(state.models.category, clip.features);
+  if (p && p.confidence >= 0.6) {
+    mood(
+      p.label === "安抚"
+        ? "calm"
+        : p.label === "不喜欢"
+          ? "nervous"
+          : "curious",
+      p.label === "安抚"
+        ? "被声音轻轻安抚"
+        : p.label === "不喜欢"
+          ? "有一点不安"
+          : "好奇地竖起耳朵",
+    );
+    say(
+      p.label === "安抚"
+        ? "这个声音，让我想靠近你。"
+        : p.label === "不喜欢"
+          ? "这个声音有些陌生，可以陪陪我吗？"
+          : "我还想再听一次，你也喜欢吗？",
+      `偏好模型：${p.label} ${Math.round(p.confidence * 100)}% · 类别：${c && c.confidence >= 0.6 ? c.label : "还不确定"}`,
+    );
+  } else {
+    mood("curious", "等待你的教导");
+    say(
+      "我还不太懂这个声音，可以教教我吗？",
+      "模型尚未训练或置信度较低，请标注后带我学习。",
+    );
+  }
+}
+audio.onStop = () => {
+  $("#playing").textContent = "声音停下了，陪伴还在。";
+};
+audio.onError = error;
+function updateTop() {
+  $("#profile-label").textContent =
+    profile === "personal" ? "我们的日常 · 本地存档" : "课堂演示 · 独立存档";
+  $("#growth-count").textContent = state.growth.history.length;
+  $("#demo").textContent =
+    profile === "personal" ? "进入课堂演示存档" : "回到我的日常";
+  $("#trust").textContent = state.growth.trust;
+}
+function options(values, selected, empty = true) {
+  return (
+    (empty ? '<option value="">暂不标注</option>' : "") +
+    values
+      .map(
+        (v) =>
+          `<option ${v === selected ? "selected" : ""}>${escape(v)}</option>`,
+      )
+      .join("")
+  );
+}
+function render() {
+  updateTop();
+  const filter = $("#filter").value;
+  const clips = state.clips.filter((c) => !filter || c.preference === filter);
+  $("#clips").innerHTML = clips.length
+    ? clips
+        .map(
+          (c) =>
+            `<article class="clip"><span style="color:#89937b;font-size:24px">⌁</span><div class="clip-info"><h3>${escape(c.name)}</h3><p>${c.duration.toFixed(1)} 秒 · ${escape(c.category || "待认识")} · ${escape(c.preference || "待教导")}${c.synthetic ? " · 合成示例" : ""}</p></div><div class="clip-actions"><button data-action="listen" data-id="${escape(c.id)}">试听</button><button data-action="edit" data-id="${escape(c.id)}">编辑</button><button data-action="add" data-id="${escape(c.id)}">＋序列</button><button data-action="delete" data-id="${escape(c.id)}">删除</button></div></article>`,
+        )
+        .join("")
+    : '<div class="empty">这里还很安静。<br>录下一个声音，或从合成示例开始认识它。</div>';
+  $("#models").innerHTML = ["category", "preference"]
+    .map((key) => {
+      const r = readiness(state.clips, key),
+        m = state.models[key];
+      return `<div class="model-card"><h3>${key === "category" ? "01 · 认识声音类别" : "02 · 理解你的偏好"}</h3><p>${
+        Object.entries(r.counts)
+          .map(
+            ([k, n]) =>
+              `${escape(k)} ${n}/3${n < 3 ? "（还缺 " + (3 - n) + " 个来源）" : ""}`,
+          )
+          .join(" · ") || "还没有标注样本"
+      }${Object.keys(r.counts).length < 2 ? " · 至少需要两个标签" : ""}</p><p>${m ? `已训练 ${m.samples} 个片段 · ${new Date(m.trainedAt).toLocaleString()}<br>${m.accuracy === null ? "验证样本不足，未展示准确率" : `留出验证 ${(m.accuracy * 100).toFixed(0)}%（${m.validationCount} 个片段）`}` : "尚未训练 · 不会冒充已学会"}</p><button class="primary" data-train="${key}" ${!r.ready || training ? "disabled" : ""}>${training ? "正在学习…" : m ? "重新训练" : "开始学习"}</button></div>`;
+    })
+    .join("");
+  $("#sequence").innerHTML = state.sequence.length
+    ? state.sequence
+        .map((id, index) => {
+          const c = state.clips.find((c) => c.id === id);
+          return `<div class="clip"><span class="muted">${String(index + 1).padStart(2, "0")}</span><div class="clip-info"><h3>${escape(c.name)}</h3><p>${escape(c.category || predict(state.models.category, c.features)?.label || "待认识")}${c.preference === "不喜欢" ? " · 播放时跳过" : ""}</p></div><div class="clip-actions"><button data-order="${index}" data-direction="-1" aria-label="上移 ${escape(c.name)}" ${index === 0 ? "disabled" : ""}>↑</button><button data-order="${index}" data-direction="1" aria-label="下移 ${escape(c.name)}" ${index === state.sequence.length - 1 ? "disabled" : ""}>↓</button><button data-remove="${index}">移除</button></div></div>`;
+        })
+        .join("")
+    : '<div class="empty">在收藏中点击「＋序列」，把声音串在一起。</div>';
+  $("#loop").checked = state.loop;
+  $("#history").innerHTML = state.growth.history.length
+    ? state.growth.history
+        .map(
+          (h) =>
+            `<div class="history-row"><span>${escape(h.message)}</span><time>${new Date(h.at).toLocaleDateString()}</time></div>`,
+        )
+        .join("")
+    : '<p class="empty">第一次照料，会成为你们的第一段记忆。</p>';
+}
+function tab(name) {
+  $$("[data-tab]").forEach((b) =>
+    b.classList.toggle("selected", b.dataset.tab === name),
+  );
+  ["sounds", "training", "sequence", "memories"].forEach(
+    (t) => ($("#tab-" + t).hidden = t !== name),
+  );
+}
+function openLibrary(name = "sounds") {
+  render();
+  tab(name);
+  $("#library").showModal();
+}
+on("#open-library", "click", () => openLibrary());
+on("#open-growth", "click", () => openLibrary("memories"));
+$$("label.button").forEach((label) => {
+  label.tabIndex = 0;
+  label.setAttribute("role", "button");
+  label.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      label.querySelector("input").click();
+    }
+  });
+});
+$$(".close").forEach((b) =>
+  b.addEventListener("click", () => b.closest("dialog").close()),
+);
+$$("[data-tab]").forEach((b) => (b.onclick = () => tab(b.dataset.tab)));
+on("#filter", "change", render);
+function setMode(next) {
+  mode = next;
+  $$("[data-mode]").forEach((b) =>
+    b.classList.toggle("active", b.dataset.mode === next),
+  );
+  ["explore", "care", "sleep"].forEach(
+    (n) => ($("#" + n + "-panel").hidden = n !== next),
+  );
+  document.body.classList.toggle("bedtime", next === "sleep");
+  if (next === "sleep") {
+    say(
+      "今晚，换我陪你慢慢安静下来。",
+      "睡眠状态为手动模拟；声音来自你的收藏。",
+    );
+    mood("sleepy", "准备睡前陪伴");
+  } else {
+    audio.setSleep(sleepSettings.awake);
+    $$("[data-sleep]").forEach((b) =>
+      b.classList.toggle("selected", b.dataset.sleep === "awake"),
+    );
+    mood("curious", "正在好奇地听");
+    say(
+      next === "care"
+        ? "可以轻轻摸摸我吗？"
+        : "今天，可以带我认识一种新声音吗？",
+      next === "care"
+        ? "照料会积累信任，每 15 秒最多记住一次有效抚摸。"
+        : "从一个声音开始，慢慢认识彼此。",
+    );
+  }
+}
+$$("[data-mode]").forEach((b) => (b.onclick = () => setMode(b.dataset.mode)));
+function detach(value = !separated) {
+  separated = value;
+  $("#robot").classList.toggle("separated", separated);
+  $("#detach").textContent = separated ? "穿回甲壳 ↙" : "取下甲壳 ↗";
+  $("#care-detach").textContent = separated ? "帮它穿回甲壳" : "让它出来透透气";
+  say(
+    separated ? "没有甲壳，也想待在你身边。" : "准备好啦，一起去听听世界吧。",
+    separated
+      ? "毛绒身体需要你的照料，甲壳继续收藏声音。"
+      : "拖动右侧甲壳可以分离，轻触则会发声。",
+  );
+}
+on("#detach", "click", () => detach());
+on("#care-detach", "click", () => detach());
+async function pet() {
+  const earned = care(state);
+  $("#robot").classList.remove("petted");
+  void $("#robot").offsetWidth;
+  $("#robot").classList.add("petted");
+  mood("calm", "感到安心");
+  say(
+    earned ? "你的温柔，我记住了。" : "嗯，待在这里就很好。",
+    earned
+      ? "这次照料已记录 · 亲近度 +1"
+      : "慢慢来，重复抚摸不会无限增加成长值。",
+  );
+  if (earned) {
+    await persist();
+    updateTop();
+  }
+}
+on("#pet", "click", pet);
+on("#pet-hit", "click", pet);
+let strokes = 0;
+on("#pet-hit", "pointermove", (e) => {
+  if (e.buttons && ++strokes % 15 === 0) pet();
+});
+let drag = null;
+on("#shell-hit", "pointerdown", (e) => {
+  drag = { x: e.clientX, y: e.clientY };
+  e.target.setPointerCapture(e.pointerId);
+});
+on("#shell-hit", "pointerup", async (e) => {
+  if (!drag) return;
+  const distance = Math.hypot(e.clientX - drag.x, e.clientY - drag.y);
+  drag = null;
+  if (distance > 30) detach();
+  else {
+    await audio.touch();
+    say("叩叩，我在这里。", "甲壳触摸声 · 浏览器合成音");
+  }
+});
+on("#shell-hit", "pointercancel", () => (drag = null));
+on("#shell-hit", "keydown", async (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    await audio.touch();
+    say("叩叩，我在这里。");
+  }
+});
+function wave(samples) {
+  const canvas = $("#wave"),
+    ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#8a9676";
+  ctx.lineWidth = 2;
+  for (let x = 0; x < canvas.width; x += 4) {
+    let peak = 0;
+    const start = Math.floor((x / canvas.width) * samples.length),
+      end = Math.floor(((x + 4) / canvas.width) * samples.length);
+    for (let i = start; i < end; i++)
+      peak = Math.max(peak, Math.abs(samples[i]));
+    const h = Math.max(1, peak * 90);
+    ctx.beginPath();
+    ctx.moveTo(x, 55 - h);
+    ctx.lineTo(x, 55 + h);
+    ctx.stroke();
+  }
+  if (draft) {
+    const start =
+      (Number($("#trim-start").value) / draft.duration) * canvas.width;
+    const end = (Number($("#trim-end").value) / draft.duration) * canvas.width;
+    ctx.fillStyle = "#f7f4edbb";
+    ctx.fillRect(0, 0, start, canvas.height);
+    ctx.fillRect(end, 0, canvas.width - end, canvas.height);
+  }
+}
+for (const selector of ["#trim-start", "#trim-end"])
+  on(selector, "input", () => {
+    if (draft) wave(draft.samples);
+  });
+$$("[data-stop]").forEach((button) =>
+  button.addEventListener("click", () => audio.stop()),
+);
+function predictionText(f) {
+  return ["category", "preference"]
+    .map((key) => {
+      const p = predict(state.models[key], f);
+      return (
+        (key === "category" ? "声音类别" : "个人偏好") +
+        "：" +
+        (!p
+          ? "尚未训练"
+          : p.confidence < 0.6
+            ? "还不确定，请教教我"
+            : `${p.label}（${Math.round(p.confidence * 100)}%，模型估计）`)
+      );
+    })
+    .join(" · ");
+}
+async function openEditor(
+  blob,
+  name = "新的小声音",
+  existing = null,
+  syntheticFlag = false,
+) {
+  const decoded = await audio.decode(blob);
+  const f = features(decoded.samples, decoded.rate);
+  draft = {
+    ...decoded,
+    sourceId:
+      existing?.sourceId ||
+      Array.from(
+        new Uint8Array(
+          await crypto.subtle.digest(
+            "SHA-256",
+            await wav(decoded.samples, decoded.rate).arrayBuffer(),
+          ),
+        ),
+        (b) => b.toString(16).padStart(2, "0"),
+      ).join(""),
+    existing,
+    synthetic: existing?.synthetic || syntheticFlag,
+  };
+  $("#clip-name").value = name;
+  $("#trim-start").value = 0;
+  $("#trim-end").value = decoded.duration.toFixed(2);
+  $("#trim-end").max = decoded.duration;
+  $("#trim-start").max = decoded.duration;
+  $("#clip-category").innerHTML = options(state.categories, existing?.category);
+  $("#clip-preference").value = existing?.preference || "";
+  $("#prediction").textContent = predictionText(f);
+  wave(decoded.samples);
+  $("#editor").showModal();
+  respond({ features: f });
+}
+function selection() {
+  const start = Number($("#trim-start").value),
+    end = Number($("#trim-end").value);
+  if (
+    !Number.isFinite(start) ||
+    !Number.isFinite(end) ||
+    start < 0 ||
+    end > draft.duration + 0.015 ||
+    end - start < 0.2
+  )
+    throw Error("请选择至少 0.2 秒、且在音频长度以内的片段。");
+  const samples = draft.samples.slice(
+    Math.floor(start * draft.rate),
+    Math.min(draft.samples.length, Math.floor(end * draft.rate)),
+  );
+  return { samples, rate: draft.rate, duration: samples.length / draft.rate };
+}
+on("#audio-file", "change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  if (file.size > 30 * 1024 * 1024) throw Error("音频文件需小于 30 MB。");
+  await openEditor(file, file.name.replace(/\.[^.]+$/, ""));
+});
+on("#record", "click", async () => {
+  if (recording) {
+    audio.stopRecording();
+    return;
+  }
+  recording = true;
+  $("#record").textContent = "■ 结束录音";
+  say(
+    "我在听，把声音轻轻带给我。",
+    "正在真实录音 · 最长 60 秒，结束后可试听与裁剪",
+  );
+  try {
+    const blob = await audio.record($("#record-noise").checked);
+    await openEditor(blob, "今天听到的小声音");
+  } finally {
+    recording = false;
+    $("#record").textContent = "● 录下一段声音";
+  }
+});
+on("#sound-speak", "click", async () => {
+  const phrase = makeUtterance(state.clips, $("#robot").dataset.mood);
+  if (!phrase.length) throw Error("先采集或导入一个愿意让它使用的声音。 ");
+  say("我用你带来的声音回应你。", `声音语言 · ${phrase.map((clip) => clip.name).join(" → ")} · 声音序列不包含语义合成`);
+  await audio.play(phrase, false);
+});
+on("#preview", "click", async () => {
+  const part = selection();
+  await audio.play(
+    [{ audio: await dataURL(wav(part.samples, part.rate)), name: "选段试听" }],
+    false,
+    (c) => ($("#playing").textContent = "正在试听 · " + c.name),
+  );
+});
+on("#save-clip", "click", async () => {
+  const button = $("#save-clip");
+  button.disabled = true;
+  try {
+    if (state.clips.length >= 500 && !draft.existing)
+      throw Error("最多收藏 500 段声音，请先整理收藏。");
+    const part = selection(),
+      name = $("#clip-name").value.trim();
+    if (!name) throw Error("给这段声音起个名字吧。");
+    const f = features(part.samples, part.rate),
+      clip = {
+        id: draft.existing?.id || crypto.randomUUID(),
+        sourceId: draft.sourceId,
+        name,
+        audio: await dataURL(wav(part.samples, part.rate)),
+        duration: part.duration,
+        features: f,
+        category: $("#clip-category").value,
+        preference: $("#clip-preference").value,
+        synthetic: draft.synthetic,
+        createdAt: draft.existing?.createdAt || Date.now(),
+      };
+    const before = structuredClone(state);
+    const i = state.clips.findIndex((c) => c.id === clip.id);
+    if (i < 0) state.clips.push(clip);
+    else state.clips[i] = clip;
+    if (clip.category || clip.preference)
+      reward(
+        state,
+        "teach:" + clip.sourceId,
+        "一起认识了「" + clip.name + "」",
+      );
+    try {
+      await persist();
+    } catch (e) {
+      state = before;
+      throw e;
+    }
+    audio.stop();
+    $("#editor").close();
+    render();
+    respond(clip);
+    toast("声音已收藏，标注已保存。");
+  } finally {
+    button.disabled = false;
+  }
+});
+on("#sample", "click", async () => {
+  const kinds = state.categories.filter((c) =>
+      ["轻敲", "摩擦", "流水", "环境声"].includes(c),
+    ),
+    kind = kinds[state.clips.length % kinds.length] || "轻敲",
+    s = synthetic(kind, Date.now() >>> 0);
+  await openEditor(wav(s.samples, s.rate), kind + " · 合成示例", null, true);
+});
+on("#clips", "click", async (e) => {
+  const b = e.target.closest("[data-action]");
+  if (!b) return;
+  const clip = state.clips.find((c) => c.id === b.dataset.id);
+  if (!clip) return;
+  if (b.dataset.action === "listen") {
+    await audio.play([clip], false, (c) => {
+      $("#playing").textContent = "正在播放 · " + c.name;
+      respond(c);
+    });
+  }
+  if (b.dataset.action === "edit")
+    await openEditor(await (await fetch(clip.audio)).blob(), clip.name, clip);
+  if (b.dataset.action === "add") {
+    state.sequence.push(clip.id);
+    await persist();
+    render();
+    toast("已加入陪伴序列");
+  }
+  if (b.dataset.action === "delete") {
+    if (
+      !confirm(
+        "删除「" +
+          clip.name +
+          "」及其序列引用？已训练模型仍保留，重新训练后更新。",
+      )
+    )
+      return;
+    audio.stop();
+    state.clips = state.clips.filter((c) => c.id !== clip.id);
+    state.sequence = state.sequence.filter((id) => id !== clip.id);
+    await persist();
+    render();
+  }
+});
+function runTraining(key, clips) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL("./train-worker.js", import.meta.url), {
+      type: "module",
+    });
+    const timeout = setTimeout(() => {
+      worker.terminate();
+      reject(Error("训练超时，请减少样本后重试。"));
+    }, 60000);
+    worker.onmessage = ({ data }) => {
+      clearTimeout(timeout);
+      worker.terminate();
+      data.error ? reject(Error(data.error)) : resolve(data.model);
+    };
+    worker.onerror = (e) => {
+      clearTimeout(timeout);
+      worker.terminate();
+      reject(Error(e.message || "训练失败"));
+    };
+    worker.postMessage({ key, clips });
+  });
+}
+on("#models", "click", async (e) => {
+  const key = e.target.closest("[data-train]")?.dataset.train;
+  if (!key || training) return;
+  training = true;
+  render();
+  try {
+    const m = await runTraining(key, structuredClone(state.clips));
+    state.models[key] = m;
+    reward(
+      state,
+      "training:" +
+        key +
+        ":" +
+        state.clips
+          .filter((c) => c[key])
+          .map((c) => c.id + ":" + c[key])
+          .sort()
+          .join("|"),
+      key === "category"
+        ? "Craboo 学会了辨认新的声音"
+        : "Craboo 更懂你的声音偏好了",
+      4,
+    );
+    await persist();
+    toast("真实训练完成，模型已保存");
+    say(
+      "原来是这样，我又懂你一点了。",
+      "模型已更新。可以导入一个新声音，看看它学会了什么。",
+    );
+  } finally {
+    training = false;
+    render();
+  }
+});
+on("#category-form", "submit", async (e) => {
+  e.preventDefault();
+  const value = $("#new-category").value.trim();
+  if (!value || state.categories.includes(value)) return;
+  if (state.categories.length >= 50) throw Error("最多支持 50 个类别。");
+  state.categories.push(value);
+  await persist();
+  $("#new-category").value = "";
+  toast("类别已添加，编辑声音时可选择");
+});
+on("#sequence", "click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.remove !== undefined)
+    state.sequence.splice(Number(b.dataset.remove), 1);
+  else if (b.dataset.order !== undefined) {
+    const i = Number(b.dataset.order),
+      j = i + Number(b.dataset.direction);
+    if (j >= 0 && j < state.sequence.length)
+      [state.sequence[i], state.sequence[j]] = [
+        state.sequence[j],
+        state.sequence[i],
+      ];
+  }
+  await persist();
+  render();
+});
+on("#loop", "change", async (e) => {
+  state.loop = e.target.checked;
+  await persist();
+});
+on("#recompose", "click", async () => {
+  const groups = new Map();
+  for (const c of playable(state, predict)) {
+    const p = predict(state.models.category, c.features),
+      key = c.category || (p && p.confidence >= 0.6 ? p.label : "未分类");
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(c.id);
+  }
+  const sequence = [];
+  while ([...groups.values()].some((g) => g.length))
+    for (const g of groups.values()) if (g.length) sequence.push(g.shift());
+  state.sequence = sequence;
+  await persist();
+  render();
+  toast("已按类别交错排列，并排除不喜欢的声音");
+});
+async function playSequence() {
+  const clips = playable(state, predict);
+  await audio.play(clips, state.loop, (c) => {
+    $("#playing").textContent = "正在陪伴 · " + c.name;
+    if (mode !== "sleep") respond(c);
+  });
+  if (mode === "sleep") mood("sleepy", "轻轻陪着你");
+}
+on("#play-sequence", "click", playSequence);
+on("#bedtime", "click", playSequence);
+on("#stop", "click", () => audio.stop());
+on("#volume", "input", (e) => audio.setVolume(Number(e.target.value)));
+$$("[data-sleep]").forEach(
+  (b) =>
+    (b.onclick = () => {
+      $$("[data-sleep]").forEach((x) =>
+        x.classList.toggle("selected", x === b),
+      );
+      audio.setSleep(sleepSettings[b.dataset.sleep]);
+      say(
+        b.dataset.sleep === "asleep"
+          ? "嘘，好好休息，我在。"
+          : b.dataset.sleep === "drowsy"
+            ? "把今天的声音，慢慢放轻。"
+            : "还有一点时间，我们一起听。",
+        "手动模拟睡眠 · 音量平滑变化，间隔从下一段开始调整",
+      );
+      mood("sleepy", b.textContent + "陪伴中");
+    }),
+);
+on("#export", "click", () => {
+  const blob = new Blob([encode(state)], { type: "application/json" }),
+    url = URL.createObjectURL(blob),
+    a = document.createElement("a");
+  a.href = url;
+  a.download = `craboo-${profile}-${new Date().toISOString().slice(0, 10)}.craboo.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("完整存档已导出");
+});
+on("#archive-file", "change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  if (training || recording) throw Error("请先结束录音或训练。");
+  if (file.size > 180 * 1024 * 1024) throw Error("存档不能超过 180 MB。");
+  const imported = decode(await file.text());
+  for (const c of imported.clips) {
+    await audio.decode(await (await fetch(c.audio)).blob());
+  }
+  pendingImport = imported;
+  $("#import-summary").textContent =
+    `包含 ${imported.clips.length} 段声音、${Object.values(imported.models).filter(Boolean).length} 个模型、${imported.growth.history.length} 条成长记录。将恢复到${profile === "personal" ? "个人" : "演示"}档案。`;
+  $("#import-confirm").showModal();
+});
+on("#confirm-import", "click", async () => {
+  if (!pendingImport) return;
+  await saveQueue.catch(() => {});
+  await save(profile, pendingImport);
+  state = pendingImport;
+  pendingImport = null;
+  audio.stop();
+  $("#import-confirm").close();
+  render();
+  toast("记忆已恢复");
+});
+on("#demo", "click", async () => {
+  if (training || recording) throw Error("请先结束录音或训练。");
+  $("#demo").disabled = true;
+  try {
+    await persist();
+    const next = profile === "personal" ? "demo" : "personal";
+    let target = await load(next);
+    if (!target) {
+      target = fresh();
+      if (next === "demo") {
+        toast("正在生成独立合成样本并真实训练…");
+        for (const [k, kind] of ["轻敲", "摩擦", "流水", "环境声"].entries()) {
+          for (let n = 0; n < 5; n++) {
+            const s = synthetic(kind, 177 + k * 100 + n * 37),
+              id = crypto.randomUUID();
+            target.clips.push({
+              id,
+              sourceId: id,
+              name: kind + " " + (n + 1) + " · 合成示例",
+              audio: await dataURL(wav(s.samples, s.rate)),
+              duration: s.duration,
+              features: features(s.samples, s.rate),
+              category: kind,
+              preference: ["好奇", "不喜欢", "安抚", "安抚"][k],
+              synthetic: true,
+              createdAt: Date.now(),
+            });
+          }
+        }
+        for (const key of ["category", "preference"])
+          target.models[key] = await runTraining(key, target.clips);
+        target.sequence = target.clips
+          .filter((c) => c.preference !== "不喜欢")
+          .filter((_, i) => i % 3 === 0)
+          .map((c) => c.id);
+        reward(target, "demo-init", "合成课堂示例已完成真实训练", 8);
+      }
+      await save(next, target);
+    }
+    audio.stop();
+    profile = next;
+    state = target;
+    render();
+    say(
+      next === "demo" ? "这些是课堂练习的小声音。" : "回到我们自己的日常啦。",
+      next === "demo"
+        ? "独立演示档案 · 全部为合成样本，模型确实经过训练。"
+        : "个人声音与成长已恢复。",
+    );
+    toast(next === "demo" ? "已进入独立课堂演示存档" : "已回到个人存档");
+  } finally {
+    $("#demo").disabled = false;
+  }
+});
+window.addEventListener("pagehide", () => {
+  audio.stop();
+  audio.stopRecording();
+});
+try {
+  state = (await load(profile)) || fresh();
+  render();
+} catch (e) {
+  error(e);
+  render();
+  say(
+    "本地记忆暂时无法打开。",
+    "请检查浏览器存储设置；当前操作可能无法持久保存。",
+  );
+}
