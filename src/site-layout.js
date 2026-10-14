@@ -11,6 +11,7 @@ home.id = 'page-home';
 home.className = 'page home-page';
 home.innerHTML = `
   <div class="hero-intro">
+    <div class="hero-veil" aria-hidden="true"></div>
     <canvas class="hero-flow" id="hero-flow" aria-hidden="true"></canvas>
     <div class="hero-type hero-type-back" aria-hidden="true"><span>T</span><span>A</span><span>D</span><span>A</span></div>
     <div class="hero-copy"><span class="hero-kicker">01 / A COMPANION IN MOTION</span><h1>Listen.<br>Move.<br><em>Remember.</em></h1><p>A small companion that learns the sounds you love.</p><a class="hero-explore" href="#home" data-scroll-assembly>EXPLORE THE DESIGN <b>↘</b></a></div>
@@ -22,7 +23,10 @@ home.innerHTML = `
       <article class="hero-card hero-card-scene"><img src="assets/tada-field.png" alt="Collecting sounds outdoors"><div><span>05 / EXPLORE</span><strong>Take the world<br>in.</strong></div></article>
       <article class="hero-card hero-card-detail"><img src="assets/tada-feet.png" alt="Six soft feet detail"><div><span>06 / MOVEMENT</span><strong>Made to<br>move.</strong></div></article>
     </div>
-    <div class="hero-product"><div id="hero-canvas" aria-label="Drag to rotate the TADA 3D model"></div></div>
+    <div class="hero-product"><div id="hero-canvas" role="button" tabindex="0" aria-label="Drag to rotate TADA; click to watch the film"></div></div>
+    <video id="hero-film-video" src="assets/tada-film.mp4" preload="auto" playsinline aria-label="TADA product film"></video>
+    <button id="hero-film-exit" type="button" aria-label="Close film">← <span>BACK</span></button>
+    <button id="hero-film-play" type="button" aria-label="Play film"><span aria-hidden="true">▶</span><small>PLAY THE FILM</small></button>
     <div class="hero-type hero-type-front" aria-hidden="true"><span>T</span><span>A</span><span>D</span><span>A</span></div>
     <div class="hero-foot"><span>DRAG TO ROTATE <b>↔</b></span><div class="hero-rail-controls"><button type="button" data-card-step="-1" aria-label="Previous story">←</button><span>SWIPE THE STORIES</span><button type="button" data-card-step="1" aria-label="Next story">→</button></div><span>SCROLL TO ASSEMBLE ↓</span></div>
   </div>
@@ -116,7 +120,7 @@ header.querySelector('.header-note').remove();
 header.insertBefore(Object.assign(document.createElement('nav'), {className: 'site-nav', innerHTML: '<a href="#home" data-page-link="home">产品</a><a href="#companion" data-page-link="companion">陪伴</a><a href="#simulation" data-page-link="simulation">仿真</a><a href="#mine" data-page-link="mine">我的</a><a href="#learning" data-page-link="learning">学习</a>'}), take('#open-library'));
 header.insertBefore(Object.assign(document.createElement('button'), {id: 'lang-toggle', type: 'button', textContent: '中文', title: 'Switch language'}), take('#open-library'));
 take('.brand').href = '#home';
-take('footer').innerHTML = '<div class="footer-brand"><img src="assets/tada-mark.svg" alt="" /><strong>TADA</strong><span>© 2026</span></div><nav><a href="#home">产品</a><a href="#companion">陪伴</a><a href="#simulation">仿真</a><a href="#mine">我的</a><a href="#learning">学习</a></nav><div class="footer-links"><a href="https://github.com/Shoreee/Craboo" target="_blank" rel="noopener noreferrer" aria-label="TADA GitHub repository">GitHub ↗</a><img src="assets/tongji-dni-logo.png" alt="同济大学设计创意学院" /></div>';
+take('footer').innerHTML = '<div class="footer-brand"><img src="assets/tada-mark.svg" alt="" /><strong>TADA</strong><span>© 2026</span></div><nav><a href="#home" data-page-link="home">产品</a><a href="#companion" data-page-link="companion">陪伴</a><a href="#simulation" data-page-link="simulation">仿真</a><a href="#mine" data-page-link="mine">我的</a><a href="#learning" data-page-link="learning">学习</a></nav><div class="footer-links"><a href="https://github.com/Shoreee/Craboo" target="_blank" rel="noopener noreferrer" aria-label="TADA GitHub repository">GitHub ↗</a><img src="assets/tongji-dni-logo.png" alt="同济大学设计创意学院" /></div>';
 document.querySelector('.capture-flow')?.remove();
 take('#capture-summary').textContent = '录音结束后可试听自动裁出的候选片段，并决定哪些值得保存。';
 take('#save-selected').textContent = '保存勾选的片段';

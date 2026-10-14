@@ -19,6 +19,7 @@ const $ = (s) => document.querySelector(s),
 const audio = new AudioEngine();
 let profile = "personal",
   state = fresh(),
+  archiveReady = Promise.resolve(),
   draft = null,
   pendingImport = null,
   recording = false,
@@ -140,6 +141,13 @@ function options(values, selected, empty = true) {
 }
 function render() {
   updateTop();
+  const sleepClips = playable(state);
+  const sleepStatus = $("#sleep-sound-status");
+  if (sleepStatus) sleepStatus.textContent = sleepClips.length
+    ? `当前浏览器有 ${sleepClips.length} 段可播放声音；会优先播放你标记为「安抚」的片段。`
+    : state.clips.length
+      ? `「我的」里有 ${state.clips.length} 段声音，正在从本地存档读取，请再点一次播放。`
+      : '当前浏览器没有可播放片段。录音后请保存，换设备请在「我的」导入声音存档。';
   const filter = $("#filter").value;
   const clips = state.clips.filter((c) => !filter || c.preference === filter);
   const sources = new Map();
@@ -179,6 +187,7 @@ function render() {
     ? state.sequence
         .map((id, index) => {
           const c = state.clips.find((c) => c.id === id);
+          if (!c) return "";
           return `<div class="clip"><span class="muted">${String(index + 1).padStart(2, "0")}</span><div class="clip-info"><h3>${escape(c.name)}</h3><p>${escape(c.category || predict(state.models.category, c.features)?.label || "待认识")}${c.preference === "不喜欢" ? " · 播放时跳过" : ""}</p></div><div class="clip-actions"><button data-order="${index}" data-direction="-1" aria-label="上移 ${escape(c.name)}" ${index === 0 ? "disabled" : ""}>↑</button><button data-order="${index}" data-direction="1" aria-label="下移 ${escape(c.name)}" ${index === state.sequence.length - 1 ? "disabled" : ""}>↓</button><button data-remove="${index}">移除</button></div></div>`;
         })
         .join("")
@@ -813,7 +822,17 @@ on("#recompose", "click", async () => {
   toast("已按类别交错排列，并排除不喜欢的声音");
 });
 async function playSequence() {
-  const clips = playable(state, predict);
+  await archiveReady;
+  let clips = playable(state);
+  if (!clips.length) {
+    const stored = await load(profile).catch(() => null);
+    if (stored?.clips?.length) {
+      state = stored;
+      if (!Array.isArray(state.sequence)) state.sequence = [];
+      render();
+      clips = playable(state);
+    }
+  }
   await audio.play(clips, state.loop, (c) => {
     $("#playing").textContent = "正在陪伴 · " + c.name;
     if (mode !== "sleep") respond(c);
@@ -936,15 +955,19 @@ window.addEventListener("pagehide", () => {
   audio.stop();
   audio.stopRecording();
 });
-try {
-  state = (await load(profile)) || fresh();
-  render();
-} catch (e) {
-  error(e);
-  render();
-  say(
-    "本地记忆暂时无法打开。",
-    "请检查浏览器存储设置；当前操作可能无法持久保存。",
-  );
-}
+archiveReady = (async () => {
+  try {
+    state = (await load(profile)) || fresh();
+    if (!Array.isArray(state.clips)) state.clips = [];
+    if (!Array.isArray(state.sequence)) state.sequence = [];
+    render();
+  } catch (e) {
+    error(e);
+    render();
+    say(
+      "本地记忆暂时无法打开。",
+      "请检查浏览器存储设置；当前操作可能无法持久保存。",
+    );
+  }
+})();
 

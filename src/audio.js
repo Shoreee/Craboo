@@ -46,6 +46,25 @@ export class AudioEngine {
     if (this.context.state === "suspended") await this.context.resume();
     return this.context;
   }
+  async decodeSource(source) {
+    const ctx = await this.ready();
+    let bytes;
+    if (typeof source === "string" && source.startsWith("data:")) {
+      const comma = source.indexOf(",");
+      const body = source.slice(comma + 1).replace(/\s/g, "");
+      if (/;base64/i.test(source.slice(0, comma))) {
+        const binary = atob(body);
+        const view = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
+        bytes = view.buffer;
+      } else {
+        bytes = new TextEncoder().encode(decodeURIComponent(body)).buffer;
+      }
+    } else {
+      bytes = await (await fetch(source)).arrayBuffer();
+    }
+    return ctx.decodeAudioData(bytes.slice(0));
+  }
   async decode(blob) {
     const ctx = await this.ready();
     const b = await ctx.decodeAudioData(await blob.arrayBuffer());
@@ -87,19 +106,35 @@ export class AudioEngine {
   }
   async play(clips, loop = false, onClip = () => {}) {
     this.stop();
-    if (!clips.length) throw Error("先收藏一些喜欢的声音，并加入重组序列。");
+    const queue = clips.filter((clip) => clip?.audio);
+    if (!queue.length) throw Error("当前浏览器没有可播放的声音。请先录音并保存片段，或在「我的」导入声音存档。");
     const token = this.token;
     await this.ready();
     if (token !== this.token) return;
     let index = 0;
+    let started = 0;
+    let skipped = 0;
     const next = async () => {
+      if (token !== this.token || index >= queue.length) return;
+      const clip = queue[index];
+      let buffer;
+      try {
+        buffer = await this.decodeSource(clip.audio);
+      } catch (e) {
+        if (token !== this.token) return;
+        skipped++;
+        index++;
+        if (skipped >= queue.length && !started) {
+          this.onError?.(Error("存档里已经有声音，但这几段现在读不出来。请在「我的」里重新试听或再保存一次。"));
+          return;
+        }
+        if (index >= queue.length) return;
+        return next();
+      }
       if (token !== this.token) return;
       try {
-        const clip = clips[index],
-          buffer = await this.context.decodeAudioData(
-            await (await fetch(clip.audio)).arrayBuffer(),
-          );
-        if (token !== this.token) return;
+        skipped = 0;
+        started++;
         const node = this.context.createBufferSource(),
           gain = this.context.createGain();
         node.buffer = buffer;
@@ -117,14 +152,14 @@ export class AudioEngine {
           this.sources.delete(node);
           node.disconnect();
           gain.disconnect();
-          if (!this.sources.size && !loop && index >= clips.length)
+          if (!this.sources.size && !loop && index >= queue.length)
             this.onStop?.();
         };
         node.start();
         onClip(clip);
         index++;
-        if (index < clips.length || loop) {
-          index %= clips.length;
+        if (index < queue.length || loop) {
+          index %= queue.length;
           const spacing =
             this.sleep.gap + duration * (1 / this.sleep.density - 1);
           this.timer = setTimeout(

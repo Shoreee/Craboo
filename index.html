@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="src/assembly-design.css" />
     <link rel="stylesheet" href="src/hero-editorial.css" />
     <link rel="stylesheet" href="src/interface-polish.css" />
+    <link rel="stylesheet" href="src/hero-film.css" />
     <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/","@mujoco/mujoco":"./vendor/mujoco/mujoco.js"}}</script>
   </head>
   <body>
@@ -124,7 +125,8 @@
             ><button data-sleep="asleep">熟睡</button
             ><span class="simulation">模拟睡眠</span>
           </div>
-          <button id="bedtime" class="primary">☾ 播放陪伴序列</button>
+          <button id="bedtime" class="primary">☾ 播放声音存档</button>
+          <p id="sleep-sound-status" role="status"></p>
           <p>根据模拟状态调整音量与间隔，不检测真实睡眠。</p>
         </div>
       </section>

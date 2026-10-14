@@ -31,8 +31,210 @@ rim.position.set(-4, 1, -3);
 scene.add(rim);
 
 let model, pieces = [], center = new THREE.Vector3(), extent = 1;
-let heroRenderer, heroScene, heroCamera, heroModel, eyes;
-const heroOrbit = { yaw: -.45, pitch: -.06, pointer: null, x: 0, y: 0 };
+let heroRenderer, heroScene, heroCamera, heroModel, heroHemi, heroKey, eyes;
+const heroOrbit = { yaw: -.45, pitch: -.06, pointer: null, x: 0, y: 0, moved: false };
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const coverCanvas = document.createElement('canvas');
+coverCanvas.width = 2;
+coverCanvas.height = 2;
+coverCanvas.getContext('2d').fillRect(0, 0, 2, 2);
+const coverTexture = new THREE.CanvasTexture(coverCanvas);
+coverTexture.colorSpace = THREE.SRGBColorSpace;
+coverTexture.flipY = true;
+const film = {
+  pose: 0, target: 0, screen: 0, solid: 0, playAlpha: 0, lastTime: 0,
+  yaw0: heroOrbit.yaw, pitch0: heroOrbit.pitch, stage: false, boost: 1, shiftX: 0, shiftY: 0,
+  face: null, eyes: null, material: null, coverReady: false, playing: false, rewound: true,
+  faceLocal: new THREE.Vector3(), faceSize: new THREE.Vector3(1, .6, .05), faceForward: new THREE.Vector3(0, 0, 1),
+  videoAspect: 16 / 9,
+  video: document.getElementById('hero-film-video'),
+  play: document.getElementById('hero-film-play'),
+  exit: document.getElementById('hero-film-exit'),
+  intro: document.querySelector('.hero-intro'),
+  product: document.querySelector('.hero-product'),
+  cover: coverTexture,
+};
+const filmMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    map: { value: coverTexture }, reveal: { value: 0 }, solid: { value: 0 },
+    faceAspect: { value: 1.6 }, videoAspect: { value: 16 / 9 },
+  },
+  vertexShader: `varying vec2 vUv; varying float vFacing;
+  void main(){vUv=uv;vFacing=normalize(normalMatrix*normal).z;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+  fragmentShader: `uniform sampler2D map;uniform float reveal;uniform float solid;uniform float faceAspect;uniform float videoAspect;
+  varying vec2 vUv;varying float vFacing;
+  vec3 tap(vec2 uv){return texture2D(map,clamp(uv,0.001,0.999)).rgb;}
+  vec3 soft(vec2 uv,float r){
+    vec2 o=vec2(r/max(videoAspect,0.2),r);
+    vec3 c=tap(uv)*0.28;
+    c+=tap(uv+vec2(o.x,0.0))*0.12; c+=tap(uv-vec2(o.x,0.0))*0.12;
+    c+=tap(uv+vec2(0.0,o.y))*0.12; c+=tap(uv-vec2(0.0,o.y))*0.12;
+    c+=tap(uv+o)*0.06; c+=tap(uv-o)*0.06;
+    c+=tap(uv+vec2(o.x,-o.y))*0.06; c+=tap(uv+vec2(-o.x,o.y))*0.06;
+    return c;
+  }
+  void main(){
+    if(vFacing<0.08) discard;
+    float facing=smoothstep(0.08,0.62,vFacing);
+    vec2 contain=vec2(min(1.0,videoAspect/max(faceAspect,0.2)), min(1.0,max(faceAspect,0.2)/max(videoAspect,0.2)));
+    vec2 span=contain*0.7;
+    vec2 delta=vUv-0.5;
+    float outside=length(max(abs(delta)-span*0.5,0.0));
+    vec2 sampleUv=clamp(delta/span+0.5,0.0,1.0);
+    float edge=smoothstep(0.0,0.18,outside);
+    vec3 color=mix(tap(sampleUv),soft(sampleUv,mix(0.012,0.08,edge)),edge);
+    vec2 grid=vec2(vUv.x*max(faceAspect,0.2), vUv.y)*46.0;
+    float rnd=fract(sin(dot(floor(grid),vec2(127.1,311.7)))*43758.5453);
+    float radius=mix(0.0,0.47,smoothstep(rnd*0.22,1.0,reveal));
+    float dots=1.0-smoothstep(radius,radius+0.05,length(fract(grid)-0.5));
+    float mask=mix(dots,1.0,solid);
+    float alpha=mask*facing*smoothstep(0.0,0.18,reveal);
+    if(alpha<0.02) discard;
+    gl_FragColor=vec4(color,alpha);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }`,
+  side: THREE.FrontSide, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2,
+  stencilWrite: true, stencilRef: 1, stencilFunc: THREE.EqualStencilFunc,
+  stencilFail: THREE.KeepStencilOp, stencilZFail: THREE.KeepStencilOp, stencilZPass: THREE.KeepStencilOp,
+});
+film.material = filmMaterial;
+const poseSeconds = () => reducedMotion.matches ? .28 : 1.35;
+const screenInSeconds = () => reducedMotion.matches ? .2 : .95;
+const screenOutSeconds = () => reducedMotion.matches ? .25 : 1.25;
+function resizeHero() {
+  if (!heroRenderer || !heroCamera) return;
+  const { width, height } = heroHost.getBoundingClientRect();
+  if (!width || !height) return;
+  heroRenderer.setSize(width, height, false);
+  heroCamera.aspect = width / height;
+  heroCamera.updateProjectionMatrix();
+}
+function enterStage() {
+  if (film.stage || !heroRenderer || !film.product) return;
+  const before = heroHost.getBoundingClientRect();
+  film.product.classList.add('is-stage');
+  const after = heroHost.getBoundingClientRect();
+  resizeHero();
+  film.boost = before.height > 2 ? after.height / before.height : 1;
+  film.shiftX = (before.left + before.width / 2) - (after.left + after.width / 2);
+  film.shiftY = (before.top + before.height / 2) - (after.top + after.height / 2);
+  film.stage = true;
+}
+function leaveStage() {
+  if (!film.stage) return;
+  film.product.classList.remove('is-stage');
+  film.stage = false;
+  film.boost = 1;
+  resizeHero();
+}
+function silenceFilm() {
+  film.playToken = (film.playToken || 0) + 1;
+  film.playing = false;
+  film.video.pause();
+  film.video.muted = true;
+  film.intro.classList.remove('film-playing');
+}
+function finishFilm() {
+  silenceFilm();
+  film.pose = 0;
+  film.screen = 0;
+  film.solid = 0;
+  film.playAlpha = 0;
+  film.video.volume = 1;
+  film.material.uniforms.map.value = coverTexture;
+  film.material.uniforms.reveal.value = 0;
+  if (!film.rewound) {
+    film.video.currentTime = 0;
+    film.rewound = true;
+  }
+  film.intro.classList.remove('film-open', 'film-playing', 'film-exit-ready', 'film-play-ready');
+  document.documentElement.style.setProperty('--film-dark', '0');
+  leaveStage();
+}
+function setFilm(open) {
+  if (!film.intro) return;
+  if (open) {
+    if (!heroModel) return;
+    if (film.pose < .04) {
+      film.yaw0 = heroOrbit.yaw;
+      film.pitch0 = heroOrbit.pitch;
+    }
+    film.rewound = false;
+    enterStage();
+    film.target = 1;
+    film.intro.classList.add('film-open');
+    heroHost?.setAttribute('aria-expanded', 'true');
+    return;
+  }
+  silenceFilm();
+  film.target = 0;
+  heroHost?.setAttribute('aria-expanded', 'false');
+}
+function playFilm() {
+  if (film.target !== 1 || film.pose < 1 || film.playing) return;
+  const token = film.playToken = (film.playToken || 0) + 1;
+  const texture = film.videoTexture ??= new THREE.VideoTexture(film.video);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.flipY = true;
+  texture.needsUpdate = true;
+  film.material.uniforms.map.value = texture;
+  film.video.muted = false;
+  film.video.volume = 1;
+  film.video.play().then(() => {
+    if (token !== film.playToken || film.target !== 1) {
+      film.video.pause();
+      film.video.muted = true;
+      return;
+    }
+    film.playing = true;
+    film.intro.classList.add('film-playing');
+  }).catch(() => {
+    if (token !== film.playToken) return;
+    film.playing = false;
+    film.material.uniforms.map.value = coverTexture;
+    film.intro.classList.remove('film-playing');
+  });
+}
+function captureCover() {
+  const video = film.video;
+  if (!video?.videoWidth || film.coverReady || film.playing) return;
+  coverCanvas.width = video.videoWidth;
+  coverCanvas.height = video.videoHeight;
+  coverCanvas.getContext('2d').drawImage(video, 0, 0, coverCanvas.width, coverCanvas.height);
+  coverTexture.needsUpdate = true;
+  film.coverReady = true;
+  film.videoAspect = video.videoWidth / video.videoHeight;
+  if (!film.playing) film.material.uniforms.map.value = coverTexture;
+  if (video.currentTime > .05) video.currentTime = 0;
+}
+function prepareCover() {
+  const video = film.video;
+  if (!video) return;
+  const seekCover = () => {
+    if (film.coverReady || film.playing) return;
+    const point = Math.min(1.1, Math.max(.12, (video.duration || 1) * .08));
+    if (video.currentTime < point - .08) video.currentTime = point;
+    else captureCover();
+  };
+  video.addEventListener('loadedmetadata', () => {
+    if (video.videoWidth) film.videoAspect = video.videoWidth / video.videoHeight;
+  });
+  video.addEventListener('loadeddata', seekCover);
+  video.addEventListener('seeked', () => { if (!film.coverReady && !film.playing) captureCover(); });
+  if (video.readyState >= 2) seekCover();
+}
+document.body.append(film.exit);
+film.exit.addEventListener('click', () => setFilm(false));
+film.play.addEventListener('click', playFilm);
+film.video.addEventListener('ended', () => {
+  film.playing = false;
+  film.intro.classList.remove('film-playing');
+  film.material.uniforms.map.value = coverTexture;
+});
+addEventListener('keydown', (event) => { if (event.key === 'Escape' && (film.target || film.pose > 0)) setFilm(false); });
+addEventListener('craboo:page', () => { if (document.body.dataset.page !== 'home') finishFilm(); });
+prepareCover();
 const sections = [
   { indices: new Set([...Array.from({ length: 6 }, (_, i) => i + 6), 14, 15, ...Array.from({ length: 48 }, (_, i) => i + 18)]), step: 1, offset: new THREE.Vector3(0, -1.15, 0) },
   { indices: new Set([12, 16]), step: 2, offset: new THREE.Vector3(0, 1.15, 0) },
@@ -88,15 +290,17 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
     eyes.add(eye);
   }
   source.children[0].add(eyes);
-  heroRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  heroRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, stencil: true });
   heroRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   heroRenderer.outputColorSpace = THREE.SRGBColorSpace;
   heroRenderer.toneMapping = THREE.ACESFilmicToneMapping;
   heroRenderer.toneMappingExposure = 1.45;
+  heroRenderer.setClearColor(0x000000, 0);
   heroHost.append(heroRenderer.domElement);
   heroScene = new THREE.Scene();
-  heroScene.add(new THREE.HemisphereLight(0xffffff, 0xdad4ce, 1.05));
-  const heroKey = new THREE.DirectionalLight(0xffffff, 1.4);
+  heroHemi = new THREE.HemisphereLight(0xffffff, 0xdad4ce, 1.05);
+  heroScene.add(heroHemi);
+  heroKey = new THREE.DirectionalLight(0xffffff, 1.4);
   heroKey.position.set(3, 5, 5);
   heroScene.add(heroKey);
   heroModel = source.clone(true);
@@ -104,26 +308,67 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
   heroModel.position.y += extent * .2;
   heroModel.traverse((child) => { if (child.isMesh) { child.material = child.material.clone(); child.material.opacity = 1; child.material.transparent = false; child.material.depthWrite = true; } });
   heroScene.add(heroModel);
+  film.face = heroModel.children[0];
+  film.eyes = film.face.children.find((child) => child.isGroup);
+  const faceGeometry = film.face.geometry;
+  faceGeometry.computeBoundingBox();
+  const box = faceGeometry.boundingBox;
+  const faceWidth = Math.max(box.max.x - box.min.x, .01);
+  const faceHeight = Math.max(box.max.y - box.min.y, .01);
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(faceWidth, faceHeight), filmMaterial);
+  screen.position.set((box.min.x + box.max.x) / 2, (box.min.y + box.max.y) / 2, box.max.z + .008);
+  screen.renderOrder = 2;
+  film.face.renderOrder = 1;
+  film.face.material.stencilWrite = true;
+  film.face.material.stencilRef = 1;
+  film.face.material.stencilFunc = THREE.AlwaysStencilFunc;
+  film.face.material.stencilZPass = THREE.ReplaceStencilOp;
+  film.face.add(screen);
+  heroModel.updateMatrixWorld(true);
+  const faceLocal = box.getCenter(new THREE.Vector3());
+  film.face.localToWorld(faceLocal);
+  heroModel.worldToLocal(faceLocal);
+  film.faceLocal.copy(faceLocal);
+  const faceScale = new THREE.Vector3();
+  film.face.getWorldScale(faceScale);
+  film.faceSize.set(faceWidth, faceHeight, Math.max(box.max.z - box.min.z, .01)).multiply(faceScale);
+  film.material.uniforms.faceAspect.value = faceWidth / Math.max(faceHeight, 1e-4);
+  film.faceForward.set(0, 0, 1).transformDirection(film.face.matrix);
+  if (film.faceForward.lengthSq() < .25) film.faceForward.set(0, 0, 1);
+  film.faceForward.normalize();
   heroCamera = new THREE.PerspectiveCamera(32, 1, .01, 100);
-  const heroSize = () => { const { width, height } = heroHost.getBoundingClientRect(); if (!width || !height) return; heroRenderer.setSize(width, height, false); heroCamera.aspect = width / height; heroCamera.updateProjectionMatrix(); };
-  new ResizeObserver(heroSize).observe(heroHost);
-  heroSize();
+  new ResizeObserver(resizeHero).observe(heroHost);
+  resizeHero();
   heroHost.addEventListener('pointerdown', (event) => {
+    if (film.stage || film.target) return;
     heroOrbit.pointer = event.pointerId;
+    heroOrbit.moved = false;
     heroOrbit.x = event.clientX;
     heroOrbit.y = event.clientY;
     heroHost.setPointerCapture(event.pointerId);
   });
   heroHost.addEventListener('pointermove', (event) => {
     if (heroOrbit.pointer !== event.pointerId) return;
+    if (Math.abs(event.clientX - heroOrbit.x) + Math.abs(event.clientY - heroOrbit.y) > 3) heroOrbit.moved = true;
     heroOrbit.yaw += (event.clientX - heroOrbit.x) * .008;
     heroOrbit.pitch = clamp(heroOrbit.pitch + (event.clientY - heroOrbit.y) * .005, -.45, .45);
     heroOrbit.x = event.clientX;
     heroOrbit.y = event.clientY;
   });
-  const stopOrbit = (event) => { if (heroOrbit.pointer === event.pointerId) heroOrbit.pointer = null; };
+  const stopOrbit = (event) => {
+    if (heroOrbit.pointer !== event.pointerId) return;
+    heroOrbit.pointer = null;
+    if (!heroOrbit.moved && event.type === 'pointerup' && film.pose < .02) {
+      const rect = heroHost.getBoundingClientRect();
+      const pointer = new THREE.Vector2((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1);
+      const hitTest = new THREE.Raycaster();
+      hitTest.setFromCamera(pointer, heroCamera);
+      if (hitTest.intersectObject(heroModel, true).length) setFilm(true);
+    }
+  };
   heroHost.addEventListener('pointerup', stopOrbit);
   heroHost.addEventListener('pointercancel', stopOrbit);
+  heroHost.addEventListener('keydown', (event) => { if ((event.key === 'Enter' || event.key === ' ') && !film.target && film.pose < .02) { event.preventDefault(); setFilm(true); } });
   measure();
 }, undefined, () => { status.textContent = window.crabooTranslate?.('三维模型载入失败') ?? '三维模型载入失败'; });
 
@@ -290,11 +535,118 @@ function animate(now) {
   model?.updateMatrixWorld(true);
   updateGuide();
   renderer.render(scene, camera);
-  if (heroModel) {
+  if (heroModel) updateHeroFilm(now);
+}
+const heroRestLook = new THREE.Vector3();
+const heroRestPos = new THREE.Vector3();
+const heroEndLook = new THREE.Vector3();
+const heroEndPos = new THREE.Vector3();
+const heroLook = new THREE.Vector3();
+const heroPos = new THREE.Vector3();
+const heroEuler = new THREE.Euler();
+const heroQuat = new THREE.Quaternion();
+const heroProjected = new THREE.Vector3();
+function shortestAngle(from, to) {
+  const tau = Math.PI * 2;
+  return ((to - from + Math.PI) % tau + tau) % tau - Math.PI;
+}
+function facePoint(pitch, yaw, target) {
+  heroEuler.set(pitch, yaw, 0);
+  heroQuat.setFromEuler(heroEuler);
+  return target.copy(film.faceLocal).applyQuaternion(heroQuat).add(heroModel.position);
+}
+function faceCameraDistance() {
+  const tan = Math.tan(THREE.MathUtils.degToRad(heroCamera.fov) * .5);
+  const aspect = Math.max(heroCamera.aspect || 1, .4);
+  const distH = (film.faceSize.y / .58) / (2 * tan);
+  const distW = (film.faceSize.x / 1.05) / (2 * tan * aspect);
+  return Math.max(Math.min(distH, distW), film.faceSize.z * 2, .05);
+}
+function updateHeroFilm(now) {
+  const dt = film.lastTime ? Math.min((now - film.lastTime) / 1000, .05) : 0;
+  film.lastTime = now;
+  if (film.stage || film.target) {
+    if (film.target) {
+      film.pose = Math.min(1, film.pose + dt / poseSeconds());
+      if (film.pose >= .995) {
+        film.pose = 1;
+        film.screen = Math.min(1, film.screen + dt / screenInSeconds());
+      }
+    } else {
+      film.pose = Math.max(0, film.pose - dt / poseSeconds());
+      film.screen = Math.max(0, film.screen - dt / screenOutSeconds());
+      if (!film.video.paused) film.video.pause();
+    }
+    if (!film.target && film.pose <= .001 && film.screen <= .001) finishFilm();
+  }
+  const t = film.pose;
+  const turn = ease(clamp(t / .74, 0, 1));
+  const zoom = ease(clamp((t - .1) / .9, 0, 1));
+  const dark = film.stage ? Math.max(ease(clamp(t / .9, 0, 1)), ease(film.screen)) : 0;
+  if (!film.stage) {
     heroModel.rotation.set(heroOrbit.pitch, heroOrbit.yaw, 0);
     heroCamera.position.set(0, extent * .48, extent * 2.2);
-    heroCamera.lookAt(0, 0.08 * extent, 0);
-    heroRenderer.render(heroScene, heroCamera);
+    heroCamera.lookAt(0, extent * .08, 0);
+    heroHemi.intensity = 1.05;
+    heroKey.intensity = 1.4;
+    heroRenderer.toneMappingExposure = 1.45;
+  } else {
+    const yaw = film.yaw0 + shortestAngle(film.yaw0, 0) * turn;
+    const pitch = film.pitch0 * (1 - turn);
+    heroModel.rotation.set(pitch, yaw, 0);
+    heroRestLook.set(0, extent * .08, 0);
+    heroRestPos.set(0, extent * .48, extent * 2.2);
+    heroPos.copy(heroRestPos).sub(heroRestLook).multiplyScalar(film.boost).add(heroRestLook);
+    facePoint(0, 0, heroEndLook);
+    heroEndPos.copy(heroEndLook).addScaledVector(film.faceForward, faceCameraDistance() + film.faceSize.z * .5 + .02);
+    heroPos.lerp(heroEndPos, zoom);
+    heroLook.copy(heroRestLook).lerp(heroEndLook, zoom);
+    const pan = 1 - zoom;
+    if (pan > 0 && (film.shiftX || film.shiftY)) {
+      const viewHeight = 2 * heroPos.distanceTo(heroLook) * Math.tan(THREE.MathUtils.degToRad(heroCamera.fov) * .5);
+      const worldPerPx = viewHeight / Math.max(heroHost.clientHeight, 1);
+      const dx = -film.shiftX * worldPerPx * pan;
+      const dy = film.shiftY * worldPerPx * pan;
+      heroPos.x += dx;
+      heroPos.y += dy;
+      heroLook.x += dx;
+      heroLook.y += dy;
+    }
+    heroCamera.position.copy(heroPos);
+    heroCamera.lookAt(heroLook);
+    heroHemi.intensity = 1.05 * (1 - dark * .94);
+    heroKey.intensity = 1.4 * (1 - dark * .8);
+    heroRenderer.toneMappingExposure = 1.45 - dark * .22;
+    facePoint(pitch, yaw, heroProjected);
+    heroProjected.project(heroCamera);
+    const bounds = film.intro.getBoundingClientRect();
+    film.play.style.left = `${(heroProjected.x * .5 + .5) * bounds.width}px`;
+    film.play.style.top = `${(-heroProjected.y * .5 + .5) * bounds.height}px`;
   }
+  const eyeOpacity = film.stage ? 1 - Math.max(ease(clamp((t - .36) / .52, 0, 1)), ease(film.screen)) : 1;
+  if (film.eyes) {
+    film.eyes.visible = eyeOpacity > .03;
+    film.eyes.children.forEach((eye) => {
+      eye.material.transparent = eyeOpacity < .98;
+      eye.material.opacity = eyeOpacity;
+      eye.material.depthWrite = eyeOpacity > .9;
+    });
+  }
+  const solidTarget = film.playing ? 1 : 0;
+  film.solid += (solidTarget - film.solid) * (1 - Math.exp(-dt * 4.5));
+  film.material.uniforms.reveal.value = film.screen;
+  film.material.uniforms.solid.value = film.solid;
+  film.material.uniforms.videoAspect.value = film.videoAspect;
+  const exitAlpha = film.stage ? Math.max(ease(clamp(t / .28, 0, 1)), ease(film.screen)) : 0;
+  const playTarget = film.target && film.pose >= 1 && !film.playing ? ease(film.screen) : 0;
+  film.playAlpha += (playTarget - film.playAlpha) * (1 - Math.exp(-dt * 7));
+  document.documentElement.style.setProperty('--exit-opacity', exitAlpha.toFixed(3));
+  film.exit.style.pointerEvents = exitAlpha > .35 ? 'auto' : 'none';
+  film.intro.style.setProperty('--play-opacity', Math.max(0, film.playAlpha).toFixed(3));
+  film.intro.classList.toggle('film-play-ready', film.playAlpha > .4);
+  document.documentElement.style.setProperty('--film-dark', dark.toFixed(3));
+  const header = document.querySelector('header');
+  if (header) header.style.pointerEvents = dark > .62 ? 'none' : '';
+  heroRenderer.render(heroScene, heroCamera);
 }
 requestAnimationFrame(animate);
