@@ -10,7 +10,11 @@ const home = document.createElement('section');
 home.id = 'page-home';
 home.className = 'page home-page';
 home.innerHTML = `
-  <div class="hero-intro"><div id="hero-canvas" aria-label="Craboo 三维产品概念画面"></div><span class="hero-kicker">一个会听，也会靠近的伙伴</span><h1>从声音开始，<br><em>一点一点成为 Craboo。</em></h1><p>向下滑动，走进它的身体。</p><span class="scroll-hint">向下探索 <b>↓</b></span></div>
+  <div class="hero-intro">
+    <div class="hero-copy"><span class="hero-kicker">CRABOO / 具身声音伙伴</span><h1>把世界的声音，<br><em>慢慢听成陪伴。</em></h1><p>会移动，也会回应。认识它，从一件件部件开始。</p><a class="hero-explore" href="#home" data-scroll-assembly>向下探索结构 <b>↘</b></a></div>
+    <div class="hero-product"><span class="hero-product-index">01 / 产品形态</span><div id="hero-canvas" aria-label="Craboo 三维产品概念画面"></div><span class="hero-product-caption">白色外壳 · 双层旋转 · 六足行走</span></div>
+    <div class="hero-grid"><a class="hero-card hero-card-shell" href="#home" data-scroll-assembly><img src="assets/craboo-shell.png" alt="Craboo 双层甲壳细节"><span><b>01 / 结构</b><strong>从零开始装配 ↗</strong></span></a><a class="hero-card hero-card-plush" href="#companion"><img src="assets/craboo-plush.png" alt="Craboo 毛绒陪伴形态"><span><b>02 / 陪伴</b><strong>靠近一点 ↗</strong></span></a><a class="hero-card hero-card-sound" href="#simulation"><span class="hero-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span><b>03 / 聆听</b><strong>让声音流动 ↗</strong></span></a></div>
+  </div>
   <div class="assembly"><div class="assembly-visual" id="assembly-visual"><div id="assembly-canvas" aria-label="Craboo 产品逐步装配的三维展示"></div><svg id="assembly-guide" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path></path><circle r="5"></circle></svg><div class="assembly-readout"><span id="assembly-number">00 / 05</span><span id="assembly-progress"><i></i></span><span id="assembly-status">模型载入中…</span></div></div>
     <div class="assembly-chapters">
       <article class="assembly-chapter" data-assembly="0"><span class="step-index">00 / 印象</span><h2>把好奇，<br>装进一只小小的身体。</h2><p>一个会移动、会收听，也会与你回应的伙伴。</p></article>
@@ -77,6 +81,7 @@ if (library) library.hidden = true;
 take('.intro')?.remove();
 if (take('.eyebrow')) take('.eyebrow').hidden = true;
 main.prepend(home, companion, simulation, mine, learning);
+home.querySelectorAll('[data-scroll-assembly]').forEach((link) => link.addEventListener('click', (event) => { event.preventDefault(); home.querySelector('.assembly').scrollIntoView({ behavior: 'smooth' }); }));
 home.querySelectorAll('.assembly-chapter').forEach((chapter, index) => {
   if (!index) return;
     chapter.querySelector('.assembly-detail')?.insertAdjacentHTML('beforeend', '<button class="explode-toggle" type="button" aria-pressed="false">查看爆炸结构 ↗</button>');

@@ -31,13 +31,13 @@ rim.position.set(-4, 1, -3);
 scene.add(rim);
 
 let model, pieces = [], center = new THREE.Vector3(), extent = 1;
-let heroRenderer, heroScene, heroCamera, heroModel, eyes;
+let heroRenderer, heroScene, heroCamera, heroModel, eyes, liner;
 const sections = [
-  { indices: new Set([...Array.from({ length: 6 }, (_, i) => i + 6), 14, 15, ...Array.from({ length: 48 }, (_, i) => i + 18)]), step: 1, offset: new THREE.Vector3(0, -1.8, 0) },
-  { indices: new Set([12, 16]), step: 2, offset: new THREE.Vector3(0, 1.55, 0) },
-  { indices: new Set([2, 13, 17, 66]), step: 3, offset: new THREE.Vector3(1.8, 0.1, 0) },
-  { indices: new Set([0, 1]), step: 4, offset: new THREE.Vector3(0, 0, 1.7) },
-  { indices: new Set([3, 4, 5]), step: 5, offset: new THREE.Vector3(0, 1.8, 0) },
+  { indices: new Set([...Array.from({ length: 6 }, (_, i) => i + 6), 14, 15, ...Array.from({ length: 48 }, (_, i) => i + 18)]), step: 1, offset: new THREE.Vector3(0, -1.15, 0) },
+  { indices: new Set([12, 16]), step: 2, offset: new THREE.Vector3(0, 1.15, 0) },
+  { indices: new Set([2, 13, 17, 66]), step: 3, offset: new THREE.Vector3(1.2, 0.1, 0) },
+  { indices: new Set([0, 1]), step: 4, offset: new THREE.Vector3(0, 0, 1.1) },
+  { indices: new Set([3, 4, 5]), step: 5, offset: new THREE.Vector3(0, 1.25, 0) },
 ];
 const legClusters = [[6, 7, 8, 10, 11, 14, 15], [9, ...Array.from({ length: 13 }, (_, i) => i + 18)], Array.from({ length: 9 }, (_, i) => i + 31), Array.from({ length: 8 }, (_, i) => i + 40), Array.from({ length: 9 }, (_, i) => i + 48), Array.from({ length: 9 }, (_, i) => i + 57)];
 function explosionOffset(index, step) {
@@ -54,9 +54,10 @@ function explosionOffset(index, step) {
 function sectionOf(index) {
   return sections.find((group) => group.indices?.has(index) || (index >= group.from && index <= group.to)) || sections[1];
 }
-function whiteMaterial(original, face) {
-  if (face) return new THREE.MeshStandardMaterial({ color: 0x30241f, roughness: 0.75, metalness: 0, transparent: true });
-  return new THREE.MeshToonMaterial({ color: 0xece7df, transparent: true, side: THREE.DoubleSide, depthWrite: true });
+function whiteMaterial(step, face) {
+  if (face) return new THREE.MeshStandardMaterial({ color: 0x211916, roughness: 1, metalness: 0, transparent: true, side: THREE.FrontSide });
+  const shades = [0, 0xe8e1d7, 0xeee8df, 0xf1ebe3, 0xf6f0e8, 0xf4eee5];
+  return new THREE.MeshToonMaterial({ color: shades[step], transparent: true, side: THREE.FrontSide, depthWrite: true });
 }
 
 new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
@@ -69,17 +70,14 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
   source.children.forEach((mesh, index) => {
     if (!mesh.isMesh) return;
     const group = sectionOf(index);
-    mesh.material = whiteMaterial(mesh.material, index === 0);
-    const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x614b3e, side: THREE.BackSide, transparent: true, opacity: .92, depthWrite: false });
-    outlineMaterial.onBeforeCompile = (shader) => { shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += normalize(normal) * 0.009;'); };
-    const outline = new THREE.Mesh(mesh.geometry, outlineMaterial);
-    outline.userData.outline = true;
-    mesh.add(outline);
-    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, 65), new THREE.LineBasicMaterial({ color: 0x796354, transparent: true, opacity: .72, depthWrite: false }));
-    mesh.add(edge);
+    mesh.material = whiteMaterial(group.step, index === 0);
     mesh.userData.assemblyStep = group.step;
-    pieces.push({ mesh, edge, outline, index, group, original: mesh.position.clone(), rotation: mesh.quaternion.clone(), explosion: explosionOffset(index, group.step) });
+    pieces.push({ mesh, index, group, original: mesh.position.clone(), rotation: mesh.quaternion.clone(), explosion: explosionOffset(index, group.step) });
   });
+  liner = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), new THREE.MeshToonMaterial({ color: 0xeee8df, transparent: true, side: THREE.FrontSide }));
+  liner.scale.set(.45, .27, .04);
+  liner.position.set(0, .59, -.04);
+  source.add(liner);
   eyes = new THREE.Group();
   const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xffe4aa, transparent: true });
   for (const x of [-.025, .125]) {
@@ -101,7 +99,7 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
   heroScene.add(heroKey);
   heroModel = source.clone(true);
   heroModel.position.copy(model.position);
-  heroModel.traverse((child) => { if (child.isMesh || child.isLineSegments) { child.material = child.material.clone(); child.material.opacity = child.isLineSegments ? .55 : child.userData.outline ? .7 : 1; child.material.transparent = child.isLineSegments || Boolean(child.userData.outline); } });
+  heroModel.traverse((child) => { if (child.isMesh) { child.material = child.material.clone(); child.material.opacity = 1; child.material.transparent = false; child.material.depthWrite = true; } });
   heroScene.add(heroModel);
   heroCamera = new THREE.PerspectiveCamera(32, 1, .01, 100);
   const heroSize = () => { const { width, height } = heroHost.getBoundingClientRect(); if (!width || !height) return; heroRenderer.setSize(width, height, false); heroCamera.aspect = width / height; heroCamera.updateProjectionMatrix(); };
@@ -122,7 +120,7 @@ function measure() {
   });
   state.target = clamp(value, 0, 5);
   const active = clamp(Math.round(state.target), 0, 5);
-  if (active !== state.step) { state.step = active; state.expandTarget = 0; updateButtons(); }
+  if (active !== state.step) { state.step = active; state.expandTarget = 0; state.expanded = 0; updateButtons(); }
   chapters.forEach((chapter, index) => chapter.classList.toggle('active', index === active));
   number.textContent = `${String(active).padStart(2, '0')} / 05`;
   progressBar.style.width = `${state.target * 20}%`;
@@ -224,11 +222,18 @@ function updateGuide() {
 function animate(now) {
   requestAnimationFrame(animate);
   if (document.body.dataset.page !== 'home' || document.hidden) return;
-  state.progress += (state.target - state.progress) * 0.075;
+  state.progress += (state.target - state.progress) * 0.14;
+  if (Math.abs(state.target - state.progress) < .002) state.progress = state.target;
   state.expanded += (state.expandTarget - state.expanded) * .12;
+  if (Math.abs(state.expandTarget - state.expanded) < .002) state.expanded = state.expandTarget;
   const p = state.progress;
   if (model) {
     const faceArrival = ease(clamp(p - 3, 0, 1));
+    const linerArrival = ease(clamp(p - 4, 0, 1));
+    const linerOpacity = linerArrival * (1 - state.expanded);
+    liner.visible = linerOpacity > .04;
+    liner.material.opacity = linerOpacity;
+    liner.material.depthWrite = linerOpacity > .995;
     eyes.visible = faceArrival > .04;
     eyes.children.forEach((eye) => { eye.material.opacity = faceArrival; });
     for (const piece of pieces) {
@@ -238,23 +243,23 @@ function animate(now) {
       if (!piece.mesh.visible) continue;
       const focus = step === state.step;
       const explode = focus ? state.expanded : 0;
-      const entry = step === 3 && piece.index === 13 ? new THREE.Vector3(-1.8, .1, 0) : piece.group.offset;
+      const entry = step === 3 && piece.index === 13 ? new THREE.Vector3(-1.2, .1, 0) : piece.group.offset;
       piece.mesh.position.copy(piece.original).addScaledVector(entry, (1 - t) * extent);
       const explodeScale = [0, .8, .7, .48, .6, .58][step];
       piece.mesh.position.addScaledVector(piece.explosion, explode * extent * explodeScale);
-      piece.mesh.material.opacity = t;
-      piece.mesh.material.depthWrite = piece.mesh.material.opacity > .5;
-      piece.edge.material.opacity = t * .72;
-      piece.outline.material.opacity = t * .92;
+      const opaque = t > .995;
+      if (piece.mesh.material.transparent === opaque) { piece.mesh.material.transparent = !opaque; piece.mesh.material.needsUpdate = true; }
+      piece.mesh.material.opacity = opaque ? 1 : t;
+      piece.mesh.material.depthWrite = opaque;
       piece.mesh.quaternion.copy(piece.rotation);
       if (piece.index === 4 || piece.index === 5) {
-        twist.setFromAxisAngle(axis, Math.sin(now * 0.0008 + piece.index) * 0.09 * t);
+        twist.setFromAxisAngle(axis, (p - 4) * .045 * t);
         piece.mesh.quaternion.multiply(twist);
       }
     }
-    const yaw = [-.45, .45, -.45, .55, -.28, -.35];
+    const yaw = [-.45, .45, -.45, .55, -.28, -.22];
     const i = Math.min(4, Math.floor(p));
-    model.rotation.y = THREE.MathUtils.lerp(yaw[i], yaw[i + 1], ease(p - i)) + Math.sin(now * .00035) * .025;
+    model.rotation.y = THREE.MathUtils.lerp(yaw[i], yaw[i + 1], ease(p - i));
     model.rotation.x = -0.04 + Math.sin(p * 0.65) * 0.075;
     const sides = host.clientWidth > 900 ? [.1, .42, -.42, .42, -.42, .42] : host.clientWidth > 620 ? [.1, .21, -.21, .21, -.21, .4] : [.1, 0, 0, 0, 0, 0];
     model.position.x = -center.x + THREE.MathUtils.lerp(sides[i], sides[i + 1], ease(p - i)) * extent;
@@ -265,14 +270,14 @@ function animate(now) {
   const expansionDistance = [0, .9, .9, 1.65, .8, 1.35][state.step];
   const mobileScale = host.clientWidth < 620 ? .74 : 1;
   const distance = THREE.MathUtils.lerp(distances[at], distances[at + 1], ease(p - at)) * mobileScale + state.expanded * expansionDistance;
-  camera.position.set(extent * .3, extent * .55, extent * distance);
+  camera.position.set(extent * (.3 - .08 * ease(clamp(p - 4, 0, 1))), extent * .55, extent * distance);
   camera.lookAt(0, 0.05 * extent, 0);
   model?.updateMatrixWorld(true);
   updateGuide();
   renderer.render(scene, camera);
   if (heroModel) {
-    heroModel.rotation.y = -.04 + Math.sin(now * .00028) * .055;
-    heroCamera.position.set(extent * .3, extent * .68, extent * 3.15);
+    heroModel.rotation.y = -.22;
+    heroCamera.position.set(extent * .22, extent * .6, extent * 2.9);
     heroCamera.lookAt(0, 0.08 * extent, 0);
     heroRenderer.render(heroScene, heroCamera);
   }

@@ -10,6 +10,7 @@ header{background:#faf4eaf0;border-color:#ead8c6}
 .assembly-visual{position:sticky;top:76px;width:100%;height:calc(100vh - 76px);margin-bottom:calc(-100vh + 76px);border:0;background:transparent;overflow:visible;z-index:1;pointer-events:none}
 .assembly-visual:before,.assembly-visual:after{display:none}
 #assembly-canvas,#assembly-canvas canvas{pointer-events:auto}
+#assembly-canvas canvas,#hero-canvas canvas{filter:drop-shadow(1px 0 0 #766155) drop-shadow(-1px 0 0 #766155) drop-shadow(0 1px 0 #766155) drop-shadow(0 -1px 0 #766155)}
 #assembly-guide{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 #assembly-guide path{fill:none;stroke:#c98154;stroke-width:1.5;stroke-dasharray:4 3}
 #assembly-guide circle{fill:#c98154;stroke:#fff8f0;stroke-width:2}
