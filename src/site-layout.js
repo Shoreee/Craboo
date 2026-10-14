@@ -11,19 +11,30 @@ home.id = 'page-home';
 home.className = 'page home-page';
 home.innerHTML = `
   <div class="hero-intro">
-    <div class="hero-copy"><span class="hero-kicker">CRABOO / 具身声音伙伴</span><h1>把世界的声音，<br><em>慢慢听成陪伴。</em></h1><p>会移动，也会回应。认识它，从一件件部件开始。</p><a class="hero-explore" href="#home" data-scroll-assembly>向下探索结构 <b>↘</b></a></div>
-    <div class="hero-product"><span class="hero-product-index">01 / 产品形态</span><div id="hero-canvas" aria-label="Craboo 三维产品概念画面"></div><span class="hero-product-caption">白色外壳 · 双层旋转 · 六足行走</span></div>
-    <div class="hero-grid"><a class="hero-card hero-card-shell" href="#home" data-scroll-assembly><img src="assets/craboo-shell.png" alt="Craboo 双层甲壳细节"><span><b>01 / 结构</b><strong>从零开始装配 ↗</strong></span></a><a class="hero-card hero-card-plush" href="#companion"><img src="assets/craboo-plush.png" alt="Craboo 毛绒陪伴形态"><span><b>02 / 陪伴</b><strong>靠近一点 ↗</strong></span></a><a class="hero-card hero-card-sound" href="#simulation"><span class="hero-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span><b>03 / 聆听</b><strong>让声音流动 ↗</strong></span></a></div>
+    <div class="hero-flow" aria-hidden="true"></div>
+    <div class="hero-type hero-type-back" aria-hidden="true">TADA</div>
+    <div class="hero-copy"><span class="hero-kicker">01 / A COMPANION IN MOTION</span><h1>Listen.<br>Move.<br><em>Remember.</em></h1><p>A small companion that learns the sounds you love.</p><a class="hero-explore" href="#home" data-scroll-assembly>EXPLORE THE DESIGN <b>↘</b></a></div>
+    <div class="hero-card-rail" aria-label="Product stories">
+      <article class="hero-card hero-card-scene"><img src="assets/tada-sleep.png" alt="At rest, surrounded by familiar sounds"><div><span>01 / REST</span><strong>Sounds that stay<br>close.</strong></div></article>
+      <article class="hero-card hero-card-detail"><img src="assets/tada-hand.png" alt="Detachable soft hand detail"><div><span>02 / FORM</span><strong>A softer way<br>to connect.</strong></div></article>
+      <article class="hero-card hero-card-scene"><img src="assets/tada-focus.png" alt="Quiet focus at the desk"><div><span>03 / FOCUS</span><strong>Alongside your<br>everyday.</strong></div></article>
+      <article class="hero-card hero-card-detail"><img src="assets/tada-face.png" alt="Face and illuminated eyes detail"><div><span>04 / EXPRESSION</span><strong>Eyes that<br>answer back.</strong></div></article>
+      <article class="hero-card hero-card-scene"><img src="assets/tada-field.png" alt="Collecting sounds outdoors"><div><span>05 / EXPLORE</span><strong>Take the world<br>in.</strong></div></article>
+      <article class="hero-card hero-card-detail"><img src="assets/tada-feet.png" alt="Six soft feet detail"><div><span>06 / MOVEMENT</span><strong>Made to<br>move.</strong></div></article>
+    </div>
+    <div class="hero-product"><div id="hero-canvas" aria-label="Drag to rotate the TADA 3D model"></div></div>
+    <div class="hero-type hero-type-front" aria-hidden="true">TADA</div>
+    <div class="hero-foot"><span>DRAG TO ROTATE <b>↔</b></span><div class="hero-rail-controls"><button type="button" data-card-step="-1" aria-label="Previous story">←</button><span>SWIPE THE STORIES</span><button type="button" data-card-step="1" aria-label="Next story">→</button></div><span>SCROLL TO ASSEMBLE ↓</span></div>
   </div>
-  <div class="assembly"><div class="assembly-visual" id="assembly-visual"><div id="assembly-canvas" aria-label="Craboo 产品逐步装配的三维展示"></div><svg id="assembly-guide" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path></path><circle r="5"></circle></svg><div class="assembly-readout"><span id="assembly-number">00 / 05</span><span id="assembly-progress"><i></i></span><span id="assembly-status">模型载入中…</span></div></div>
+  <div class="assembly"><div class="assembly-visual" id="assembly-visual"><div id="assembly-canvas" aria-label="TADA 产品逐步装配的三维展示"></div><svg id="assembly-guide" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path></path><circle r="5"></circle></svg><div class="assembly-readout"><span id="assembly-number">00 / 05</span><span id="assembly-progress"><i></i></span><span id="assembly-status">模型载入中…</span></div></div>
     <div class="assembly-chapters">
       <article class="assembly-chapter" data-assembly="0"><span class="step-index">00 / 印象</span><h2>把好奇，<br>装进一只小小的身体。</h2><p>一个会移动、会收听，也会与你回应的伙伴。</p></article>
       <article class="assembly-chapter" data-assembly="1"><span class="step-index">01 / 行走</span><h2>六只足，<br>交替撑起每一步。</h2><p>每只足由水平转向、抬落和足端弯折三个关节组成。</p><div class="assembly-detail"><span class="detail-line"></span><strong>三自由度 × 六足</strong><small>交替三足步态 · 仓库拟合步态参数</small></div><div class="joint-widget" aria-label="单足三关节运动示意"><span class="joint-axis">水平转向</span><div class="joint-leg"><i></i><i></i><i></i></div><span class="joint-axis">抬落 / 弯折</span></div></article>
       <article class="assembly-chapter" data-assembly="2"><span class="step-index">02 / 身体</span><h2>结构归位，<br>为探索留出空间。</h2><p>主体连接行走机构、收音部件与上壳。</p><div class="assembly-detail"><span class="detail-line"></span><strong>主体承载</strong><small>内部结构和外壳一起运动</small></div></article>
       <article class="assembly-chapter" data-assembly="3"><span class="step-index">03 / 聆听</span><h2>向世界伸出<br>自己的耳朵。</h2><p>两侧可展开的部件承载触碰与收音想象。</p><div class="assembly-detail"><span class="detail-line"></span><strong>侧部展开</strong><small>声音进入后，由浏览器实时切段与分析</small></div></article>
       <article class="assembly-chapter" data-assembly="4"><span class="step-index">04 / 表情</span><h2>听见以后，<br>给你一个回应。</h2><p>脸部会随触碰、声音和姿态改变表情。</p><div class="assembly-detail"><span class="detail-line"></span><strong>情绪反馈</strong><small>响应当前交互与学习结果</small></div></article>
-      <article class="assembly-chapter" data-assembly="5"><span class="step-index">05 / 甲壳</span><h2>两层上壳，<br>各自沿轴旋转。</h2><p>它们不是绕身体公转。装配完成，Craboo 开始行动。</p><div class="assembly-detail"><span class="detail-line"></span><strong>独立转轴 × 2</strong><small>定时与转速可在仿真页调节</small></div></article>
-    </div></div><div class="home-finale"><span>CRABOO / COMPLETE</span><h2>一起，去听世界。</h2><div><a href="#companion">走近它的陪伴形态 ↗</a><a href="#simulation">看它走进桌面 ↗</a></div></div>`;
+      <article class="assembly-chapter" data-assembly="5"><span class="step-index">05 / 甲壳</span><h2>两层上壳，<br>各自沿轴旋转。</h2><p>它们不是绕身体公转。装配完成，TADA 开始行动。</p><div class="assembly-detail"><span class="detail-line"></span><strong>独立转轴 × 2</strong><small>定时与转速可在仿真页调节</small></div></article>
+    </div></div><div class="home-finale"><span>TADA / COMPLETE</span><h2>一起，去听世界。</h2><div><a href="#companion">走近它的陪伴形态 ↗</a><a href="#simulation">看它走进桌面 ↗</a></div></div>`;
 
 const companion = document.createElement('section');
 companion.id = 'page-companion';
@@ -52,7 +63,7 @@ field.querySelector('.model-view')?.remove();
 const toolbar = field.querySelector('.sim-toolbar');
 toolbar.querySelectorAll('label').forEach((item) => item.remove());
 toolbar.insertAdjacentHTML('beforeend', '<div class="drive-modes"><button id="sim-auto" class="secondary" type="button">自动寻找</button><button id="sim-manual" class="secondary selected" type="button">手动控制</button></div><div id="key-guide"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>前后 / 转向</span></div>');
-field.querySelector('.field-heading h2').textContent = '让 Craboo 动起来';
+field.querySelector('.field-heading h2').textContent = '让 TADA 动起来';
 field.querySelector('.field-screen > p:last-child').textContent = '拖动画面旋转视角；点击它可触摸；Ctrl + 拖动施加外力。上面两层壳可以分别拖动旋转。自动模式按仿真物体坐标选目标，不代表真实视觉感知。';
 field.querySelector('.field-controls').insertAdjacentHTML('afterbegin', '<div class="live-head"><span>实时聆听</span><small>麦克风 → 波形 → 临时切段 → 可保存的候选声音</small></div>');
 const leg = take('.leg-study');
@@ -87,12 +98,15 @@ home.querySelectorAll('.assembly-chapter').forEach((chapter, index) => {
     chapter.querySelector('.assembly-detail')?.insertAdjacentHTML('beforeend', '<button class="explode-toggle" type="button" aria-pressed="false">查看爆炸结构 ↗</button>');
 });
 take('.player-bar').classList.add('global-player');
+const cardRail = home.querySelector('.hero-card-rail');
+home.querySelectorAll('[data-card-step]').forEach((button) => button.addEventListener('click', () => cardRail.scrollBy({left: Number(button.dataset.cardStep) * Math.min(cardRail.clientWidth * .65, 380), behavior:'smooth'})));
 take('#open-library').textContent = '我的 ↗';
 const header = take('header');
 header.querySelector('.header-note').remove();
 header.insertBefore(Object.assign(document.createElement('nav'), {className: 'site-nav', innerHTML: '<a href="#home" data-page-link="home">产品</a><a href="#companion" data-page-link="companion">陪伴</a><a href="#simulation" data-page-link="simulation">仿真</a><a href="#mine" data-page-link="mine">我的</a><a href="#learning" data-page-link="learning">学习</a>'}), take('#open-library'));
+header.insertBefore(Object.assign(document.createElement('button'), {id: 'lang-toggle', type: 'button', textContent: '中文', title: 'Switch language'}), take('#open-library'));
 take('.brand').href = '#home';
-take('footer').innerHTML = '<span>Craboo © 2026</span><nav><a href="#home">产品</a><a href="#companion">陪伴</a><a href="#simulation">仿真</a><a href="#mine">我的</a><a href="#learning">学习</a></nav><button id="open-growth" class="text-button">本机交互演示 <span id="growth-count">0</span></button>';
+take('footer').innerHTML = '<span>TADA © 2026</span><nav><a href="#home">产品</a><a href="#companion">陪伴</a><a href="#simulation">仿真</a><a href="#mine">我的</a><a href="#learning">学习</a></nav><button id="open-growth" class="text-button">本机交互演示 <span id="growth-count">0</span></button>';
 document.querySelector('.capture-flow')?.remove();
 take('#capture-summary').textContent = '录音结束后可试听自动裁出的候选片段，并决定哪些值得保存。';
 take('#save-selected').textContent = '保存勾选的片段';

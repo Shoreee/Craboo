@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#f6f2ea" />
-    <title>Craboo · 一起，慢慢长大</title>
+    <title>TADA · 一起，慢慢长大</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="src/field-lab.css" />
     <link rel="stylesheet" href="src/site-design.css" />
@@ -14,8 +14,8 @@
   </head>
   <body>
     <header>
-      <a class="brand" href="./" aria-label="Craboo 首页"
-        ><span class="brand-mark">c</span>craboo<span class="brand-dot"
+      <a class="brand" href="./" aria-label="TADA 首页"
+        ><span class="brand-mark">t</span>TADA<span class="brand-dot"
           >®</span
         ></a
       ><span class="header-note">陪伴与探索</span
@@ -30,7 +30,7 @@
         <h1>它也需要，<em>被你照顾。</em></h1>
         <p>把世界的声音带给它，让陪伴慢慢发生。</p>
       </section>
-      <section id="stage" class="stage" aria-label="Craboo 二维互动空间">
+      <section id="stage" class="stage" aria-label="TADA 二维互动空间">
         <div class="orbit orbit-one"></div>
         <div class="orbit orbit-two"></div>
         <div class="stage-label left">
@@ -46,7 +46,7 @@
           <img
             id="plush"
             src="assets/craboo-plush.png"
-            alt="米白色 Craboo 毛绒身体"
+            alt="米白色 TADA 毛绒身体"
             draggable="false"
           /><img
             id="shell"
@@ -55,7 +55,7 @@
             draggable="false"
           /><button
             id="pet-hit"
-            aria-label="抚摸 Craboo"
+            aria-label="抚摸 TADA"
             title="轻轻抚摸我"
           ></button
           ><button
@@ -74,7 +74,7 @@
       <section class="field-lab" aria-labelledby="field-title">
         <div class="field-heading"><div><h2 id="field-title">两种形态，一起听见世界</h2></div><span class="simulation">实时物理仿真</span></div>
         <div class="form-note"><strong>2D 毛绒陪伴</strong><span>触摸、声音收藏与情绪回应；无腿部控制。</span><strong>3D 具身探索</strong><span>查看外观、两层上壳与实时物理仿真。</span></div>
-        <div class="model-view" id="model-view"><div id="model-canvas" aria-label="可拖动查看的 Craboo 三维模型"></div><div class="model-copy"><strong>具身探索形态 · 3D</strong><span id="model-status">正在载入模型…</span><small>拖动旋转 · 滚轮缩放</small></div></div>
+        <div class="model-view" id="model-view"><div id="model-canvas" aria-label="可拖动查看的 TADA 三维模型"></div><div class="model-copy"><strong>具身探索形态 · 3D</strong><span id="model-status">正在载入模型…</span><small>拖动旋转 · 滚轮缩放</small></div></div>
         <div class="field-grid"><div class="field-screen"><div id="sim-canvas" aria-label="实时 MuJoCo 机器人和桌面场景"></div><div class="sim-toolbar"><button id="sim-toggle" class="secondary">启动仿真</button><button id="sim-reset" class="secondary">重置</button><button data-sim-view="robot" class="secondary">看机器人</button><button data-sim-view="desk" class="secondary">看桌面</button><button data-sim-view="room" class="secondary">看房间</button><label>前进 <input id="sim-forward" type="range" min="0" max="1" step="0.1" value="0"></label><label>转向 <input id="sim-turn" type="range" min="-1" max="1" step="0.1" value="0"></label></div><p id="sim-status" aria-live="polite">正在准备 MuJoCo 场景…</p><p>拖动画面转动视角；点击机器人可触摸；Ctrl＋拖动机器人施加外力；拖动上面两片壳可旋转。前进与转向采用交替三足步态。</p></div>
         <div class="field-controls"><div class="live-readout"><span id="live-state">尚未开始聆听</span><strong id="live-level">0%</strong></div><div class="meter" aria-label="实时输入音量"><span id="live-bar"></span></div><div id="live-stream" class="live-stream" aria-label="实时声音活动"></div><p id="live-response" aria-live="polite">开启后会实时划分声音片段。</p><button id="live-toggle" class="primary">开启实时聆听</button><label class="noise-option"><input id="noise-filter" type="checkbox" checked> 浏览器回声消除、噪声抑制与自动增益</label><small>切段和模型分析都在本机进行；片段只暂存内存，点击收藏后才保存。不会上传。</small><div class="live-results"><strong>刚听到的片段</strong><div id="live-events" aria-live="polite"><p class="muted">等待声音；有足够活动时会显示切段与判断。</p></div></div></div></div>
         <div class="shell-controls"><div><h3>两层上壳 · 独立旋转</h3><p>分别设置转速与定时停止；实体电机尚未连接。</p></div><div id="shell-rotors"></div></div>
@@ -141,7 +141,7 @@
         ><button id="stop" class="quiet">停止 ■</button>
       </div>
       <footer>
-        <span>Craboo · 陪伴与探索</span
+        <span>TADA · 陪伴与探索</span
         ><button id="open-growth" class="text-button">
           我们的成长 <span id="growth-count">0</span> ↗</button
         ><span>网页交互演示</span>
@@ -235,7 +235,7 @@
           ><button class="close quiet" aria-label="关闭声音编辑">✕</button>
         </div>
       </div>
-      <p class="muted">先听一听，留下想教给 Craboo 的部分。</p>
+      <p class="muted">先听一听，留下想教给 TADA 的部分。</p>
       <canvas id="wave" width="700" height="110" aria-label="声音波形"></canvas>
       <section class="segment-review" aria-labelledby="segments-title"><div class="segment-review-head"><h3 id="segments-title">自动划分的候选片段</h3><p id="segment-status">正在分析…</p></div><div id="segment-list"></div><button id="save-selected" class="secondary" type="button">收藏勾选的片段</button><p class="muted">自动切段依据相对底噪和停顿；模型结果只是估计，不会自动成为训练标签。请试听后标注。同一次录音切出的多段只算一个训练来源。</p></section>
       <div class="trim">
@@ -287,6 +287,7 @@
     </dialog>
     <div id="toast" role="status" aria-live="polite"></div>
     <script src="src/site-layout.js"></script>
+    <script src="src/i18n.js"></script>
     <script type="module" src="src/assembly.js"></script>
     <script type="module" src="src/app.js"></script>
     <script type="module" src="src/field-lab.js"></script>

@@ -132,13 +132,20 @@ export function createMujocoView(host, model, xml) {
     object.receiveShadow = true;
     scene.add(object);
     items.push({ id, object });
-    if (model.geom_bodyid[id] === 1 || name.includes('shell')) pickable.push(object);
+    const bodyName = model.body(model.geom_bodyid[id]).name;
+    if (bodyName === 'base_link' || /^(LF|LM|LR|RF|RM|RR|LA|RA|shell_)/.test(bodyName)) pickable.push(object);
     if (name === 'source_face_screen_visual') {
       face = object;
-      for (const x of [-.072, .072]) {
-        const eye = new THREE.Mesh(new THREE.CapsuleGeometry(.024, .04, 4, 12), new THREE.MeshBasicMaterial({ color: 0xffe3aa }));
-        eye.position.set(x, .55, .16);
-        eye.scale.set(1, 1, .28);
+      geometry.computeBoundingBox();
+      const probe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+      const ray = new THREE.Raycaster();
+      for (const y of [0, .019]) {
+        ray.set(new THREE.Vector3(-.12, y, 0), new THREE.Vector3(1, 0, 0));
+        const surface = ray.intersectObject(probe, false)[0]?.point.x ?? geometry.boundingBox.min.x;
+        const eye = new THREE.Mesh(new THREE.CapsuleGeometry(.003, .009, 4, 12), new THREE.MeshBasicMaterial({ color: 0xffe9ba }));
+        eye.rotation.x = Math.PI / 2;
+        eye.position.set(surface - .0012, y, 0);
+        eye.scale.x = .25;
         face.add(eye);
         faceEyes.push(eye);
       }
@@ -146,18 +153,30 @@ export function createMujocoView(host, model, xml) {
   }
   const faceTextures = {};
   for (const expression of ['idle','moving','tapping','surprised','blink']) {
-    const path = textures.textures.get(`face_${expression}_texture`);
-    if (path) {
-      faceTextures[expression] = new THREE.TextureLoader().load(`assets/sim/bedroom/${path}`);
-      faceTextures[expression].colorSpace = THREE.SRGBColorSpace;
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024; canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#090d12'; ctx.fillRect(0, 0, 1024, 512);
+    ctx.fillStyle = '#f9e9c5';
+    for (const x of [326, 698]) {
+      const height = expression === 'blink' ? 25 : expression === 'surprised' ? 205 : 170;
+      const width = expression === 'surprised' ? 82 : 72;
+      ctx.beginPath(); ctx.roundRect(x - width / 2, 302 - height / 2, width, height, width / 2); ctx.fill();
     }
+    if (expression === 'tapping') {
+      ctx.strokeStyle = '#f9e9c5'; ctx.lineWidth = 17; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(260, 150); ctx.lineTo(342, 184); ctx.moveTo(764, 150); ctx.lineTo(682, 184); ctx.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    faceTextures[expression] = texture;
   }
   function expression(name) {
     if (face && faceTextures[name]) {
       face.material.map = faceTextures[name];
       face.material.needsUpdate = true;
     }
-    faceEyes.forEach((eye) => { eye.scale.y = name === 'blink' ? .08 : name === 'surprised' ? 1.35 : 1; });
+    faceEyes.forEach((eye) => { eye.scale.z = name === 'blink' ? .16 : name === 'surprised' ? 1.25 : 1; });
   }
   function update(data) {
     const base = new THREE.Vector3(data.xpos[3], data.xpos[5], -data.xpos[4]);

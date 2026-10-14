@@ -121,7 +121,8 @@ try {
     if (!object) return;
     const bodyName = model.body(object.userData.bodyId).name;
     if (event.ctrlKey || event.metaKey) {
-      drag = { kind: 'perturb', x: event.clientX, y: event.clientY };
+      drag = { kind: 'perturb', startX: event.clientX, startY: event.clientY, baseX: data.qpos[0], baseY: data.qpos[1], targetX: data.qpos[0], targetY: data.qpos[1], torqueX: 0, torqueY: 0 };
+      if (!running) { running = true; toggle.textContent = '暂停仿真'; }
       view.orbit.enabled = false;
       status.textContent = '正在施加 MuJoCo 外力扰动';
     } else if (bodyName.startsWith('shell_')) {
@@ -135,19 +136,25 @@ try {
       setTimeout(() => view.expression(ambientLevel > 30 ? 'surprised' : 'idle'), 500);
       return;
     }
+    event.preventDefault();
+    event.stopImmediatePropagation();
     view.renderer.domElement.setPointerCapture(event.pointerId);
-  });
+  }, { capture: true });
   view.renderer.domElement.addEventListener('pointermove', (event) => {
     if (!drag) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
     if (drag.kind === 'perturb') {
-      const dx = event.clientX - drag.x;
-      const dy = event.clientY - drag.y;
-      data.xfrc_applied[base * 6] = Math.max(-0.5, Math.min(0.5, dx * 0.006));
-      data.xfrc_applied[base * 6 + 1] = Math.max(-0.5, Math.min(0.5, -dy * 0.006));
-      data.xfrc_applied[base * 6 + 3] = Math.max(-0.02, Math.min(0.02, -dy * 0.00025));
-      data.xfrc_applied[base * 6 + 4] = Math.max(-0.02, Math.min(0.02, dx * 0.00025));
-      drag.x = event.clientX;
-      drag.y = event.clientY;
+      const dx = event.clientX - drag.startX;
+      const dy = event.clientY - drag.startY;
+      const right = new THREE.Vector3(1, 0, 0).applyQuaternion(view.camera.quaternion).setY(0).normalize();
+      const forward = view.camera.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
+      const offset = right.multiplyScalar(dx * .0015).addScaledVector(forward, -dy * .0015);
+      drag.targetX = drag.baseX + offset.x;
+      drag.targetY = drag.baseY - offset.z;
+      drag.torqueX = Math.max(-.00035, Math.min(.00035, -dy * .000002));
+      drag.torqueY = Math.max(-.00035, Math.min(.00035, dx * .000002));
+      status.textContent = `正在推拉机器人 · 目标位移 ${(Math.hypot(offset.x, offset.z) * 100).toFixed(0)} 厘米`;
     } else {
       const key = drag.kind;
       const delta = event.clientX - drag.x;
@@ -155,11 +162,12 @@ try {
       mj.mj_forward(model, data);
       drag.x = event.clientX;
     }
-  });
+  }, { capture: true });
   function release() {
     if (!drag) return;
     data.xfrc_applied[base * 6] = 0;
     data.xfrc_applied[base * 6 + 1] = 0;
+    data.xfrc_applied[base * 6 + 2] = 0;
     data.xfrc_applied[base * 6 + 3] = 0;
     data.xfrc_applied[base * 6 + 4] = 0;
     drag = null;
@@ -192,6 +200,14 @@ try {
     for (let i = 0; i < 18; i++) data.ctrl[i] = targets[i];
     data.ctrl[24] = shell.top;
     data.ctrl[25] = shell.second;
+    if (drag?.kind === 'perturb') {
+      const fx = Math.max(-.25, Math.min(.25, (drag.targetX - data.qpos[0]) * .9 - data.qvel[0] * .12));
+      const fy = Math.max(-.25, Math.min(.25, (drag.targetY - data.qpos[1]) * .9 - data.qvel[1] * .12));
+      data.xfrc_applied[base * 6] = fx;
+      data.xfrc_applied[base * 6 + 1] = fy;
+      data.xfrc_applied[base * 6 + 3] = drag.torqueX;
+      data.xfrc_applied[base * 6 + 4] = drag.torqueY;
+    }
   }
   function frame(now) {
     requestAnimationFrame(frame);
@@ -223,7 +239,7 @@ try {
         wasTipped = tipped;
         const distance = Math.hypot(data.qpos[0] - model.qpos0[0], data.qpos[1] - model.qpos0[1]);
         const heading = 2 * Math.atan2(data.qpos[6], data.qpos[3]) * 180 / Math.PI;
-        if (running) status.textContent = `${tipped ? '它被推倒了 · ' : ''}${driveMode === 'auto' ? '自动寻找 ' + targetsToVisit[autoIndex].name.replace('bedroom_', '') + ' · ' : 'WASD 手动 · '}位移 ${(distance * 100).toFixed(1)} 厘米 · 朝向 ${heading.toFixed(0)}° · 声音 ${ambientLevel}%`;
+        if (running && !drag) status.textContent = `${tipped ? '它被推倒了 · ' : ''}${driveMode === 'auto' ? '自动寻找 ' + targetsToVisit[autoIndex].name.replace('bedroom_', '') + ' · ' : 'WASD 手动 · '}位移 ${(distance * 100).toFixed(1)} 厘米 · 朝向 ${heading.toFixed(0)}° · 声音 ${ambientLevel}%`;
         lastStatus = now;
       }
     }

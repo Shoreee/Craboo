@@ -18,20 +18,21 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPr
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.76;
+renderer.toneMappingExposure = 1.45;
 host.append(renderer.domElement);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(33, 1, 0.01, 100);
-scene.add(new THREE.HemisphereLight(0xfff9f0, 0x967c69, .75));
-const key = new THREE.DirectionalLight(0xfffbf3, 1.35);
+scene.add(new THREE.HemisphereLight(0xffffff, 0xdad4ce, 1.05));
+const key = new THREE.DirectionalLight(0xffffff, 1.4);
 key.position.set(3, 5, 5);
 scene.add(key);
-const rim = new THREE.DirectionalLight(0xffd7b7, 0.8);
+const rim = new THREE.DirectionalLight(0xffffff, .55);
 rim.position.set(-4, 1, -3);
 scene.add(rim);
 
 let model, pieces = [], center = new THREE.Vector3(), extent = 1;
-let heroRenderer, heroScene, heroCamera, heroModel, eyes, liner;
+let heroRenderer, heroScene, heroCamera, heroModel, eyes;
+const heroOrbit = { yaw: -.45, pitch: -.06, pointer: null, x: 0, y: 0 };
 const sections = [
   { indices: new Set([...Array.from({ length: 6 }, (_, i) => i + 6), 14, 15, ...Array.from({ length: 48 }, (_, i) => i + 18)]), step: 1, offset: new THREE.Vector3(0, -1.15, 0) },
   { indices: new Set([12, 16]), step: 2, offset: new THREE.Vector3(0, 1.15, 0) },
@@ -55,9 +56,9 @@ function sectionOf(index) {
   return sections.find((group) => group.indices?.has(index) || (index >= group.from && index <= group.to)) || sections[1];
 }
 function whiteMaterial(step, face) {
-  if (face) return new THREE.MeshStandardMaterial({ color: 0x211916, roughness: 1, metalness: 0, transparent: true, side: THREE.FrontSide });
-  const shades = [0, 0xe8e1d7, 0xeee8df, 0xf1ebe3, 0xf6f0e8, 0xf4eee5];
-  return new THREE.MeshToonMaterial({ color: shades[step], transparent: true, side: THREE.FrontSide, depthWrite: true });
+  if (face) return new THREE.MeshStandardMaterial({ color: 0x211916, roughness: 1, metalness: 0, transparent: true, side: THREE.DoubleSide });
+  const shades = [0, 0xfaf9f6, 0xffffff, 0xffffff, 0xffffff, 0xffffff];
+  return new THREE.MeshToonMaterial({ color: shades[step], transparent: true, side: THREE.DoubleSide, depthWrite: true });
 }
 
 new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
@@ -74,16 +75,16 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
     mesh.userData.assemblyStep = group.step;
     pieces.push({ mesh, index, group, original: mesh.position.clone(), rotation: mesh.quaternion.clone(), explosion: explosionOffset(index, group.step) });
   });
-  liner = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 20), new THREE.MeshToonMaterial({ color: 0xeee8df, transparent: true, side: THREE.FrontSide }));
-  liner.scale.set(.45, .27, .04);
-  liner.position.set(0, .59, -.04);
-  source.add(liner);
   eyes = new THREE.Group();
   const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xffe4aa, transparent: true });
-  for (const x of [-.025, .125]) {
-    const eye = new THREE.Mesh(new THREE.CapsuleGeometry(.025, .045, 5, 16), eyeMaterial);
-    eye.position.set(x, .007, .218);
-    eye.scale.z = .35;
+  const faceProbe = new THREE.Mesh(source.children[0].geometry, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+  const eyeRay = new THREE.Raycaster();
+  for (const x of [-.075, .075]) {
+    const eye = new THREE.Mesh(new THREE.CapsuleGeometry(.021, .032, 5, 16), eyeMaterial);
+    eyeRay.set(new THREE.Vector3(x, .007, 1), new THREE.Vector3(0, 0, -1));
+    const surface = eyeRay.intersectObject(faceProbe, false)[0]?.point.z ?? .105;
+    eye.position.set(x, .007, surface + .015);
+    eye.scale.z = .2;
     eyes.add(eye);
   }
   source.children[0].add(eyes);
@@ -91,22 +92,40 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
   heroRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   heroRenderer.outputColorSpace = THREE.SRGBColorSpace;
   heroRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+  heroRenderer.toneMappingExposure = 1.45;
   heroHost.append(heroRenderer.domElement);
   heroScene = new THREE.Scene();
-  heroScene.add(new THREE.HemisphereLight(0xfff9f0, 0xa29488, 1.0));
-  const heroKey = new THREE.DirectionalLight(0xfffbf3, 1.65);
+  heroScene.add(new THREE.HemisphereLight(0xffffff, 0xdad4ce, 1.05));
+  const heroKey = new THREE.DirectionalLight(0xffffff, 1.4);
   heroKey.position.set(3, 5, 5);
   heroScene.add(heroKey);
   heroModel = source.clone(true);
   heroModel.position.copy(model.position);
+  heroModel.position.y += extent * .2;
   heroModel.traverse((child) => { if (child.isMesh) { child.material = child.material.clone(); child.material.opacity = 1; child.material.transparent = false; child.material.depthWrite = true; } });
   heroScene.add(heroModel);
   heroCamera = new THREE.PerspectiveCamera(32, 1, .01, 100);
   const heroSize = () => { const { width, height } = heroHost.getBoundingClientRect(); if (!width || !height) return; heroRenderer.setSize(width, height, false); heroCamera.aspect = width / height; heroCamera.updateProjectionMatrix(); };
   new ResizeObserver(heroSize).observe(heroHost);
   heroSize();
+  heroHost.addEventListener('pointerdown', (event) => {
+    heroOrbit.pointer = event.pointerId;
+    heroOrbit.x = event.clientX;
+    heroOrbit.y = event.clientY;
+    heroHost.setPointerCapture(event.pointerId);
+  });
+  heroHost.addEventListener('pointermove', (event) => {
+    if (heroOrbit.pointer !== event.pointerId) return;
+    heroOrbit.yaw += (event.clientX - heroOrbit.x) * .008;
+    heroOrbit.pitch = clamp(heroOrbit.pitch + (event.clientY - heroOrbit.y) * .005, -.45, .45);
+    heroOrbit.x = event.clientX;
+    heroOrbit.y = event.clientY;
+  });
+  const stopOrbit = (event) => { if (heroOrbit.pointer === event.pointerId) heroOrbit.pointer = null; };
+  heroHost.addEventListener('pointerup', stopOrbit);
+  heroHost.addEventListener('pointercancel', stopOrbit);
   measure();
-}, undefined, () => { status.textContent = '三维模型载入失败'; });
+}, undefined, () => { status.textContent = window.crabooTranslate?.('三维模型载入失败') ?? '三维模型载入失败'; });
 
 function measure() {
   if (document.body.dataset.page !== 'home') return;
@@ -124,13 +143,13 @@ function measure() {
   chapters.forEach((chapter, index) => chapter.classList.toggle('active', index === active));
   number.textContent = `${String(active).padStart(2, '0')} / 05`;
   progressBar.style.width = `${state.target * 20}%`;
-  status.textContent = ['整体印象', '足部装配', '主体装配', '收音部件', '表情反馈', '装配完成'][active];
+  status.textContent = window.crabooTranslate?.(['整体印象', '足部装配', '主体装配', '收音部件', '表情反馈', '装配完成'][active]) ?? '';
 }
 function updateButtons() {
   document.querySelectorAll('.explode-toggle').forEach((button) => {
     const active = Number(button.closest('[data-assembly]').dataset.assembly) === state.step && state.expandTarget;
     button.setAttribute('aria-pressed', String(Boolean(active)));
-    button.textContent = active ? '合上部件 ↙' : '查看爆炸结构 ↗';
+    button.textContent = window.crabooTranslate?.(active ? '合上部件 ↙' : '查看爆炸结构 ↗') ?? '';
   });
 }
 function toggleExploded(step) {
@@ -151,6 +170,7 @@ renderer.domElement.addEventListener('click', (event) => {
 addEventListener('scroll', measure, { passive: true });
 addEventListener('resize', measure);
 addEventListener('craboo:page', measure);
+addEventListener('craboo:language', () => { measure(); updateButtons(); labelStep = -1; });
 measure();
 new ResizeObserver(() => {
   const { width, height } = host.getBoundingClientRect();
@@ -198,7 +218,7 @@ function updateGuide() {
     labelLayer.replaceChildren();
     for (const [, name] of partLabels[step] || []) {
       const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      group.innerHTML = `<path></path><circle r="3"></circle><text>${name}</text>`;
+      group.innerHTML = `<path></path><circle r="3"></circle><text>${window.crabooTranslate?.(name) ?? name}</text>`;
       labelLayer.append(group);
     }
   }
@@ -229,11 +249,6 @@ function animate(now) {
   const p = state.progress;
   if (model) {
     const faceArrival = ease(clamp(p - 3, 0, 1));
-    const linerArrival = ease(clamp(p - 4, 0, 1));
-    const linerOpacity = linerArrival * (1 - state.expanded);
-    liner.visible = linerOpacity > .04;
-    liner.material.opacity = linerOpacity;
-    liner.material.depthWrite = linerOpacity > .995;
     eyes.visible = faceArrival > .04;
     eyes.children.forEach((eye) => { eye.material.opacity = faceArrival; });
     for (const piece of pieces) {
@@ -265,7 +280,7 @@ function animate(now) {
     model.position.x = -center.x + THREE.MathUtils.lerp(sides[i], sides[i + 1], ease(p - i)) * extent;
     model.position.y = -center.y + Math.sin(p * 0.7) * extent * 0.02;
   }
-  const distances = [3.7, 3.3, 3.8, 3.8, 3.8, 3.7];
+  const distances = [3.7, 3.3, 3.8, 3.8, 3.1, 3.7];
   const at = Math.min(4, Math.floor(p));
   const expansionDistance = [0, .9, .9, 1.65, .8, 1.35][state.step];
   const mobileScale = host.clientWidth < 620 ? .74 : 1;
@@ -276,8 +291,8 @@ function animate(now) {
   updateGuide();
   renderer.render(scene, camera);
   if (heroModel) {
-    heroModel.rotation.y = -.22;
-    heroCamera.position.set(extent * .22, extent * .6, extent * 2.9);
+    heroModel.rotation.set(heroOrbit.pitch, heroOrbit.yaw, 0);
+    heroCamera.position.set(0, extent * .48, extent * 2.2);
     heroCamera.lookAt(0, 0.08 * extent, 0);
     heroRenderer.render(heroScene, heroCamera);
   }

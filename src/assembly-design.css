@@ -44,5 +44,11 @@ footer{background:#f2e1cf;color:#8e6b57}.model-detail{border-color:#ead9c8;color
 @media(max-width:620px){.assembly-visual{top:65px;height:45vh;margin-bottom:calc(-45vh);min-height:310px}.assembly-chapter{height:100vh;min-height:700px;padding:54vh 22px 50px;justify-content:flex-start;align-items:flex-start!important;text-align:left!important}.assembly-chapter>*{max-width:100%}.assembly-chapter h2{font-size:35px;margin:10px 0}.assembly-chapter p{font-size:13px;line-height:1.5}.assembly-detail{margin-top:8px}.assembly-chapter:nth-child(odd) .detail-line,.assembly-chapter:nth-child(odd) .explode-toggle{margin-left:0}#interaction-hand{width:90px}}
 @media(max-width:620px){.assembly-readout{display:none}}
 @media(max-width:620px){.assembly-chapter:nth-child(odd) .step-index{flex-direction:row}}
+.assembly-chapter[data-assembly="4"]{padding-right:7%;padding-top:9vw}
+.assembly-chapter[data-assembly="4"]>*{max-width:min(32%,440px)}
+.assembly-chapter[data-assembly="4"] h2{font-size:clamp(38px,4.4vw,72px);line-height:1.18}
+.assembly-chapter[data-assembly="4"] .assembly-detail{margin-top:25px}
+@media(max-width:900px){.assembly-chapter[data-assembly="4"]>*{max-width:43%}}
+@media(max-width:620px){.assembly-chapter[data-assembly="4"]{padding:54vh 22px 50px}.assembly-chapter[data-assembly="4"]>*{max-width:100%}}
 @media(max-width:900px){.hero-intro{justify-content:flex-start;padding-top:10vh}.hero-intro h1{max-width:100%;position:relative;z-index:2;font-size:clamp(45px,6vw,70px)}#hero-canvas{top:42%;height:52%;width:100%;right:0;opacity:.9}.hero-intro p{font-size:14px}}
 @media(max-width:620px){.hero-intro{padding-top:8vh}.hero-intro h1{font-size:46px}#hero-canvas{top:41%;height:53%;width:105%;right:-7%}}

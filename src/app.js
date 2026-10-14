@@ -109,7 +109,13 @@ function respond(clip) {
 }
 audio.onStop = () => {
   $("#playing").textContent = "声音停下了，陪伴还在。";
+  document.querySelector('.global-player')?.classList.remove('is-playing');
 };
+const playerObserver = new MutationObserver(() => {
+  const label = $('#playing').textContent;
+  document.querySelector('.global-player')?.classList.toggle('is-playing', /^正在(试听|播放|陪伴)/.test(label));
+});
+playerObserver.observe($('#playing'), { childList: true, characterData: true, subtree: true });
 audio.onError = error;
 function updateTop() {
   $("#profile-label").textContent =
@@ -266,8 +272,9 @@ on("#care-detach", "click", () => detach());
 async function pet() {
   const earned = care(state);
   $("#robot").classList.remove("petted");
+  $("#robot").classList.remove('tap-bounce', 'tap-angry', 'pet-bounce');
   void $("#robot").offsetWidth;
-  $("#robot").classList.add("petted");
+  $("#robot").classList.add("petted", 'pet-bounce');
   mood("calm", "感到安心");
   say(
     earned ? "你的温柔，我记住了。" : "嗯，待在这里就很好。",
@@ -284,8 +291,13 @@ on("#pet", "click", pet);
 on("#pet-hit", "click", pet);
 window.addEventListener('craboo:hand-tap', async () => {
   await audio.touch();
-  mood('curious', '听见轻拍');
-  say('叩叩，我在这里。', '手部轻拍 · 浏览器合成触碰声');
+  const robot = $('#robot');
+  robot.classList.remove('pet-bounce', 'tap-bounce', 'tap-angry');
+  void robot.offsetWidth;
+  robot.classList.add('tap-bounce', 'tap-angry');
+  setTimeout(() => robot.classList.remove('tap-angry'), 1500);
+  mood('nervous', '被轻拍惊动');
+  say('哎呀，轻一点嘛。', '手部轻拍 · 浏览器合成触碰声');
 });
 let strokes = 0;
 on("#pet-hit", "pointermove", (e) => {
@@ -732,8 +744,8 @@ on("#models", "click", async (e) => {
           .sort()
           .join("|"),
       key === "category"
-        ? "Craboo 学会了辨认新的声音"
-        : "Craboo 更懂你的声音偏好了",
+        ? "TADA 学会了辨认新的声音"
+        : "TADA 更懂你的声音偏好了",
       4,
     );
     await persist();
