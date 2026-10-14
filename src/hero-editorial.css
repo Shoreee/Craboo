@@ -76,3 +76,28 @@ footer nav{gap:clamp(13px,2vw,35px)}
 footer nav a{font-size:12px;color:#765a49}
 footer #open-growth{font-size:11px;color:#765a49}
 @media(max-width:620px){footer{min-height:170px}footer>span:first-child{display:block}footer nav{margin:20px 0}.global-player{right:9px;bottom:9px}}
+
+/* TADA lake: shader light, centered product, paper cards in a slow orbit. */
+.hero-intro{background:#b5a291}
+.hero-intro:before{display:none}
+.hero-flow{inset:0;width:100%;height:100%;opacity:1;filter:none;transform:none;animation:none;z-index:-1}
+.hero-type{left:-11%;right:-11%;top:8%;font-size:clamp(180px,34vw,630px);line-height:.7;letter-spacing:-.045em;transform:scaleX(1.05)}
+.hero-type-back{color:#fff8edec;text-shadow:0 2px 30px #fff8ec27}
+.hero-type-front{opacity:.34;-webkit-text-stroke:1px #fff8ed}
+.hero-product{inset:17% 28% 17% 28%;z-index:3;filter:drop-shadow(0 25px 19px #5644344b)}
+.hero-copy{top:auto;bottom:10%;left:5%;max-width:300px;z-index:5}
+.hero-copy h1{font-size:clamp(36px,3.4vw,58px);line-height:.96}
+.hero-copy p{font-size:12px;margin:15px 0}
+.hero-card-rail{inset:0;left:0;right:0;bottom:0;width:100%;height:100%;overflow:hidden;mask-image:none;padding:0;pointer-events:none;z-index:2}
+.hero-card{position:absolute;left:0;top:0;width:clamp(125px,12vw,180px);height:clamp(155px,16vw,225px);flex:none;padding:7px 7px 0;background:#fffaf2;color:#4b3c32;border:1px solid #fffaf2;border-radius:3px;box-shadow:0 17px 35px #392b2350;pointer-events:auto;will-change:transform;transition:box-shadow .3s,filter .3s;scroll-snap-align:none}
+.hero-card:hover{box-shadow:0 22px 43px #392b2370}
+.hero-card img{height:67%;width:100%;object-fit:cover;border-radius:1px}
+.hero-card>div{position:static;background:none;color:#4b3c32;padding:9px 4px 5px;gap:4px}
+.hero-card span{font-size:8px;color:#9a7968}
+.hero-card strong{font:400 clamp(14px,1.25vw,19px)/1.04 Georgia,serif;color:#4b3c32}
+.hero-foot{z-index:6}
+.hero-rail-controls{background:#fffaf1db;border-radius:999px;padding:4px 7px;color:#684d3d;backdrop-filter:blur(8px)}
+.hero-rail-controls button{color:#684d3d;border-color:#bfa796;background:#fffaf2}
+.hero-rail-controls button:hover{background:#6e5445;color:white}
+@media(max-width:900px){.hero-type{top:12%;font-size:36vw}.hero-product{inset:20% 19% 25% 19%}.hero-copy{left:5%;bottom:10%;max-width:200px}.hero-card{width:130px;height:168px}.hero-card-rail{inset:0;width:100%;height:100%}}
+@media(max-width:620px){.hero-type{top:9%;font-size:39vw}.hero-product{inset:22% 12% 30% 12%}.hero-copy{left:6%;bottom:10%;max-width:170px}.hero-copy h1{font-size:34px}.hero-copy p{max-width:145px}.hero-card{width:92px;height:123px;padding:4px}.hero-card img{height:60%}.hero-card>div{padding:5px 2px 2px}.hero-card strong{font-size:11px}.hero-card span{font-size:7px}.hero-foot{left:6%;right:6%;bottom:3%}}

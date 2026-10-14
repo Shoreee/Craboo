@@ -11,7 +11,7 @@ home.id = 'page-home';
 home.className = 'page home-page';
 home.innerHTML = `
   <div class="hero-intro">
-    <div class="hero-flow" aria-hidden="true"></div>
+    <canvas class="hero-flow" id="hero-flow" aria-hidden="true"></canvas>
     <div class="hero-type hero-type-back" aria-hidden="true">TADA</div>
     <div class="hero-copy"><span class="hero-kicker">01 / A COMPANION IN MOTION</span><h1>Listen.<br>Move.<br><em>Remember.</em></h1><p>A small companion that learns the sounds you love.</p><a class="hero-explore" href="#home" data-scroll-assembly>EXPLORE THE DESIGN <b>↘</b></a></div>
     <div class="hero-card-rail" aria-label="Product stories">
@@ -98,8 +98,6 @@ home.querySelectorAll('.assembly-chapter').forEach((chapter, index) => {
     chapter.querySelector('.assembly-detail')?.insertAdjacentHTML('beforeend', '<button class="explode-toggle" type="button" aria-pressed="false">查看爆炸结构 ↗</button>');
 });
 take('.player-bar').classList.add('global-player');
-const cardRail = home.querySelector('.hero-card-rail');
-home.querySelectorAll('[data-card-step]').forEach((button) => button.addEventListener('click', () => cardRail.scrollBy({left: Number(button.dataset.cardStep) * Math.min(cardRail.clientWidth * .65, 380), behavior:'smooth'})));
 take('#open-library').textContent = '我的 ↗';
 const header = take('header');
 header.querySelector('.header-note').remove();

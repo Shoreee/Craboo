@@ -117,24 +117,26 @@ try {
     return raycaster.intersectObjects(view.pickable, false)[0]?.object;
   }
   view.renderer.domElement.addEventListener('pointerdown', (event) => {
-    const object = hit(event);
-    if (!object) return;
-    const bodyName = model.body(object.userData.bodyId).name;
     if (event.ctrlKey || event.metaKey) {
       drag = { kind: 'perturb', startX: event.clientX, startY: event.clientY, baseX: data.qpos[0], baseY: data.qpos[1], targetX: data.qpos[0], targetY: data.qpos[1], torqueX: 0, torqueY: 0 };
       if (!running) { running = true; toggle.textContent = '暂停仿真'; }
       view.orbit.enabled = false;
       status.textContent = '正在施加 MuJoCo 外力扰动';
-    } else if (bodyName.startsWith('shell_')) {
+    } else {
+      const object = hit(event);
+      if (!object) return;
+      const bodyName = model.body(object.userData.bodyId).name;
+      if (bodyName.startsWith('shell_')) {
       drag = { kind: bodyName.includes('top') ? 'top' : 'second', x: event.clientX };
       view.orbit.enabled = false;
       status.textContent = '正在旋转上壳关节';
-    } else {
-      view.expression('blink');
-      touchTone();
-      status.textContent = '触碰已感知 · 它回应了你';
-      setTimeout(() => view.expression(ambientLevel > 30 ? 'surprised' : 'idle'), 500);
-      return;
+      } else {
+        view.expression('blink');
+        touchTone();
+        status.textContent = '触碰已感知 · 它回应了你';
+        setTimeout(() => view.expression(ambientLevel > 30 ? 'surprised' : 'idle'), 500);
+        return;
+      }
     }
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -149,11 +151,11 @@ try {
       const dy = event.clientY - drag.startY;
       const right = new THREE.Vector3(1, 0, 0).applyQuaternion(view.camera.quaternion).setY(0).normalize();
       const forward = view.camera.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
-      const offset = right.multiplyScalar(dx * .0015).addScaledVector(forward, -dy * .0015);
+      const offset = right.multiplyScalar(dx * .003).addScaledVector(forward, -dy * .003);
       drag.targetX = drag.baseX + offset.x;
       drag.targetY = drag.baseY - offset.z;
-      drag.torqueX = Math.max(-.00035, Math.min(.00035, -dy * .000002));
-      drag.torqueY = Math.max(-.00035, Math.min(.00035, dx * .000002));
+      drag.torqueX = Math.max(-.04, Math.min(.04, -dy * .00022));
+      drag.torqueY = Math.max(-.04, Math.min(.04, dx * .00022));
       status.textContent = `正在推拉机器人 · 目标位移 ${(Math.hypot(offset.x, offset.z) * 100).toFixed(0)} 厘米`;
     } else {
       const key = drag.kind;
@@ -201,8 +203,8 @@ try {
     data.ctrl[24] = shell.top;
     data.ctrl[25] = shell.second;
     if (drag?.kind === 'perturb') {
-      const fx = Math.max(-.25, Math.min(.25, (drag.targetX - data.qpos[0]) * .9 - data.qvel[0] * .12));
-      const fy = Math.max(-.25, Math.min(.25, (drag.targetY - data.qpos[1]) * .9 - data.qvel[1] * .12));
+      const fx = Math.max(-1.5, Math.min(1.5, (drag.targetX - data.qpos[0]) * 5 - data.qvel[0] * .5));
+      const fy = Math.max(-1.5, Math.min(1.5, (drag.targetY - data.qpos[1]) * 5 - data.qvel[1] * .5));
       data.xfrc_applied[base * 6] = fx;
       data.xfrc_applied[base * 6 + 1] = fy;
       data.xfrc_applied[base * 6 + 3] = drag.torqueX;
