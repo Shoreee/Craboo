@@ -20,5 +20,5 @@
   "fall_penalty": 20.0,
   "stop_go_training": true,
   "contract_version": 3,
-  "checkpoint": "D:\\Repositories\\Microduck\\asmr_droid_project\\runs\\crabo11_lifted_safe_v1_120000steps.zip"
+  "checkpoint": "runs/crabo11_lifted_safe_v1_120000steps.zip"
 }
