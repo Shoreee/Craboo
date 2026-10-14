@@ -62,7 +62,17 @@ field.querySelector('.form-note')?.remove();
 field.querySelector('.model-view')?.remove();
 const toolbar = field.querySelector('.sim-toolbar');
 toolbar.querySelectorAll('label').forEach((item) => item.remove());
-toolbar.insertAdjacentHTML('beforeend', '<div class="drive-modes"><button id="sim-auto" class="secondary" type="button">自动寻找</button><button id="sim-manual" class="secondary selected" type="button">手动控制</button></div><div id="key-guide"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>前后 / 转向</span></div>');
+const icon = (path) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+const icons = {
+  play: icon('<path d="m8 5 11 7-11 7V5Z"/>'),
+  reset: icon('<path d="M4 11a8 8 0 1 1 2.4 6"/><path d="M4 4v7h7"/>'),
+  robot: icon('<rect x="5" y="7" width="14" height="12" rx="4"/><path d="M12 4v3M9 13h.01M15 13h.01M8 19v2m8-2v2"/>'),
+  desk: icon('<path d="M3 10h18M5 10v10m14-10v10M4 7h16v3H4z"/>'),
+  room: icon('<path d="M3 20V5l9-3 9 3v15M3 20h18M8 8v5m8-5v5"/>'),
+  auto: icon('<path d="M12 3v3m0 12v3M3 12h3m12 0h3M6 6l2 2m8 8 2 2m0-12-2 2M8 16l-2 2"/><circle cx="12" cy="12" r="4"/>'),
+  manual: icon('<path d="M12 3v18M3 12h18m-9-9-3 3m3-3 3 3m-3 15-3-3m3 3 3-3M3 12l3-3m-3 3 3 3m15-3-3-3m3 3-3 3"/>')
+};
+toolbar.innerHTML = `<div class="sim-toolbar-main"><div class="sim-transport"><button id="sim-toggle" class="secondary" type="button">${icons.play}<span>启动仿真</span></button><button id="sim-reset" class="secondary" type="button">${icons.reset}<span>重置</span></button></div><div class="drive-modes"><button id="sim-auto" class="secondary" type="button">${icons.auto}<span>自动寻找</span></button><button id="sim-manual" class="secondary selected" type="button">${icons.manual}<span>手动控制</span></button></div></div><div class="sim-toolbar-views"><span class="sim-toolbar-label">视角</span><div><button data-sim-view="robot" class="secondary" type="button">${icons.robot}<span>机器人</span></button><button data-sim-view="desk" class="secondary" type="button">${icons.desk}<span>桌面</span></button><button data-sim-view="room" class="secondary" type="button">${icons.room}<span>房间</span></button></div><div id="key-guide"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>移动 / 转向</span></div></div>`;
 field.querySelector('.field-heading h2').textContent = '让 TADA 动起来';
 field.querySelector('.field-screen > p:last-child').textContent = '拖动画面旋转视角；点击它可触摸；Ctrl + 拖动施加外力。上面两层壳可以分别拖动旋转。自动模式按仿真物体坐标选目标，不代表真实视觉感知。';
 field.querySelector('.field-controls').insertAdjacentHTML('afterbegin', '<div class="live-head"><span>实时聆听</span><small>麦克风 → 波形 → 临时切段 → 可保存的候选声音</small></div>');
@@ -82,10 +92,12 @@ mine.querySelector('#tab-sounds #sample').textContent = '＋ 添加合成示例'
 const learning = document.createElement('section');
 learning.id = 'page-learning';
 learning.className = 'page interior-page data-page';
-learning.innerHTML = '<div class="page-heading"><span>04 / 学习</span><h1>教它认识<br>你的声音。</h1><p>为不同来源的片段标注类别与偏好，再在本机训练两个小型模型。</p></div><div class="learning-path"><div><b>01</b><strong>从「我的」试听并标注</strong><small>同一次录音的多个裁剪片段，训练时只算一个来源。</small></div><div><b>02</b><strong>样本足够后开始学习</strong><small>每个模型至少两个标签，每个标签至少三个独立来源。</small></div><div><b>03</b><strong>用在陪伴与仿真中</strong><small>新声音会显示预测；低置信度仍请你判断。</small></div></div>';
+learning.innerHTML = '<div class="page-heading"><span>04 / 学习</span><h1>教它认识<br>你的声音。</h1><p>为不同来源的片段标注类别与偏好，再在本机训练两个小型模型。</p></div><div class="learning-path"><div><b>01</b><strong>试听并标注</strong></div><div><b>02</b><strong>训练模型</strong></div><div><b>03</b><strong>陪伴与仿真</strong></div></div>';
 move(learning, ['#tab-training']);
 learning.querySelector('#tab-training').hidden = false;
 learning.querySelector('#tab-training > .muted:first-child').remove();
+learning.querySelector('#tab-training > .muted:last-child')?.remove();
+learning.querySelector('#models').insertAdjacentHTML('afterend', '<section id="feature-comparison" class="feature-comparison" aria-label="声音特征对照"></section>');
 
 const library = take('#library');
 if (library) library.hidden = true;
@@ -104,7 +116,7 @@ header.querySelector('.header-note').remove();
 header.insertBefore(Object.assign(document.createElement('nav'), {className: 'site-nav', innerHTML: '<a href="#home" data-page-link="home">产品</a><a href="#companion" data-page-link="companion">陪伴</a><a href="#simulation" data-page-link="simulation">仿真</a><a href="#mine" data-page-link="mine">我的</a><a href="#learning" data-page-link="learning">学习</a>'}), take('#open-library'));
 header.insertBefore(Object.assign(document.createElement('button'), {id: 'lang-toggle', type: 'button', textContent: '中文', title: 'Switch language'}), take('#open-library'));
 take('.brand').href = '#home';
-take('footer').innerHTML = '<span>TADA © 2026</span><nav><a href="#home">产品</a><a href="#companion">陪伴</a><a href="#simulation">仿真</a><a href="#mine">我的</a><a href="#learning">学习</a></nav><button id="open-growth" class="text-button">本机交互演示 <span id="growth-count">0</span></button>';
+take('footer').innerHTML = '<div class="footer-brand"><img src="assets/tada-mark.svg" alt="" /><strong>TADA</strong><span>© 2026</span></div><nav><a href="#home">产品</a><a href="#companion">陪伴</a><a href="#simulation">仿真</a><a href="#mine">我的</a><a href="#learning">学习</a></nav><div class="footer-links"><a href="https://github.com/Shoreee/Craboo" target="_blank" rel="noopener noreferrer" aria-label="TADA GitHub repository">GitHub ↗</a><img src="assets/tongji-dni-logo.png" alt="同济大学设计创意学院" /></div>';
 document.querySelector('.capture-flow')?.remove();
 take('#capture-summary').textContent = '录音结束后可试听自动裁出的候选片段，并决定哪些值得保存。';
 take('#save-selected').textContent = '保存勾选的片段';

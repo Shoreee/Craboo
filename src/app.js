@@ -13,6 +13,7 @@ import { load, save, encode, decode } from "./storage.js";
 import { makeUtterance } from "./sound-language.js";
 import { detectSegments } from "./segments.js";
 import { analyze, modelLabel } from "./insights.js";
+import { renderFeatureComparison } from "./learning-visual.js";
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const audio = new AudioEngine();
@@ -120,7 +121,8 @@ audio.onError = error;
 function updateTop() {
   $("#profile-label").textContent =
     profile === "personal" ? "我们的日常 · 本地存档" : "课堂演示 · 独立存档";
-  $("#growth-count").textContent = state.growth.history.length;
+  const growthCount = $("#growth-count");
+  if (growthCount) growthCount.textContent = state.growth.history.length;
   $("#demo").textContent =
     profile === "personal" ? "进入课堂演示存档" : "回到我的日常";
   $("#trust").textContent = state.growth.trust;
@@ -162,16 +164,17 @@ function render() {
               `${escape(k)} ${n}/3${n < 3 ? "（还缺 " + (3 - n) + " 个来源）" : ""}`,
           )
           .join(" · ") || "还没有标注样本"
-      }${Object.keys(r.counts).length < 2 ? " · 至少需要两个标签" : ""}</p><p>${m ? `已训练 ${m.samples} 个片段 · ${new Date(m.trainedAt).toLocaleString()}<br>${m.accuracy === null ? "验证样本不足，未展示准确率" : `留出验证 ${(m.accuracy * 100).toFixed(0)}%（${m.validationCount} 个片段）`}` : "尚未训练 · 不会冒充已学会"}</p><button class="primary" data-train="${key}" ${!r.ready || training ? "disabled" : ""}>${training ? "正在学习…" : m ? "重新训练" : "开始学习"}</button></div>`;
+      }${Object.keys(r.counts).length < 2 ? " · 至少需要两个标签" : ""}</p><p>${m ? `已训练 ${m.samples} 个片段 · ${new Date(m.trainedAt).toLocaleString()}<br>${m.accuracy === null ? "验证样本不足，未展示准确率" : `留出验证 ${(m.accuracy * 100).toFixed(0)}%（${m.validationCount} 个片段）`}` : "尚未训练"}</p><button class="primary" data-train="${key}" ${!r.ready || training ? "disabled" : ""}>${training ? "正在学习…" : m ? "重新训练" : "开始学习"}</button></div>`;
     })
     .join("");
   $$('.model-card').forEach((card, index) => {
     const key = index === 0 ? 'category' : 'preference';
     const detail = document.createElement('div');
     detail.className = 'model-detail';
-    detail.innerHTML = `<span>7 项声学特征：能量、动态、过零率、频谱中心与三个频段</span><span>标准化 + Softmax 分类 · 650 轮 · 本机计算</span>${trainingKey === key ? '<label>训练中 <progress id="training-progress" max="100" value="0"></progress><b id="training-percent">0%</b></label>' : ''}`;
+    detail.innerHTML = trainingKey === key ? '<label>训练中 <progress id="training-progress" max="100" value="0"></progress><b id="training-percent">0%</b></label>' : '';
     card.append(detail);
   });
+  renderFeatureComparison($("#feature-comparison"), state.clips, window.crabooLanguage?.() || 'zh');
   $("#sequence").innerHTML = state.sequence.length
     ? state.sequence
         .map((id, index) => {
@@ -207,7 +210,9 @@ function openLibrary(name = "sounds") {
   $("#library").showModal();
 }
 on("#open-library", "click", () => { location.hash = 'mine'; });
-on("#open-growth", "click", () => { location.hash = 'mine'; });
+window.addEventListener('craboo:language', () => {
+  renderFeatureComparison($("#feature-comparison"), state.clips, window.crabooLanguage?.() || 'zh');
+});
 $$("label.button").forEach((label) => {
   label.tabIndex = 0;
   label.setAttribute("role", "button");

@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+.test-artifacts/
+*.craboo.json
+dist/
+simulation-training/runs/*
+!simulation-training/runs/crabo11_lifted_safe_v1_120000steps.zip
+!simulation-training/runs/crabo11_lifted_safe_v1_120000steps_metadata.json
+simulation-training/outputs/*
+!simulation-training/outputs/gait_*.json

@@ -1,0 +1,22 @@
+{
+  "mode": "walk",
+  "method": "conservative 10 s MuJoCo fit for appearance and limited foot excursion",
+  "parameters": {
+    "yaw_amp": 0.15,
+    "lift_amp": 0.1,
+    "knee_amp": 0.08,
+    "stance_pitch_rad": 0.2,
+    "period_s": 0.6,
+    "sign_mode": "side"
+  },
+  "metrics": {
+    "seconds": 10.0,
+    "progress_m": 0.10496252784703132,
+    "mean_forward_mps": 0.010496252784703132,
+    "mean_support_foot_slip_mps": 0.010100984431708556,
+    "max_tilt_deg": 0.8266761104071646,
+    "yaw_unwrapped_deg": -2.7706166655671463,
+    "max_foot_raise_m": 0.0007681104709748986,
+    "max_foot_inward_m": 0.0011703894270864226
+  }
+}

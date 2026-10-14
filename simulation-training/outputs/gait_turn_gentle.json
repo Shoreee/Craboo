@@ -1,0 +1,11 @@
+{
+  "mode": "turn",
+  "method": "reuse of corrected-lift turning reference; rotation appearance accepted by user",
+  "parameters": {
+    "yaw_amp": 0.11164125380044013,
+    "lift_amp": 0.2413104377361865,
+    "knee_amp": -0.24842789539579535,
+    "period_s": 0.35937279121661914,
+    "sign_mode": "side"
+  }
+}

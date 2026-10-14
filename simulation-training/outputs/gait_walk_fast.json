@@ -1,0 +1,44 @@
+{
+  "mode": "walk",
+  "method": "random search over tripod gait parameters",
+  "trials": 500,
+  "parameters": {
+    "yaw_amp": 0.35357244458992876,
+    "lift_amp": 0.5407769445016422,
+    "knee_amp": -0.4218923348276775,
+    "period_s": 0.14192209747931672,
+    "sign_mode": "side"
+  },
+  "metrics": {
+    "score": 66.93856123406988,
+    "progress": 0.855703863639781,
+    "slip_mps": 0.023126607760805083,
+    "max_tilt_deg": 1.8275903334108887,
+    "seconds": 10.000000000000009,
+    "xy_m": [
+      0.002812145523673538,
+      -0.855703863639781
+    ],
+    "yaw_deg": 0.5569394056125551,
+    "yaw_unwrapped_deg": -0.25812679214818945
+  },
+  "baseline_metrics": {
+    "score": 4.678328427423445,
+    "progress": 0.05638598788268338,
+    "slip_mps": 0.005372929663730755,
+    "max_tilt_deg": 0.6462157849898947,
+    "seconds": 10.000000000000009,
+    "xy_m": [
+      -0.0005421306755805931,
+      -0.05638598788268338
+    ],
+    "yaw_deg": -0.9440354301264382,
+    "yaw_unwrapped_deg": -0.78294030646433
+  },
+  "baseline_parameters": {
+    "yaw_amp": 0.15,
+    "lift_amp": 0.3,
+    "knee_amp": 0.0,
+    "period_s": 1.2
+  }
+}

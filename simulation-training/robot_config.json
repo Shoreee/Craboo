@@ -1,0 +1,47 @@
+{
+  "status": "new Crabo_H visual / hand-authored Crabo_L collisions; dynamics remain unmeasured placeholders",
+  "visual_fbx": "assets/Crabo_H.fbx",
+  "collision_fbx": "assets/Crabo_L_six_leg_bound.fbx",
+  "binding_manifest": "assets/crabo_binding_manifest.json",
+  "height_m": 0.11,
+  "source_fbx_height_m": 0.841675346717238,
+  "source_fbx_z_min_m": -0.0307857450097799,
+  "source_to_sim_scale": 0.130691721492176,
+  "dynamics_reference_scale": 0.5938068376047614,
+  "front_axis": "-Y",
+  "leg_joint_order": ["yaw_Z", "pitch_local_Y", "knee_local_Y"],
+  "front_limb_joint_order": ["yaw_Z", "pitch_X", "extend_minus_Y"],
+  "front_limb_extension_range_m": [0.0, 0.012],
+  "sim_masses_kg": {
+    "body": 0.058626452,
+    "leg_coxa": 0.001256281,
+    "leg_femur": 0.001675041,
+    "leg_tibia_with_foot": 0.003140703,
+    "arm_yaw": 0.001256281,
+    "arm_pitch": 0.001675041,
+    "arm_slider": 0.002931323
+  },
+  "foot_modules": {
+    "LF": {"kind": "whole_ball", "material": "rubber", "friction": [1.0, 0.005, 0.0001]},
+    "LM": {"kind": "whole_ball", "material": "rubber", "friction": [1.0, 0.005, 0.0001]},
+    "LR": {"kind": "whole_ball", "material": "rubber", "friction": [1.0, 0.005, 0.0001]},
+    "RF": {"kind": "whole_ball", "material": "rubber", "friction": [1.0, 0.005, 0.0001]},
+    "RM": {"kind": "whole_ball", "material": "rubber", "friction": [1.0, 0.005, 0.0001]},
+    "RR": {"kind": "whole_ball", "material": "rubber", "friction": [1.0, 0.005, 0.0001]}
+  },
+  "front_end_modules": {
+    "LA": {"kind": "whole_ball", "material": "silicone", "friction": [1.2, 0.005, 0.0001]},
+    "RA": {"kind": "whole_ball", "material": "silicone", "friction": [1.2, 0.005, 0.0001]}
+  },
+  "limb_modules": {
+    "LF": {"mass_scale": 1.0, "collision_scale": 1.0},
+    "LM": {"mass_scale": 1.0, "collision_scale": 1.0},
+    "LR": {"mass_scale": 1.0, "collision_scale": 1.0},
+    "RF": {"mass_scale": 1.0, "collision_scale": 1.0},
+    "RM": {"mass_scale": 1.0, "collision_scale": 1.0},
+    "RR": {"mass_scale": 1.0, "collision_scale": 1.0},
+    "LA": {"mass_scale": 1.0, "collision_scale": 1.0},
+    "RA": {"mass_scale": 1.0, "collision_scale": 1.0}
+  },
+  "link_visual_overrides": {}
+}

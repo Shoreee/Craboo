@@ -1,0 +1,240 @@
+<mujoco model="Crabo_11cm_hand_authored_collisions">
+  <compiler angle="radian" autolimits="true" />
+  <option timestep="0.002" gravity="0 0 -9.81" iterations="60" />
+  <visual />
+  <asset>
+    <mesh name="body_cube_035_mesh" file="../collision_meshes_crabo/body_cube_035.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="body_cube_038_mesh" file="../collision_meshes_crabo/body_cube_038.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="body_cube_039_mesh" file="../collision_meshes_crabo/body_cube_039.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="body_cube_040_mesh" file="../collision_meshes_crabo/body_cube_040.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="body_cube_041_mesh" file="../collision_meshes_crabo/body_cube_041.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LA_arm_collision_mesh" file="../collision_meshes_crabo/LA_arm_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RA_arm_collision_mesh" file="../collision_meshes_crabo/RA_arm_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LA_hand_ball_collision_mesh" file="../collision_meshes_crabo/LA_hand_ball_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RA_hand_ball_collision_mesh" file="../collision_meshes_crabo/RA_hand_ball_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RM_mount_collision_mesh" file="../collision_meshes_crabo/RM_mount_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RM_coxa_collision_mesh" file="../collision_meshes_crabo/RM_coxa_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RM_joint12_collision_mesh" file="../collision_meshes_crabo/RM_joint12_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RM_femur_collision_mesh" file="../collision_meshes_crabo/RM_femur_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RM_foot_ball_collision_mesh" file="../collision_meshes_crabo/RM_foot_ball_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RR_mount_collision_mesh" file="../collision_meshes_crabo/RR_mount_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RR_coxa_collision_mesh" file="../collision_meshes_crabo/RR_coxa_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RR_joint12_collision_mesh" file="../collision_meshes_crabo/RR_joint12_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RR_femur_collision_mesh" file="../collision_meshes_crabo/RR_femur_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RR_foot_ball_collision_mesh" file="../collision_meshes_crabo/RR_foot_ball_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LR_mount_collision_mesh" file="../collision_meshes_crabo/LR_mount_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LR_coxa_collision_mesh" file="../collision_meshes_crabo/LR_coxa_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LR_joint12_collision_mesh" file="../collision_meshes_crabo/LR_joint12_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LR_femur_collision_mesh" file="../collision_meshes_crabo/LR_femur_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LR_foot_ball_collision_mesh" file="../collision_meshes_crabo/LR_foot_ball_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LM_mount_collision_mesh" file="../collision_meshes_crabo/LM_mount_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LM_coxa_collision_mesh" file="../collision_meshes_crabo/LM_coxa_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LM_joint12_collision_mesh" file="../collision_meshes_crabo/LM_joint12_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LM_femur_collision_mesh" file="../collision_meshes_crabo/LM_femur_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LM_foot_ball_collision_mesh" file="../collision_meshes_crabo/LM_foot_ball_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LF_mount_collision_mesh" file="../collision_meshes_crabo/LF_mount_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LF_coxa_collision_mesh" file="../collision_meshes_crabo/LF_coxa_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LF_joint12_collision_mesh" file="../collision_meshes_crabo/LF_joint12_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LF_femur_collision_mesh" file="../collision_meshes_crabo/LF_femur_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="LF_foot_ball_collision_mesh" file="../collision_meshes_crabo/LF_foot_ball_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RF_mount_collision_mesh" file="../collision_meshes_crabo/RF_mount_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RF_coxa_collision_mesh" file="../collision_meshes_crabo/RF_coxa_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RF_joint12_collision_mesh" file="../collision_meshes_crabo/RF_joint12_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RF_femur_collision_mesh" file="../collision_meshes_crabo/RF_femur_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <mesh name="RF_foot_ball_collision_mesh" file="../collision_meshes_crabo/RF_foot_ball_collision.obj" scale="0.1306917215 0.1306917215 0.1306917215" />
+    <texture name="sky" type="skybox" builtin="gradient" rgb1="0.16 0.20 0.25" rgb2="0.55 0.62 0.68" width="512" height="512" />
+  </asset>
+  <worldbody>
+    <geom name="ground" type="plane" size="2 2 .1" friction="1 .005 .0001" rgba=".28 .30 .32 1" />
+    <light name="key_light" pos="0 -.4 .6" dir="0 0 -1" />
+    <body name="base_link" pos="0 0 0.004023442013">
+      <freejoint name="root" />
+      <inertial pos="0 0 .045" mass="0.058626452" diaginertia="0.0001003988764 0.0001200039765 0.0001268333344" />
+      <body name="LF_hip_yaw_link" pos="-0.005132367431 -0.01260390408 0.02659388247" quat="-0.5 0 0 0.8660254038">
+        <inertial pos="0 0 0" mass="0.001256281" diaginertia="1.805671299e-08 1.705190054e-08 2.709183564e-08" />
+        <joint name="LF_hip_yaw" type="hinge" axis="0 0 1" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+        <body name="LF_hip_pitch_link" pos="0.007866896196 -1.651312981e-06 -0.00197327197">
+          <inertial pos="0 0 0" mass="0.001675041" diaginertia="4.101373534e-08 3.186760681e-08 3.814016788e-08" />
+          <joint name="LF_hip_pitch" type="hinge" axis="0 1 0" range="-0.872664626 0.872664626" damping="0.000479041764" armature="0.000147657655" />
+          <body name="LF_knee_link" pos="0.00907082458 1.654802399e-06 -0.006454461404">
+            <inertial pos="0 0 0" mass="0.003140703" diaginertia="3.009916137e-07 3.011189902e-07 3.499635941e-07" />
+            <joint name="LF_knee" type="hinge" axis="0 1 0" range="-1.047197551 1.047197551" damping="0.000479041764" armature="0.000147657655" />
+            <geom name="LF_foot_ball_collision" type="mesh" mesh="LF_foot_ball_collision_mesh" friction="1 0.005 0.0001" rgba=".12 .13 .15 1" density="0" contype="2" conaffinity="1" />
+            <site name="LF_foot_center" pos="3.411673574e-05 -0.0001030480034 -0.01080089451" size=".0001" rgba="0 0 0 0" />
+          </body>
+          <geom name="LF_femur_collision" type="mesh" mesh="LF_femur_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        </body>
+        <geom name="LF_coxa_collision" type="mesh" mesh="LF_coxa_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        <geom name="LF_joint12_collision" type="mesh" mesh="LF_joint12_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+      </body>
+      <body name="LM_hip_yaw_link" pos="-0.008729880572 -0.002203232484 0.02659388247" quat="6.123233996e-17 0 0 1">
+        <inertial pos="0 0 0" mass="0.001256281" diaginertia="1.405251133e-08 1.289047348e-08 1.892620693e-08" />
+        <joint name="LM_hip_yaw" type="hinge" axis="0 0 1" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+        <body name="LM_hip_pitch_link" pos="0.007866895538 -1.653635621e-06 -0.00197327197">
+          <inertial pos="0 0 0" mass="0.001675041" diaginertia="2.037164602e-08 3.866386749e-08 2.429433924e-08" />
+          <joint name="LM_hip_pitch" type="hinge" axis="0 1 0" range="-0.872664626 0.872664626" damping="0.000479041764" armature="0.000147657655" />
+          <body name="LM_knee_link" pos="0.009070823089 1.652175027e-06 -0.006454461404">
+            <inertial pos="0 0 0" mass="0.003140703" diaginertia="2.984878053e-07 2.982803986e-07 3.446211942e-07" />
+            <joint name="LM_knee" type="hinge" axis="0 1 0" range="-1.047197551 1.047197551" damping="0.000479041764" armature="0.000147657655" />
+            <geom name="LM_foot_ball_collision" type="mesh" mesh="LM_foot_ball_collision_mesh" friction="1 0.005 0.0001" rgba=".12 .13 .15 1" density="0" contype="2" conaffinity="1" />
+            <site name="LM_foot_center" pos="3.650072609e-05 -0.0001030480577 -0.01080089451" size=".0001" rgba="0 0 0 0" />
+          </body>
+          <geom name="LM_femur_collision" type="mesh" mesh="LM_femur_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        </body>
+        <geom name="LM_coxa_collision" type="mesh" mesh="LM_coxa_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        <geom name="LM_joint12_collision" type="mesh" mesh="LM_joint12_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+      </body>
+      <body name="LR_hip_yaw_link" pos="-0.005132363536 0.00811263509 0.02659388247" quat="0.5 0 0 0.8660254038">
+        <inertial pos="0 0 0" mass="0.001256281" diaginertia="1.806072943e-08 1.705190167e-08 2.709585322e-08" />
+        <joint name="LR_hip_yaw" type="hinge" axis="0 0 1" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+        <body name="LR_hip_pitch_link" pos="0.007866895429 -1.653879045e-06 -0.00197327197">
+          <inertial pos="0 0 0" mass="0.001675041" diaginertia="4.101371412e-08 3.186760958e-08 3.814014942e-08" />
+          <joint name="LR_hip_pitch" type="hinge" axis="0 1 0" range="-0.872664626 0.872664626" damping="0.000479041764" armature="0.000147657655" />
+          <body name="LR_knee_link" pos="0.009070824925 1.650633059e-06 -0.006454461404">
+            <inertial pos="0 0 0" mass="0.003140703" diaginertia="3.009915873e-07 3.011189506e-07 3.499635282e-07" />
+            <joint name="LR_knee" type="hinge" axis="0 1 0" range="-1.047197551 1.047197551" damping="0.000479041764" armature="0.000147657655" />
+            <geom name="LR_foot_ball_collision" type="mesh" mesh="LR_foot_ball_collision_mesh" friction="1 0.005 0.0001" rgba=".12 .13 .15 1" density="0" contype="2" conaffinity="1" />
+            <site name="LR_foot_center" pos="3.411636611e-05 -0.0001030463178 -0.01080089451" size=".0001" rgba="0 0 0 0" />
+          </body>
+          <geom name="LR_femur_collision" type="mesh" mesh="LR_femur_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        </body>
+        <geom name="LR_coxa_collision" type="mesh" mesh="LR_coxa_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        <geom name="LR_joint12_collision" type="mesh" mesh="LR_joint12_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+      </body>
+      <body name="RF_hip_yaw_link" pos="0.005132365971 -0.01260390408 0.02659388247" quat="-0.8660254038 0 0 0.5">
+        <inertial pos="0 0 0" mass="0.001256281" diaginertia="1.806073061e-08 1.705190054e-08 2.709585326e-08" />
+        <joint name="RF_hip_yaw" type="hinge" axis="0 0 1" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+        <body name="RF_hip_pitch_link" pos="0.007866895251 -1.653213975e-06 -0.00197327197">
+          <inertial pos="0 0 0" mass="0.001675041" diaginertia="4.101372119e-08 3.18676165e-08 3.814016342e-08" />
+          <joint name="RF_hip_pitch" type="hinge" axis="0 1 0" range="-0.872664626 0.872664626" damping="0.000479041764" armature="0.000147657655" />
+          <body name="RF_knee_link" pos="0.009070824569 1.651963198e-06 -0.006454461404">
+            <inertial pos="0 0 0" mass="0.003140703" diaginertia="3.009916269e-07 3.011189506e-07 3.499635677e-07" />
+            <joint name="RF_knee" type="hinge" axis="0 1 0" range="-1.047197551 1.047197551" damping="0.000479041764" armature="0.000147657655" />
+            <geom name="RF_foot_ball_collision" type="mesh" mesh="RF_foot_ball_collision_mesh" friction="1 0.005 0.0001" rgba=".12 .13 .15 1" density="0" contype="2" conaffinity="1" />
+            <site name="RF_foot_center" pos="3.41184743e-05 -0.000103047535 -0.01080089451" size=".0001" rgba="0 0 0 0" />
+          </body>
+          <geom name="RF_femur_collision" type="mesh" mesh="RF_femur_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        </body>
+        <geom name="RF_coxa_collision" type="mesh" mesh="RF_coxa_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        <geom name="RF_joint12_collision" type="mesh" mesh="RF_joint12_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+      </body>
+      <body name="RM_hip_yaw_link" pos="0.008729880572 -0.002203236379 0.02659388247">
+        <inertial pos="0 0 0" mass="0.001256281" diaginertia="1.405251233e-08 1.289047348e-08 1.892620793e-08" />
+        <joint name="RM_hip_yaw" type="hinge" axis="0 0 1" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+        <body name="RM_hip_pitch_link" pos="0.007866895538 -1.652905324e-06 -0.00197327197">
+          <inertial pos="0 0 0" mass="0.001675041" diaginertia="2.037164444e-08 3.866386749e-08 2.429433767e-08" />
+          <joint name="RM_hip_pitch" type="hinge" axis="0 1 0" range="-0.872664626 0.872664626" damping="0.000479041764" armature="0.000147657655" />
+          <body name="RM_knee_link" pos="0.009070823089 1.652905324e-06 -0.006454461404">
+            <inertial pos="0 0 0" mass="0.003140703" diaginertia="2.984878053e-07 2.982803986e-07 3.446211942e-07" />
+            <joint name="RM_knee" type="hinge" axis="0 1 0" range="-1.047197551 1.047197551" damping="0.000479041764" armature="0.000147657655" />
+            <geom name="RM_foot_ball_collision" type="mesh" mesh="RM_foot_ball_collision_mesh" friction="1 0.005 0.0001" rgba=".12 .13 .15 1" density="0" contype="2" conaffinity="1" />
+            <site name="RM_foot_center" pos="3.650072609e-05 -0.0001030480577 -0.01080089451" size=".0001" rgba="0 0 0 0" />
+          </body>
+          <geom name="RM_femur_collision" type="mesh" mesh="RM_femur_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        </body>
+        <geom name="RM_coxa_collision" type="mesh" mesh="RM_coxa_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        <geom name="RM_joint12_collision" type="mesh" mesh="RM_joint12_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+      </body>
+      <body name="RR_hip_yaw_link" pos="0.005132368892 0.008112633629 0.02659388247" quat="0.8660254038 0 0 0.5">
+        <inertial pos="0 0 0" mass="0.001256281" diaginertia="1.805671653e-08 1.705190054e-08 2.709183919e-08" />
+        <joint name="RR_hip_yaw" type="hinge" axis="0 0 1" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+        <body name="RR_hip_pitch_link" pos="0.007866895596 -1.652221483e-06 -0.00197327197">
+          <inertial pos="0 0 0" mass="0.001675041" diaginertia="4.101372827e-08 3.186761235e-08 3.814016634e-08" />
+          <joint name="RR_hip_pitch" type="hinge" axis="0 1 0" range="-0.872664626 0.872664626" damping="0.000479041764" armature="0.000147657655" />
+          <body name="RR_knee_link" pos="0.009070825067 1.653959125e-06 -0.006454461404">
+            <inertial pos="0 0 0" mass="0.003140703" diaginertia="3.009916005e-07 3.011189638e-07 3.499635546e-07" />
+            <joint name="RR_knee" type="hinge" axis="0 1 0" range="-1.047197551 1.047197551" damping="0.000479041764" armature="0.000147657655" />
+            <geom name="RR_foot_ball_collision" type="mesh" mesh="RR_foot_ball_collision_mesh" friction="1 0.005 0.0001" rgba=".12 .13 .15 1" density="0" contype="2" conaffinity="1" />
+            <site name="RR_foot_center" pos="3.411715737e-05 -0.00010304776 -0.01080089451" size=".0001" rgba="0 0 0 0" />
+          </body>
+          <geom name="RR_femur_collision" type="mesh" mesh="RR_femur_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        </body>
+        <geom name="RR_coxa_collision" type="mesh" mesh="RR_coxa_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        <geom name="RR_joint12_collision" type="mesh" mesh="RR_joint12_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+      </body>
+      <body name="LA_arm_yaw_link" pos="-0.03267293037 -0.02483142677 0.04443518577">
+        <inertial pos="0 0 0" mass="0.001256281" diaginertia="3.350082667e-09 3.350082667e-09 3.350082667e-09" />
+        <joint name="LA_arm_yaw" type="hinge" axis="0 0 1" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+        <body name="LA_arm_pitch_link" pos="0 0 0">
+          <inertial pos="0 0 0" mass="0.001675041" diaginertia="3.053491327e-07 7.229945686e-08 3.486566778e-07" />
+          <joint name="LA_arm_pitch" type="hinge" axis="1 0 0" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+          <body name="LA_arm_extend_link" pos="0 -0.01045533943 0">
+            <inertial pos="0 0 0" mass="0.002931323" diaginertia="7.660138288e-07 8.943342446e-07 6.811157133e-07" />
+            <joint name="LA_arm_extend" type="slide" axis="0 -1 0" range="0 .012" damping=".001" armature=".0004" />
+            <geom name="LA_hand_ball_collision" type="mesh" mesh="LA_hand_ball_collision_mesh" friction="1.2 0.005 0.0001" rgba=".65 .24 .14 1" density="0" contype="2" conaffinity="1" />
+          </body>
+          <geom name="LA_arm_collision" type="mesh" mesh="LA_arm_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        </body>
+      </body>
+      <body name="RA_arm_yaw_link" pos="0.03267293037 -0.02483142677 0.04443518577">
+        <inertial pos="0 0 0" mass="0.001256281" diaginertia="3.350082667e-09 3.350082667e-09 3.350082667e-09" />
+        <joint name="RA_arm_yaw" type="hinge" axis="0 0 1" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+        <body name="RA_arm_pitch_link" pos="0 0 0">
+          <inertial pos="0 0 0" mass="0.001675041" diaginertia="3.053491808e-07 7.229947899e-08 3.48656748e-07" />
+          <joint name="RA_arm_pitch" type="hinge" axis="1 0 0" range="-0.6108652382 0.6108652382" damping="0.000479041764" armature="0.000147657655" />
+          <body name="RA_arm_extend_link" pos="0 -0.01045533943 0">
+            <inertial pos="0 0 0" mass="0.002931323" diaginertia="7.660138288e-07 8.943342252e-07 6.811156939e-07" />
+            <joint name="RA_arm_extend" type="slide" axis="0 -1 0" range="0 .012" damping=".001" armature=".0004" />
+            <geom name="RA_hand_ball_collision" type="mesh" mesh="RA_hand_ball_collision_mesh" friction="1.2 0.005 0.0001" rgba=".65 .24 .14 1" density="0" contype="2" conaffinity="1" />
+          </body>
+          <geom name="RA_arm_collision" type="mesh" mesh="RA_arm_collision_mesh" friction="1 0.005 0.0001" rgba=".33 .38 .43 1" density="0" contype="2" conaffinity="1" />
+        </body>
+      </body>
+      <geom name="body_collision" type="mesh" mesh="body_cube_035_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="body_cube_038" type="mesh" mesh="body_cube_038_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="body_cube_039" type="mesh" mesh="body_cube_039_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="body_cube_040" type="mesh" mesh="body_cube_040_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="body_cube_041" type="mesh" mesh="body_cube_041_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="RM_mount_collision" type="mesh" mesh="RM_mount_collision_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="RR_mount_collision" type="mesh" mesh="RR_mount_collision_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="LR_mount_collision" type="mesh" mesh="LR_mount_collision_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="LM_mount_collision" type="mesh" mesh="LM_mount_collision_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="LF_mount_collision" type="mesh" mesh="LF_mount_collision_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+      <geom name="RF_mount_collision" type="mesh" mesh="RF_mount_collision_mesh" friction="1 0.005 0.0001" rgba=".60 .65 .70 1" density="0" contype="2" conaffinity="1" />
+    </body>
+  </worldbody>
+  <contact>
+    <exclude body1="base_link" body2="LF_hip_pitch_link" />
+    <exclude body1="base_link" body2="LF_knee_link" />
+    <exclude body1="base_link" body2="LM_hip_pitch_link" />
+    <exclude body1="base_link" body2="LM_knee_link" />
+    <exclude body1="base_link" body2="LR_hip_pitch_link" />
+    <exclude body1="base_link" body2="LR_knee_link" />
+    <exclude body1="base_link" body2="RF_hip_pitch_link" />
+    <exclude body1="base_link" body2="RF_knee_link" />
+    <exclude body1="base_link" body2="RM_hip_pitch_link" />
+    <exclude body1="base_link" body2="RM_knee_link" />
+    <exclude body1="base_link" body2="RR_hip_pitch_link" />
+    <exclude body1="base_link" body2="RR_knee_link" />
+    <exclude body1="base_link" body2="LA_arm_pitch_link" />
+    <exclude body1="base_link" body2="LA_arm_extend_link" />
+    <exclude body1="base_link" body2="RA_arm_pitch_link" />
+    <exclude body1="base_link" body2="RA_arm_extend_link" />
+  </contact>
+  <actuator>
+    <position name="LF_hip_yaw_act" joint="LF_hip_yaw" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LF_hip_pitch_act" joint="LF_hip_pitch" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LF_knee_act" joint="LF_knee" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LM_hip_yaw_act" joint="LM_hip_yaw" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LM_hip_pitch_act" joint="LM_hip_pitch" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LM_knee_act" joint="LM_knee" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LR_hip_yaw_act" joint="LR_hip_yaw" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LR_hip_pitch_act" joint="LR_hip_pitch" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LR_knee_act" joint="LR_knee" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RF_hip_yaw_act" joint="RF_hip_yaw" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RF_hip_pitch_act" joint="RF_hip_pitch" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RF_knee_act" joint="RF_knee" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RM_hip_yaw_act" joint="RM_hip_yaw" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RM_hip_pitch_act" joint="RM_hip_pitch" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RM_knee_act" joint="RM_knee" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RR_hip_yaw_act" joint="RR_hip_yaw" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RR_hip_pitch_act" joint="RR_hip_pitch" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="RR_knee_act" joint="RR_knee" kp=".1243313864" kv=".00479041764" forcelimited="true" forcerange="-.04351598525 .04351598525" />
+    <position name="LA_arm_yaw_act" joint="LA_arm_yaw" forcelimited="true" kp=".1243313864" kv=".00479041764" forcerange="-.04351598525 .04351598525" />
+    <position name="LA_arm_pitch_act" joint="LA_arm_pitch" forcelimited="true" kp=".1243313864" kv=".00479041764" forcerange="-.04351598525 .04351598525" />
+    <position name="LA_arm_extend_act" joint="LA_arm_extend" forcelimited="true" kp="35" kv=".3" forcerange="-1 1" />
+    <position name="RA_arm_yaw_act" joint="RA_arm_yaw" forcelimited="true" kp=".1243313864" kv=".00479041764" forcerange="-.04351598525 .04351598525" />
+    <position name="RA_arm_pitch_act" joint="RA_arm_pitch" forcelimited="true" kp=".1243313864" kv=".00479041764" forcerange="-.04351598525 .04351598525" />
+    <position name="RA_arm_extend_act" joint="RA_arm_extend" forcelimited="true" kp="35" kv=".3" forcerange="-1 1" />
+  </actuator>
+</mujoco>

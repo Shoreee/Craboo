@@ -1,5 +1,5 @@
 const pairs = [
-  ['产品','Product'],['陪伴','Companion'],['仿真','Simulation'],['我的','My Sounds'],['学习','Learning'],
+  ['产品','Product'],['陪伴','Companion'],['仿真','Simulation'],['我的','My Sounds'],['学习','Learning'],['视角','VIEW'],['机器人','Robot'],['桌面','Table'],['房间','Room'],['重置','Reset'],['启动仿真','Start'],['移动 / 转向','Move / turn'],['降噪','Noise reduction'],['试听并标注','Listen & label'],['训练模型','Train models'],['陪伴与仿真','Companion & Simulation'],
   ['01 / 会行动的伙伴','01 / A COMPANION IN MOTION'],['聆听。','Listen.'],['行动。','Move.'],['记住。','Remember.'],
   ['一只慢慢学会你喜欢的声音的小伙伴。','A small companion that learns the sounds you love.'],['探索设计','EXPLORE THE DESIGN'],['拖动旋转','DRAG TO ROTATE'],['一个身体 · 双层上壳 · 六只足','ONE BODY. TWO SHELLS. SIX LEGS.'],['下滑装配 ↓','SCROLL TO ASSEMBLE ↓'],
   ['滑动故事卡片','SWIPE THE STORIES'],['贴近你的声音','Sounds that stay'],['身边。','close.'],['更柔软的','A softer way'],['连接方式。','to connect.'],['陪伴每个','Alongside your'],['日常。','everyday.'],['会回应你的','Eyes that'],['眼睛。','answer back.'],['把世界','Take the world'],['听进来。','in.'],['为行动','Made to'],['而生。','move.'],

@@ -86,7 +86,7 @@ try {
 
   toggle.addEventListener('click', () => {
     running = !running;
-    toggle.textContent = running ? '暂停仿真' : '启动仿真';
+    toggle.querySelector('span').textContent = running ? '暂停仿真' : '启动仿真';
   });
   reset.addEventListener('click', () => {
     mj.mj_resetData(model, data);
@@ -119,7 +119,7 @@ try {
   view.renderer.domElement.addEventListener('pointerdown', (event) => {
     if (event.ctrlKey || event.metaKey) {
       drag = { kind: 'perturb', startX: event.clientX, startY: event.clientY, baseX: data.qpos[0], baseY: data.qpos[1], targetX: data.qpos[0], targetY: data.qpos[1], torqueX: 0, torqueY: 0 };
-      if (!running) { running = true; toggle.textContent = '暂停仿真'; }
+      if (!running) { running = true; toggle.querySelector('span').textContent = '暂停仿真'; }
       view.orbit.enabled = false;
       status.textContent = '正在施加 MuJoCo 外力扰动';
     } else {
@@ -227,7 +227,7 @@ try {
         }
       } catch (error) {
         running = false;
-        toggle.textContent = '启动仿真';
+        toggle.querySelector('span').textContent = '启动仿真';
         status.textContent = `MuJoCo 步进失败：${error.message}`;
         console.error(error);
       }
