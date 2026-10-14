@@ -8,8 +8,20 @@ const host = $('sim-canvas');
 const status = $('sim-status');
 const toggle = $('sim-toggle');
 const reset = $('sim-reset');
-const forward = $('sim-forward');
-const turn = $('sim-turn');
+const autoButton = $('sim-auto');
+const manualButton = $('sim-manual');
+const keys = new Set();
+let driveMode = 'manual';
+const inputKeys = new Set(['w','a','s','d','arrowup','arrowleft','arrowdown','arrowright']);
+window.addEventListener('keydown', (event) => {
+  if (document.body.dataset.page !== 'simulation' || driveMode !== 'manual' || /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) return;
+  const key = event.key.toLowerCase();
+  if (inputKeys.has(key)) { keys.add(key); event.preventDefault(); }
+});
+window.addEventListener('keyup', (event) => keys.delete(event.key.toLowerCase()));
+window.addEventListener('blur', () => keys.clear());
+autoButton.addEventListener('click', () => { driveMode = 'auto'; keys.clear(); autoButton.classList.add('selected'); manualButton.classList.remove('selected'); status.textContent = '自动寻找：使用仿真场景物体坐标导航（模拟感知）'; });
+manualButton.addEventListener('click', () => { driveMode = 'manual'; autoButton.classList.remove('selected'); manualButton.classList.add('selected'); status.textContent = '手动控制：按住 W/S 前后，A/D 转向'; });
 
 async function loadScene(mj) {
   const response = await fetch('assets/sim/bedroom/scene.xml');
@@ -79,7 +91,7 @@ try {
   reset.addEventListener('click', () => {
     mj.mj_resetData(model, data);
     mj.mj_forward(model, data);
-    forward.value = turn.value = '0';
+    keys.clear();
     shell.top = shell.second = 0;
     accumulator = 0;
     view.expression('idle');
@@ -157,9 +169,25 @@ try {
   view.renderer.domElement.addEventListener('pointercancel', release);
   window.addEventListener('blur', release);
 
+  const targetsToVisit = ['bedroom_ball', 'bedroom_book', 'bedroom_cup'].map((name) => ({ name, id: model.body(name).id }));
+  let autoIndex = 0;
+  function commands() {
+    if (driveMode === 'manual') return {
+      drive: (Number(keys.has('w') || keys.has('arrowup')) - Number(keys.has('s') || keys.has('arrowdown'))) * .015,
+      steer: (Number(keys.has('a') || keys.has('arrowleft')) - Number(keys.has('d') || keys.has('arrowright'))) * Math.PI / 6,
+    };
+    const target = targetsToVisit[autoIndex];
+    const x = data.xpos[base * 3], y = data.xpos[base * 3 + 1];
+    const dx = data.xpos[target.id * 3] - x, dy = data.xpos[target.id * 3 + 1] - y;
+    const distance = Math.hypot(dx, dy);
+    if (distance < .35) autoIndex = (autoIndex + 1) % targetsToVisit.length;
+    const desired = Math.atan2(dy, dx);
+    const heading = 2 * Math.atan2(data.qpos[6], data.qpos[3]);
+    const delta = Math.atan2(Math.sin(desired - heading), Math.cos(desired - heading));
+    return { drive: Math.abs(delta) < .65 ? .015 : 0, steer: Math.max(-1, Math.min(1, delta * 1.8)) * Math.PI / 6, target: target.name };
+  }
   function controls() {
-    const drive = Number(forward.value) * 0.012;
-    const steer = Number(turn.value) * Math.PI / 6;
+    const { drive, steer } = commands();
     const targets = gaitTargets(data.time, drive, drive ? 0 : steer, walkProfile, turnProfile, drive ? steer : 0);
     for (let i = 0; i < 18; i++) data.ctrl[i] = targets[i];
     data.ctrl[24] = shell.top;
@@ -195,7 +223,7 @@ try {
         wasTipped = tipped;
         const distance = Math.hypot(data.qpos[0] - model.qpos0[0], data.qpos[1] - model.qpos0[1]);
         const heading = 2 * Math.atan2(data.qpos[6], data.qpos[3]) * 180 / Math.PI;
-        if (running) status.textContent = `${tipped ? '它被推倒了 · ' : ''}MuJoCo ${data.time.toFixed(1)} 秒 · 位移 ${(distance * 100).toFixed(1)} 厘米 · 朝向 ${heading.toFixed(0)}° · 声音 ${ambientLevel}%`;
+        if (running) status.textContent = `${tipped ? '它被推倒了 · ' : ''}${driveMode === 'auto' ? '自动寻找 ' + targetsToVisit[autoIndex].name.replace('bedroom_', '') + ' · ' : 'WASD 手动 · '}位移 ${(distance * 100).toFixed(1)} 厘米 · 朝向 ${heading.toFixed(0)}° · 声音 ${ambientLevel}%`;
         lastStatus = now;
       }
     }

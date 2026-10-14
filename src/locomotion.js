@@ -7,7 +7,7 @@ const NOMINAL_YAW = Math.PI / 6;
 const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 
 export function gaitTargets(time, forward, yaw, walk, turn, steering = 0) {
-  const walkWeight = clamp(forward / NOMINAL_FORWARD, 0, 1.35);
+  const walkWeight = clamp(Math.abs(forward) / NOMINAL_FORWARD, 0, 1.35);
   const turnWeight = clamp(Math.abs(yaw) / NOMINAL_YAW, 0, 1.35);
   const total = walkWeight + turnWeight;
   const period = total > 1e-6
@@ -19,8 +19,8 @@ export function gaitTargets(time, forward, yaw, walk, turn, steering = 0) {
     const phi = phase + (TRIPOD_A.has(leg) ? 0 : Math.PI);
     const swing = Math.max(0, Math.sin(phi));
     const turnSign = yaw ? -Math.sign(yaw) : 0;
-    let hip = (SIDES[leg] * walkWeight * walk.yaw_amp + turnSign * turnWeight * turn.yaw_amp) * Math.cos(phi);
-    if (forward > 0 && steering) {
+    let hip = (SIDES[leg] * Math.sign(forward) * walkWeight * walk.yaw_amp + turnSign * turnWeight * turn.yaw_amp) * Math.cos(phi);
+    if (forward !== 0 && steering) {
       const steeringWeight = clamp(Math.abs(steering) / NOMINAL_YAW, 0, 1);
       hip += -Math.sign(steering) * steeringWeight * turn.yaw_amp * Math.cos(phi);
     }

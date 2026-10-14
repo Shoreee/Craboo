@@ -7,6 +7,8 @@
     <title>Craboo · 一起，慢慢长大</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="src/field-lab.css" />
+    <link rel="stylesheet" href="src/site-design.css" />
+    <link rel="stylesheet" href="src/assembly-design.css" />
     <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/","@mujoco/mujoco":"./vendor/mujoco/mujoco.js"}}</script>
   </head>
   <body>
@@ -283,9 +285,10 @@
       ><button class="close secondary">取消</button>
     </dialog>
     <div id="toast" role="status" aria-live="polite"></div>
+    <script src="src/site-layout.js"></script>
+    <script type="module" src="src/assembly.js"></script>
     <script type="module" src="src/app.js"></script>
     <script type="module" src="src/field-lab.js"></script>
-    <script type="module" src="src/model-view.js"></script>
     <script type="module" src="src/simulation.js"></script>
   </body>
 </html>

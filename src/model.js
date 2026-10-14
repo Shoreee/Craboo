@@ -27,7 +27,7 @@ export function splitGroups(rows, key) {
     validation: rows.filter((c) => validationIds.has(c.sourceId)),
   };
 }
-function fit(rows, key) {
+function fit(rows, key, onProgress = () => {}) {
   const labels = [...new Set(rows.map((c) => c[key]))].sort(),
     d = rows[0].features.length;
   const mean = Array(d).fill(0),
@@ -61,6 +61,7 @@ function fit(rows, key) {
         (v, j) => (w[j] -= 0.08 * (grad[k][j] + (j < d ? 0.008 * v : 0))),
       ),
     );
+    if ((epoch + 1) % 50 === 0) onProgress(epoch + 1, 650);
   }
   return {
     featureVersion: FEATURE_VERSION,
@@ -88,7 +89,7 @@ export function predict(model, features) {
   const index = p.indexOf(Math.max(...p));
   return { label: model.labels[index], confidence: p[index] / sum };
 }
-export function train(clips, key) {
+export function train(clips, key, onProgress) {
   const rows = clips.filter((c) => c[key]);
   if (!readiness(rows, key).ready)
     throw Error("至少需要两个标签，每个标签三个独立录音。");
@@ -100,5 +101,5 @@ export function train(clips, key) {
       validation.filter((c) => predict(candidate, c.features).label === c[key])
         .length / validation.length;
   }
-  return { ...fit(rows, key), accuracy, validationCount: validation.length };
+  return { ...fit(rows, key, onProgress), accuracy, validationCount: validation.length };
 }

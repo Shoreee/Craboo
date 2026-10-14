@@ -9,7 +9,7 @@ const position = new THREE.Vector3();
 const quaternion = new THREE.Quaternion();
 const scale = new THREE.Vector3();
 
-function meshGeometry(model, id) {
+function meshGeometry(model, id, planarUV = false) {
   const vertices = [], uv = [];
   const faceStart = model.mesh_faceadr[id];
   const vertexStart = model.mesh_vertadr[id];
@@ -30,6 +30,15 @@ function meshGeometry(model, id) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   if (hasUV) geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  else if (planarUV) {
+    geometry.computeBoundingBox();
+    const { min, max } = geometry.boundingBox;
+    const mapped = [];
+    for (let i = 0; i < vertices.length; i += 3) {
+      mapped.push((vertices[i] - min.x) / Math.max(1e-6, max.x - min.x), (vertices[i + 1] - min.y) / Math.max(1e-6, max.y - min.y));
+    }
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(mapped, 2));
+  }
   geometry.computeVertexNormals();
   return geometry;
 }
@@ -38,7 +47,7 @@ function primitive(model, id) {
   const type = model.geom_type[id];
   const size = model.geom_size;
   const x = size[id * 3], y = size[id * 3 + 1], z = size[id * 3 + 2];
-  if (type === 7) return meshGeometry(model, model.geom_dataid[id]);
+  if (type === 7) return meshGeometry(model, model.geom_dataid[id], model.geom(id).name === 'source_face_screen_visual');
   if (type === 6) return new THREE.BoxGeometry(x * 2, z * 2, y * 2);
   if (type === 5) return new THREE.CylinderGeometry(x, x, y * 2, 20);
   if (type === 3) return new THREE.CapsuleGeometry(x, y * 2, 6, 12);
@@ -110,6 +119,7 @@ export function createMujocoView(host, model, xml) {
   const items = [];
   const pickable = [];
   let face;
+  const faceEyes = [];
   for (let id = 0; id < model.ngeom; id++) {
     const rgba = model.geom_rgba;
     if (rgba[id * 4 + 3] < 0.01) continue;
@@ -123,7 +133,16 @@ export function createMujocoView(host, model, xml) {
     scene.add(object);
     items.push({ id, object });
     if (model.geom_bodyid[id] === 1 || name.includes('shell')) pickable.push(object);
-    if (name === 'source_face_screen_visual') face = object;
+    if (name === 'source_face_screen_visual') {
+      face = object;
+      for (const x of [-.072, .072]) {
+        const eye = new THREE.Mesh(new THREE.CapsuleGeometry(.024, .04, 4, 12), new THREE.MeshBasicMaterial({ color: 0xffe3aa }));
+        eye.position.set(x, .55, .16);
+        eye.scale.set(1, 1, .28);
+        face.add(eye);
+        faceEyes.push(eye);
+      }
+    }
   }
   const faceTextures = {};
   for (const expression of ['idle','moving','tapping','surprised','blink']) {
@@ -138,6 +157,7 @@ export function createMujocoView(host, model, xml) {
       face.material.map = faceTextures[name];
       face.material.needsUpdate = true;
     }
+    faceEyes.forEach((eye) => { eye.scale.y = name === 'blink' ? .08 : name === 'surprised' ? 1.35 : 1; });
   }
   function update(data) {
     const base = new THREE.Vector3(data.xpos[3], data.xpos[5], -data.xpos[4]);

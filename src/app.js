@@ -24,6 +24,7 @@ let profile = "personal",
   separated = false,
   mode = "explore",
   training = false,
+  trainingKey = null,
   saveQueue = Promise.resolve();
 const liveSegments = new Map();
 const escape = (s) =>
@@ -141,7 +142,7 @@ function render() {
   $("#clips").innerHTML = clips.length
     ? [...sources.values()]
         .map((group, groupIndex) => `<div class="source-group"><h3>录音 ${groupIndex + 1} · ${escape(group[0].sourceName || group[0].name)} <small>${group.length} 段</small></h3>${group.map((c) =>
-            `<article class="clip"><span style="color:#89937b;font-size:24px">⌁</span><div class="clip-info"><h3>${escape(c.name)}</h3><p>${c.sourceStart == null ? '' : `${c.sourceStart.toFixed(1)}–${c.sourceEnd.toFixed(1)} 秒 · `}${c.duration.toFixed(1)} 秒 · ${escape(c.category || "待认识")} · ${escape(c.preference || "待教导")}${c.synthetic ? " · 合成示例" : ""}</p></div><div class="clip-actions"><button data-action="listen" data-id="${escape(c.id)}">试听</button><button data-action="edit" data-id="${escape(c.id)}">编辑</button><button data-action="add" data-id="${escape(c.id)}">＋序列</button><button data-action="delete" data-id="${escape(c.id)}">删除</button></div></article>`).join('')}</div>`)
+            `<article class="clip"><span style="color:#89937b;font-size:24px">⌁</span><div class="clip-info"><h3>${escape(c.name)}</h3><p>${c.sourceStart == null ? '' : `${c.sourceStart.toFixed(1)}–${c.sourceEnd.toFixed(1)} 秒 · `}${c.duration.toFixed(1)} 秒 · ${escape(c.category || "待认识")} · ${escape(c.preference || "待教导")}${c.synthetic ? " · 合成示例" : ""}</p></div><div class="clip-actions"><button data-action="listen" data-id="${escape(c.id)}">试听</button><button data-action="edit" data-id="${escape(c.id)}">编辑</button><button data-action="delete" data-id="${escape(c.id)}">删除</button></div></article>`).join('')}</div>`)
         .join("")
     : '<div class="empty">这里还很安静。<br>录下一个声音，或从合成示例开始认识它。</div>';
   $("#models").innerHTML = ["category", "preference"]
@@ -158,6 +159,13 @@ function render() {
       }${Object.keys(r.counts).length < 2 ? " · 至少需要两个标签" : ""}</p><p>${m ? `已训练 ${m.samples} 个片段 · ${new Date(m.trainedAt).toLocaleString()}<br>${m.accuracy === null ? "验证样本不足，未展示准确率" : `留出验证 ${(m.accuracy * 100).toFixed(0)}%（${m.validationCount} 个片段）`}` : "尚未训练 · 不会冒充已学会"}</p><button class="primary" data-train="${key}" ${!r.ready || training ? "disabled" : ""}>${training ? "正在学习…" : m ? "重新训练" : "开始学习"}</button></div>`;
     })
     .join("");
+  $$('.model-card').forEach((card, index) => {
+    const key = index === 0 ? 'category' : 'preference';
+    const detail = document.createElement('div');
+    detail.className = 'model-detail';
+    detail.innerHTML = `<span>7 项声学特征：能量、动态、过零率、频谱中心与三个频段</span><span>标准化 + Softmax 分类 · 650 轮 · 本机计算</span>${trainingKey === key ? '<label>训练中 <progress id="training-progress" max="100" value="0"></progress><b id="training-percent">0%</b></label>' : ''}`;
+    card.append(detail);
+  });
   $("#sequence").innerHTML = state.sequence.length
     ? state.sequence
         .map((id, index) => {
@@ -167,7 +175,9 @@ function render() {
         .join("")
     : '<div class="empty">在收藏中点击「＋序列」，把声音串在一起。</div>';
   $("#loop").checked = state.loop;
-  $("#capture-summary").textContent = `已收藏 ${state.clips.length} 段，来自 ${new Set(state.clips.map((clip) => clip.sourceId)).size} 次录音；${state.clips.filter((clip) => clip.category || clip.preference).length} 段有人工标注。可在「声音手记」里按录音查看、训练模型、加入播放序列。`;
+  $("#capture-summary").textContent = `已保存 ${state.clips.length} 段，来自 ${new Set(state.clips.map((clip) => clip.sourceId)).size} 次录音；${state.clips.filter((clip) => clip.category || clip.preference).length} 段有人工标注。可在「我的」按录音查看，在「学习」训练模型。`;
+  const phrase = makeUtterance(state.clips, $("#robot").dataset.mood);
+  $("#utterance-preview").textContent = phrase.length ? phrase.map((clip, index) => `${index + 1}. ${clip.name}`).join('  →  ') : '尚无可用声音。先录下并标注一段声音。';
   $("#history").innerHTML = state.growth.history.length
     ? state.growth.history
         .map(
@@ -190,8 +200,8 @@ function openLibrary(name = "sounds") {
   tab(name);
   $("#library").showModal();
 }
-on("#open-library", "click", () => openLibrary());
-on("#open-growth", "click", () => openLibrary("memories"));
+on("#open-library", "click", () => { location.hash = 'mine'; });
+on("#open-growth", "click", () => { location.hash = 'mine'; });
 $$("label.button").forEach((label) => {
   label.tabIndex = 0;
   label.setAttribute("role", "button");
@@ -272,6 +282,11 @@ async function pet() {
 }
 on("#pet", "click", pet);
 on("#pet-hit", "click", pet);
+window.addEventListener('craboo:hand-tap', async () => {
+  await audio.touch();
+  mood('curious', '听见轻拍');
+  say('叩叩，我在这里。', '手部轻拍 · 浏览器合成触碰声');
+});
 let strokes = 0;
 on("#pet-hit", "pointermove", (e) => {
   if (e.buttons && ++strokes % 15 === 0) pet();
@@ -651,7 +666,7 @@ on("#clips", "click", async (e) => {
     state.sequence.push(clip.id);
     await persist();
     render();
-    toast("已加入陪伴序列");
+    toast("已保存声音");
   }
   if (b.dataset.action === "delete") {
     if (
@@ -679,6 +694,12 @@ function runTraining(key, clips) {
       reject(Error("训练超时，请减少样本后重试。"));
     }, 60000);
     worker.onmessage = ({ data }) => {
+      if (data.progress !== undefined) {
+        const percentage = Math.round(data.progress * 100);
+        if ($('#training-progress')) $('#training-progress').value = percentage;
+        if ($('#training-percent')) $('#training-percent').textContent = `${percentage}%`;
+        return;
+      }
       clearTimeout(timeout);
       worker.terminate();
       data.error ? reject(Error(data.error)) : resolve(data.model);
@@ -695,6 +716,7 @@ on("#models", "click", async (e) => {
   const key = e.target.closest("[data-train]")?.dataset.train;
   if (!key || training) return;
   training = true;
+  trainingKey = key;
   render();
   try {
     const m = await runTraining(key, structuredClone(state.clips));
@@ -722,6 +744,7 @@ on("#models", "click", async (e) => {
     );
   } finally {
     training = false;
+    trainingKey = null;
     render();
   }
 });
@@ -907,3 +930,4 @@ try {
     "请检查浏览器存储设置；当前操作可能无法持久保存。",
   );
 }
+
