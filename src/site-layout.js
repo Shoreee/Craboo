@@ -16,15 +16,16 @@ home.innerHTML = `
     <div class="hero-type hero-type-back" aria-hidden="true"><span>T</span><span>A</span><span>D</span><span>A</span></div>
     <div class="hero-copy"><span class="hero-kicker">01 / A COMPANION IN MOTION</span><h1>Listen.<br>Move.<br><em>Remember.</em></h1><p>A small companion that learns the sounds you love.</p><a class="hero-explore" href="#home" data-scroll-assembly>EXPLORE THE DESIGN <b>↘</b></a></div>
     <div class="hero-card-rail" aria-label="Product stories">
-      <article class="hero-card hero-card-scene"><img src="assets/tada-sleep.png" alt="At rest, surrounded by familiar sounds"><div><span>01 / REST</span><strong>Sounds that stay<br>close.</strong></div></article>
-      <article class="hero-card hero-card-detail"><img src="assets/tada-hand.png" alt="Detachable soft hand detail"><div><span>02 / FORM</span><strong>A softer way<br>to connect.</strong></div></article>
-      <article class="hero-card hero-card-scene"><img src="assets/tada-focus.png" alt="Quiet focus at the desk"><div><span>03 / FOCUS</span><strong>Alongside your<br>everyday.</strong></div></article>
-      <article class="hero-card hero-card-detail"><img src="assets/tada-face.png" alt="Face and illuminated eyes detail"><div><span>04 / EXPRESSION</span><strong>Eyes that<br>answer back.</strong></div></article>
-      <article class="hero-card hero-card-scene"><img src="assets/tada-field.png" alt="Collecting sounds outdoors"><div><span>05 / EXPLORE</span><strong>Take the world<br>in.</strong></div></article>
-      <article class="hero-card hero-card-detail"><img src="assets/tada-feet.png" alt="Six soft feet detail"><div><span>06 / MOVEMENT</span><strong>Made to<br>move.</strong></div></article>
+      <article class="hero-card hero-card-scene"><img src="assets/tada-sleep.webp" alt="At rest, surrounded by familiar sounds"><div><span>01 / REST</span><strong>Sounds that stay<br>close.</strong></div></article>
+      <article class="hero-card hero-card-detail"><img src="assets/tada-hand.webp" alt="Detachable soft hand detail"><div><span>02 / FORM</span><strong>A softer way<br>to connect.</strong></div></article>
+      <article class="hero-card hero-card-scene"><img src="assets/tada-focus.webp" alt="Quiet focus at the desk"><div><span>03 / FOCUS</span><strong>Alongside your<br>everyday.</strong></div></article>
+      <article class="hero-card hero-card-detail"><img src="assets/tada-face.webp" alt="Face and illuminated eyes detail"><div><span>04 / EXPRESSION</span><strong>Eyes that<br>answer back.</strong></div></article>
+      <article class="hero-card hero-card-scene"><img src="assets/tada-field.webp" alt="Collecting sounds outdoors"><div><span>05 / EXPLORE</span><strong>Take the world<br>in.</strong></div></article>
+      <article class="hero-card hero-card-detail"><img src="assets/tada-feet.webp" alt="Six soft feet detail"><div><span>06 / MOVEMENT</span><strong>Made to<br>move.</strong></div></article>
     </div>
     <div class="hero-product"><div id="hero-canvas" role="button" tabindex="0" aria-label="Drag to rotate TADA; click to watch the film"></div></div>
-    <video id="hero-film-video" src="assets/tada-film.mp4" preload="auto" playsinline aria-label="TADA product film"></video>
+    <div class="hero-vignette" aria-hidden="true"></div>
+    <video id="hero-film-video" data-src="assets/tada-film.mp4" poster="assets/tada-film-poster.jpg" preload="none" playsinline aria-label="TADA product film"></video>
     <button id="hero-film-exit" type="button" aria-label="Close film">← <span>BACK</span></button>
     <button id="hero-film-play" type="button" aria-label="Play film"><span aria-hidden="true">▶</span><small>PLAY THE FILM</small></button>
     <div class="hero-type hero-type-front" aria-hidden="true"><span>T</span><span>A</span><span>D</span><span>A</span></div>
@@ -134,6 +135,13 @@ function route() {
   document.body.dataset.page = next;
   window.scrollTo(0, 0);
   window.dispatchEvent(new Event('craboo:page'));
+  if (next === 'simulation' && !window.tadaSimulationLoad) {
+    take('#sim-status').textContent = '正在载入仿真引擎…';
+    window.tadaSimulationLoad = import(new URL('src/simulation.js', document.baseURI).href).catch((error) => {
+      take('#sim-status').textContent = `仿真载入失败：${error.message}`;
+      window.tadaSimulationLoad = null;
+    });
+  }
 }
 window.addEventListener('hashchange', route);
 route();

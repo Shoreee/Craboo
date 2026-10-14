@@ -4,7 +4,7 @@ TADA 是一款围绕“收听、探索、回应”设计的机器人概念。它
 
 [打开在线演示](https://shoreee.github.io/Craboo/) · [设计来源（Figma）](https://www.figma.com/design/ArMemjzqOWaviRnjjgPbjF/806-1?node-id=499-17)
 
-<p align="center"><img src="assets/tada-sleep.png" width="49%" alt="TADA 陪伴场景" /> <img src="assets/tada-face.png" width="49%" alt="TADA 面部细节" /></p>
+<p align="center"><img src="assets/tada-sleep.webp" width="49%" alt="TADA 陪伴场景" /> <img src="assets/tada-face.webp" width="49%" alt="TADA 面部细节" /></p>
 
 ## 网页里可以做什么
 

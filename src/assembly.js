@@ -7,6 +7,9 @@ const chapters = [...document.querySelectorAll('.assembly-chapter')];
 const status = document.getElementById('assembly-status');
 const number = document.getElementById('assembly-number');
 const progressBar = document.querySelector('#assembly-progress i');
+let assemblyVisible = false, heroVisible = true;
+new IntersectionObserver(([entry]) => { assemblyVisible = entry.isIntersecting; }, { rootMargin: '100px' }).observe(document.getElementById('assembly-visual'));
+new IntersectionObserver(([entry]) => { heroVisible = entry.isIntersecting; }, { rootMargin: '100px' }).observe(document.querySelector('.hero-intro'));
 const guide = document.getElementById('assembly-guide');
 const guidePath = guide.querySelector('path');
 const guideDot = guide.querySelector('circle');
@@ -31,7 +34,59 @@ rim.position.set(-4, 1, -3);
 scene.add(rim);
 
 let model, pieces = [], center = new THREE.Vector3(), extent = 1;
-let heroRenderer, heroScene, heroCamera, heroModel, heroHemi, heroKey, eyes;
+let heroRenderer, heroScene, heroCamera, heroModel, lowHeroModel, heroGloss, glossMaterials = [], heroHemi, heroKey, heroFill, heroScreenLights = [], eyes;
+const reflectionTargets = [0, 1, 2].map(() => new THREE.Color(0xffe7cf));
+const normalPixels = new Uint8Array(64 * 64 * 4);
+for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
+  const i = (y * 64 + x) * 4;
+  normalPixels[i] = 128 + Math.round(5 * Math.sin(x * .59 + y * .31));
+  normalPixels[i + 1] = 128 + Math.round(5 * Math.cos(y * .67 - x * .24));
+  normalPixels[i + 2] = 255;
+  normalPixels[i + 3] = 255;
+}
+const plasticNormal = new THREE.DataTexture(normalPixels, 64, 64, THREE.RGBAFormat);
+plasticNormal.wrapS = plasticNormal.wrapT = THREE.RepeatWrapping;
+plasticNormal.repeat.set(8, 8);
+plasticNormal.generateMipmaps = true;
+plasticNormal.minFilter = THREE.LinearMipmapLinearFilter;
+plasticNormal.needsUpdate = true;
+const plasticMaterial = () => new THREE.MeshPhysicalMaterial({
+  color: 0xfaf9f6, roughness: .27, metalness: .025, clearcoat: .62,
+  clearcoatRoughness: .13, normalMap: plasticNormal, envMapIntensity: .62,
+  normalScale: new THREE.Vector2(.08, .08), side: THREE.DoubleSide,
+  transparent: true, opacity: 0, depthWrite: false,
+  polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
+});
+let studioEnv;
+function ensureStudioReflections() {
+  if (studioEnv || !heroRenderer) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = 256; canvas.height = 128;
+  const context = canvas.getContext('2d');
+  const gradient = context.createLinearGradient(0, 0, 0, 128);
+  gradient.addColorStop(0, '#aaa9a4');
+  gradient.addColorStop(.52, '#ddd3c7');
+  gradient.addColorStop(1, '#50515a');
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 256, 128);
+  context.filter = 'blur(12px)';
+  context.fillStyle = '#fffdf4';
+  context.fillRect(35, 17, 34, 85);
+  context.fillRect(184, 8, 16, 99);
+  context.filter = 'none';
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const generator = new THREE.PMREMGenerator(heroRenderer);
+  studioEnv = generator.fromEquirectangular(texture).texture;
+  generator.dispose();
+  texture.dispose();
+  glossMaterials.forEach((material) => { material.envMap = studioEnv; material.needsUpdate = true; });
+}
+const reflectionCanvas = document.createElement('canvas');
+reflectionCanvas.width = 16; reflectionCanvas.height = 9;
+const reflectionContext = reflectionCanvas.getContext('2d', { willReadFrequently: true });
+let lastReflection = 0;
 const heroOrbit = { yaw: -.45, pitch: -.06, pointer: null, x: 0, y: 0, moved: false };
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const coverCanvas = document.createElement('canvas');
@@ -82,7 +137,8 @@ const filmMaterial = new THREE.ShaderMaterial({
     float outside=length(max(abs(delta)-span*0.5,0.0));
     vec2 sampleUv=clamp(delta/span+0.5,0.0,1.0);
     float edge=smoothstep(0.0,0.18,outside);
-    vec3 color=mix(tap(sampleUv),soft(sampleUv,mix(0.012,0.08,edge)),edge);
+    vec3 color=tap(sampleUv);
+    if(edge>0.001) color=mix(color,soft(sampleUv,mix(0.012,0.08,edge)),edge);
     vec2 grid=vec2(vUv.x*max(faceAspect,0.2), vUv.y)*46.0;
     float rnd=fract(sin(dot(floor(grid),vec2(127.1,311.7)))*43758.5453);
     float radius=mix(0.0,0.47,smoothstep(rnd*0.22,1.0,reveal));
@@ -112,9 +168,11 @@ function resizeHero() {
 }
 function enterStage() {
   if (film.stage || !heroRenderer || !film.product) return;
+  ensureStudioReflections();
   const before = heroHost.getBoundingClientRect();
   film.product.classList.add('is-stage');
   const after = heroHost.getBoundingClientRect();
+  heroRenderer.setPixelRatio(Math.min(devicePixelRatio, 1.25));
   resizeHero();
   film.boost = before.height > 2 ? after.height / before.height : 1;
   film.shiftX = (before.left + before.width / 2) - (after.left + after.width / 2);
@@ -126,6 +184,7 @@ function leaveStage() {
   film.product.classList.remove('is-stage');
   film.stage = false;
   film.boost = 1;
+  heroRenderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   resizeHero();
 }
 function silenceFilm() {
@@ -133,7 +192,7 @@ function silenceFilm() {
   film.playing = false;
   film.video.pause();
   film.video.muted = true;
-  film.intro.classList.remove('film-playing');
+  film.intro.classList.remove('film-playing', 'film-buffering');
 }
 function finishFilm() {
   silenceFilm();
@@ -174,6 +233,11 @@ function setFilm(open) {
 function playFilm() {
   if (film.target !== 1 || film.pose < 1 || film.playing) return;
   const token = film.playToken = (film.playToken || 0) + 1;
+  if (!film.video.src) {
+    film.video.src = film.video.dataset.src;
+    film.video.load();
+  }
+  film.intro.classList.add('film-buffering');
   const texture = film.videoTexture ??= new THREE.VideoTexture(film.video);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.flipY = true;
@@ -193,48 +257,34 @@ function playFilm() {
     if (token !== film.playToken) return;
     film.playing = false;
     film.material.uniforms.map.value = coverTexture;
-    film.intro.classList.remove('film-playing');
+    film.intro.classList.remove('film-playing', 'film-buffering');
   });
 }
-function captureCover() {
-  const video = film.video;
-  if (!video?.videoWidth || film.coverReady || film.playing) return;
-  coverCanvas.width = video.videoWidth;
-  coverCanvas.height = video.videoHeight;
-  coverCanvas.getContext('2d').drawImage(video, 0, 0, coverCanvas.width, coverCanvas.height);
+const coverImage = new Image();
+coverImage.onload = () => {
+  coverCanvas.width = coverImage.naturalWidth;
+  coverCanvas.height = coverImage.naturalHeight;
+  coverCanvas.getContext('2d').drawImage(coverImage, 0, 0);
   coverTexture.needsUpdate = true;
   film.coverReady = true;
-  film.videoAspect = video.videoWidth / video.videoHeight;
-  if (!film.playing) film.material.uniforms.map.value = coverTexture;
-  if (video.currentTime > .05) video.currentTime = 0;
-}
-function prepareCover() {
-  const video = film.video;
-  if (!video) return;
-  const seekCover = () => {
-    if (film.coverReady || film.playing) return;
-    const point = Math.min(1.1, Math.max(.12, (video.duration || 1) * .08));
-    if (video.currentTime < point - .08) video.currentTime = point;
-    else captureCover();
-  };
-  video.addEventListener('loadedmetadata', () => {
-    if (video.videoWidth) film.videoAspect = video.videoWidth / video.videoHeight;
-  });
-  video.addEventListener('loadeddata', seekCover);
-  video.addEventListener('seeked', () => { if (!film.coverReady && !film.playing) captureCover(); });
-  if (video.readyState >= 2) seekCover();
-}
+  film.videoAspect = coverImage.naturalWidth / coverImage.naturalHeight;
+};
+coverImage.src = 'assets/tada-film-poster.jpg';
 document.body.append(film.exit);
 film.exit.addEventListener('click', () => setFilm(false));
 film.play.addEventListener('click', playFilm);
 film.video.addEventListener('ended', () => {
   film.playing = false;
-  film.intro.classList.remove('film-playing');
+  film.intro.classList.remove('film-playing', 'film-buffering');
   film.material.uniforms.map.value = coverTexture;
+});
+film.video.addEventListener('waiting', () => film.intro.classList.add('film-buffering'));
+film.video.addEventListener('playing', () => film.intro.classList.remove('film-buffering'));
+film.video.addEventListener('loadedmetadata', () => {
+  if (film.video.videoWidth) film.videoAspect = film.video.videoWidth / film.video.videoHeight;
 });
 addEventListener('keydown', (event) => { if (event.key === 'Escape' && (film.target || film.pose > 0)) setFilm(false); });
 addEventListener('craboo:page', () => { if (document.body.dataset.page !== 'home') finishFilm(); });
-prepareCover();
 const sections = [
   { indices: new Set([...Array.from({ length: 6 }, (_, i) => i + 6), 14, 15, ...Array.from({ length: 48 }, (_, i) => i + 18)]), step: 1, offset: new THREE.Vector3(0, -1.15, 0) },
   { indices: new Set([12, 16]), step: 2, offset: new THREE.Vector3(0, 1.15, 0) },
@@ -263,6 +313,43 @@ function whiteMaterial(step, face) {
   return new THREE.MeshToonMaterial({ color: shades[step], transparent: true, side: THREE.DoubleSide, depthWrite: true });
 }
 
+heroRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, stencil: true });
+heroRenderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+heroRenderer.outputColorSpace = THREE.SRGBColorSpace;
+heroRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+heroRenderer.toneMappingExposure = 1.45;
+heroRenderer.setClearColor(0x000000, 0);
+heroHost.append(heroRenderer.domElement);
+heroScene = new THREE.Scene();
+heroHemi = new THREE.HemisphereLight(0xffffff, 0xdad4ce, 1.05);
+heroScene.add(heroHemi);
+heroKey = new THREE.DirectionalLight(0xffffff, 1.4);
+heroKey.position.set(3, 5, 5);
+heroScene.add(heroKey);
+heroFill = new THREE.DirectionalLight(0xe8f0ff, 0);
+heroFill.position.set(-3, 2, 2);
+heroScene.add(heroFill);
+for (let i = 0; i < 3; i++) {
+  const light = new THREE.PointLight(0xffe7cf, 0, 1.8, 2);
+  heroScene.add(light);
+  heroScreenLights.push(light);
+}
+heroCamera = new THREE.PerspectiveCamera(32, 1, .01, 100);
+new ResizeObserver(resizeHero).observe(heroHost);
+resizeHero();
+const previewLoader = new GLTFLoader();
+previewLoader.load('assets/craboo-low.glb', ({ scene: preview }) => {
+  if (heroModel) return;
+  lowHeroModel = preview;
+  const bounds = new THREE.Box3().setFromObject(preview);
+  const previewCenter = bounds.getCenter(new THREE.Vector3());
+  const previewExtent = Math.max(...bounds.getSize(new THREE.Vector3()).toArray());
+  preview.position.sub(previewCenter);
+  preview.position.y += previewExtent * .2;
+  preview.traverse((part) => { if (part.isMesh) part.material = new THREE.MeshToonMaterial({ color: 0xffffff, side: THREE.DoubleSide }); });
+  heroScene.add(preview);
+});
+
 new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
   model = source;
   const bounds = new THREE.Box3().setFromObject(model);
@@ -290,24 +377,35 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
     eyes.add(eye);
   }
   source.children[0].add(eyes);
-  heroRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, stencil: true });
-  heroRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  heroRenderer.outputColorSpace = THREE.SRGBColorSpace;
-  heroRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-  heroRenderer.toneMappingExposure = 1.45;
-  heroRenderer.setClearColor(0x000000, 0);
-  heroHost.append(heroRenderer.domElement);
-  heroScene = new THREE.Scene();
-  heroHemi = new THREE.HemisphereLight(0xffffff, 0xdad4ce, 1.05);
-  heroScene.add(heroHemi);
-  heroKey = new THREE.DirectionalLight(0xffffff, 1.4);
-  heroKey.position.set(3, 5, 5);
-  heroScene.add(heroKey);
   heroModel = source.clone(true);
   heroModel.position.copy(model.position);
   heroModel.position.y += extent * .2;
-  heroModel.traverse((child) => { if (child.isMesh) { child.material = child.material.clone(); child.material.opacity = 1; child.material.transparent = false; child.material.depthWrite = true; } });
+  heroModel.traverse((child) => {
+    if (!child.isMesh) return;
+    child.material = child.material.clone();
+    child.material.opacity = 1;
+    child.material.transparent = false;
+    child.material.depthWrite = true;
+  });
+  heroGloss = new THREE.Group();
+  heroGloss.visible = false;
+  for (const child of heroModel.children.slice(1)) {
+    if (!child.isMesh) continue;
+    const glossy = child.clone(false);
+    glossy.material = plasticMaterial();
+    glossy.material.userData.region = child.position.x < -.08 ? 0 : child.position.x > .08 ? 2 : 1;
+    glossy.material.userData.spill = [3, 4, 5].includes(heroModel.children.indexOf(child)) ? .52 : .16;
+    glossy.renderOrder = 3;
+    glossMaterials.push(glossy.material);
+    heroGloss.add(glossy);
+  }
+  heroModel.add(heroGloss);
   heroScene.add(heroModel);
+  if (lowHeroModel) {
+    heroScene.remove(lowHeroModel);
+    lowHeroModel.traverse((part) => { if (part.isMesh) part.material.dispose(); });
+    lowHeroModel = null;
+  }
   film.face = heroModel.children[0];
   film.eyes = film.face.children.find((child) => child.isGroup);
   const faceGeometry = film.face.geometry;
@@ -336,9 +434,6 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
   film.faceForward.set(0, 0, 1).transformDirection(film.face.matrix);
   if (film.faceForward.lengthSq() < .25) film.faceForward.set(0, 0, 1);
   film.faceForward.normalize();
-  heroCamera = new THREE.PerspectiveCamera(32, 1, .01, 100);
-  new ResizeObserver(resizeHero).observe(heroHost);
-  resizeHero();
   heroHost.addEventListener('pointerdown', (event) => {
     if (film.stage || film.target) return;
     heroOrbit.pointer = event.pointerId;
@@ -533,9 +628,14 @@ function animate(now) {
   camera.position.set(extent * (.3 - .08 * ease(clamp(p - 4, 0, 1))), extent * .55, extent * distance);
   camera.lookAt(0, 0.05 * extent, 0);
   model?.updateMatrixWorld(true);
-  updateGuide();
-  renderer.render(scene, camera);
-  if (heroModel) updateHeroFilm(now);
+  if (assemblyVisible) { updateGuide(); renderer.render(scene, camera); }
+  if (heroModel && (heroVisible || film.stage)) updateHeroFilm(now);
+  else if (lowHeroModel && heroVisible) {
+    lowHeroModel.rotation.set(heroOrbit.pitch, heroOrbit.yaw, 0);
+    heroCamera.position.set(0, .48, 2.2);
+    heroCamera.lookAt(0, .08, 0);
+    heroRenderer.render(heroScene, heroCamera);
+  }
 }
 const heroRestLook = new THREE.Vector3();
 const heroRestPos = new THREE.Vector3();
@@ -583,12 +683,16 @@ function updateHeroFilm(now) {
   const turn = ease(clamp(t / .74, 0, 1));
   const zoom = ease(clamp((t - .1) / .9, 0, 1));
   const dark = film.stage ? Math.max(ease(clamp(t / .9, 0, 1)), ease(film.screen)) : 0;
+  const gloss = ease(clamp((t - .13) / .73, 0, 1));
+  heroGloss.visible = gloss > .005;
+  for (const material of glossMaterials) material.opacity = gloss;
   if (!film.stage) {
     heroModel.rotation.set(heroOrbit.pitch, heroOrbit.yaw, 0);
     heroCamera.position.set(0, extent * .48, extent * 2.2);
     heroCamera.lookAt(0, extent * .08, 0);
     heroHemi.intensity = 1.05;
     heroKey.intensity = 1.4;
+    heroFill.intensity = 0;
     heroRenderer.toneMappingExposure = 1.45;
   } else {
     const yaw = film.yaw0 + shortestAngle(film.yaw0, 0) * turn;
@@ -614,15 +718,43 @@ function updateHeroFilm(now) {
     }
     heroCamera.position.copy(heroPos);
     heroCamera.lookAt(heroLook);
-    heroHemi.intensity = 1.05 * (1 - dark * .94);
-    heroKey.intensity = 1.4 * (1 - dark * .8);
+    heroHemi.intensity = 1.05 * (1 - dark * .42);
+    heroKey.intensity = 1.4 * (1 - dark * .25);
+    heroFill.intensity = dark * .75;
     heroRenderer.toneMappingExposure = 1.45 - dark * .22;
     facePoint(pitch, yaw, heroProjected);
     heroProjected.project(heroCamera);
     const bounds = film.intro.getBoundingClientRect();
     film.play.style.left = `${(heroProjected.x * .5 + .5) * bounds.width}px`;
     film.play.style.top = `${(-heroProjected.y * .5 + .5) * bounds.height}px`;
+    heroScreenLights.forEach((light, index) => {
+      light.position.copy(heroEndLook).addScaledVector(film.faceForward, .38);
+      light.position.x += (index - 1) * .29;
+      light.position.y += index === 1 ? .17 : -.06;
+    });
   }
+  if (film.playing && now - lastReflection > 250 && film.video.readyState >= 2) {
+    lastReflection = now;
+    reflectionContext.drawImage(film.video, 0, 0, 16, 9);
+    const pixels = reflectionContext.getImageData(0, 0, 16, 9).data;
+    heroScreenLights.forEach((light, region) => {
+      let r = 0, g = 0, b = 0;
+      for (let y = 0; y < 9; y++) for (let x = region * 5; x < region * 5 + 5; x++) {
+        const i = (y * 16 + x) * 4;
+        r += pixels[i]; g += pixels[i + 1]; b += pixels[i + 2];
+      }
+      reflectionTargets[region].setRGB(r / (45 * 255), g / (45 * 255), b / (45 * 255), THREE.SRGBColorSpace);
+    });
+  }
+  heroScreenLights.forEach((light, region) => {
+    light.color.lerp(reflectionTargets[region], 1 - Math.exp(-dt * 2.4));
+    light.intensity += ((film.playing ? 7.5 * gloss : 0) - light.intensity) * Math.min(1, dt * 5);
+  });
+  glossMaterials.forEach((material) => {
+    material.emissive.copy(heroScreenLights[material.userData.region].color);
+    const target = film.playing ? material.userData.spill * gloss : 0;
+    material.emissiveIntensity += (target - material.emissiveIntensity) * Math.min(1, dt * 4);
+  });
   const eyeOpacity = film.stage ? 1 - Math.max(ease(clamp((t - .36) / .52, 0, 1)), ease(film.screen)) : 1;
   if (film.eyes) {
     film.eyes.visible = eyeOpacity > .03;
