@@ -127,6 +127,22 @@ take('#capture-summary').textContent = '录音结束后可试听自动裁出的�
 take('#save-selected').textContent = '保存勾选的片段';
 take('#save-clip').textContent = '保存，并教给它';
 
+function loadSimulation() {
+  if (window.tadaSimulationLoad) return window.tadaSimulationLoad;
+  window.tadaSimulationLoad = import(new URL('src/simulation.js', document.baseURI).href).catch((error) => {
+    take('#sim-status').textContent = `仿真载入失败：${error.message}`;
+    window.tadaSimulationLoad = null;
+  });
+  return window.tadaSimulationLoad;
+}
+
+function warmSimulation() {
+  if (document.body.dataset.page === 'simulation') return loadSimulation();
+  const start = () => { if (!window.tadaSimulationLoad) loadSimulation(); };
+  if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2500 });
+  else setTimeout(start, 500);
+}
+
 function route() {
   const name = location.hash.replace('#', '') || 'home';
   const next = ['home','companion','simulation','mine','learning'].includes(name) ? name : 'home';
@@ -137,14 +153,16 @@ function route() {
   window.dispatchEvent(new Event('craboo:page'));
   if (next === 'simulation' && !window.tadaSimulationLoad) {
     take('#sim-status').textContent = '正在载入仿真引擎…';
-    window.tadaSimulationLoad = import(new URL('src/simulation.js', document.baseURI).href).catch((error) => {
-      take('#sim-status').textContent = `仿真载入失败：${error.message}`;
-      window.tadaSimulationLoad = null;
-    });
+    loadSimulation();
   }
 }
 window.addEventListener('hashchange', route);
 route();
+window.addEventListener('load', () => setTimeout(warmSimulation, 1200), { once: true });
+document.querySelectorAll('[data-page-link="simulation"]').forEach((link) => {
+  link.addEventListener('pointerenter', loadSimulation, { once: true });
+  link.addEventListener('focus', loadSimulation, { once: true });
+});
 
 let gesture = 'pet';
 const stage = take('#stage');

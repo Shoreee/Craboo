@@ -245,7 +245,7 @@ try {
         lastStatus = now;
       }
     }
-    view.update(data);
+    if (document.body.dataset.page === 'simulation' && !document.hidden) view.update(data);
   }
   requestAnimationFrame(frame);
 } catch (error) {
