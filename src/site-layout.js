@@ -79,7 +79,7 @@ if (take('.eyebrow')) take('.eyebrow').hidden = true;
 main.prepend(home, companion, simulation, mine, learning);
 home.querySelectorAll('.assembly-chapter').forEach((chapter, index) => {
   if (!index) return;
-  chapter.querySelector('.assembly-detail')?.insertAdjacentHTML('beforeend', '<button class="explode-toggle" type="button" aria-pressed="false">点击模型或这里，展开部件 ↗</button>');
+    chapter.querySelector('.assembly-detail')?.insertAdjacentHTML('beforeend', '<button class="explode-toggle" type="button" aria-pressed="false">查看爆炸结构 ↗</button>');
 });
 take('.player-bar').classList.add('global-player');
 take('#open-library').textContent = '我的 ↗';

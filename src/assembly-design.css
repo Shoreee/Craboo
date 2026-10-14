@@ -13,14 +13,20 @@ header{background:#faf4eaf0;border-color:#ead8c6}
 #assembly-guide{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 #assembly-guide path{fill:none;stroke:#c98154;stroke-width:1.5;stroke-dasharray:4 3}
 #assembly-guide circle{fill:#c98154;stroke:#fff8f0;stroke-width:2}
+#assembly-guide .part-callouts path{stroke:#ac7959;stroke-width:1;stroke-dasharray:none}
+#assembly-guide .part-callouts circle{fill:#fff9f1;stroke:#a46f50;stroke-width:1.5}
+#assembly-guide .part-callouts text{fill:#865d43;font:12px 'PingFang SC','Microsoft YaHei',sans-serif;letter-spacing:.08em;text-anchor:middle;paint-order:stroke;stroke:#faf4ea;stroke-width:4}
 .assembly-readout{left:5%;right:5%;bottom:4%;color:#a47c62;pointer-events:none}.assembly-readout span:first-child{color:#9c5d3b}.assembly-readout #assembly-progress{background:#e9ccb6}.assembly-readout i{background:#c7794b}
 .assembly-chapters{position:relative;z-index:2;pointer-events:none}
-.assembly-chapter{height:calc(100vh - 76px);min-height:560px;padding:7vw 5%;width:100%;opacity:.35;transform:translateY(18px);border-color:#e6d2bf;pointer-events:none}
+.assembly-chapter{position:relative;height:calc(100vh - 76px);min-height:560px;padding:7vw 5%;width:100%;opacity:.35;transform:translateY(18px);border-color:#e6d2bf;pointer-events:none}
 .assembly-chapter[data-assembly="0"]{height:50vh;min-height:330px}
 .assembly-chapter.active{opacity:1;transform:none}
 .assembly-chapter:nth-child(odd){align-items:flex-end;text-align:right}.assembly-chapter:nth-child(even){align-items:flex-start;text-align:left}
 .assembly-chapter>*{max-width:min(38%,430px)}
 .assembly-chapter h2{font-size:clamp(38px,4vw,67px);color:#53372c}
+.assembly-chapter .step-index{display:inline-flex;align-items:center;gap:13px;letter-spacing:.25em}
+.assembly-chapter .step-index:before{content:"";width:30px;height:1px;background:#c9855b}
+.assembly-chapter:nth-child(odd) .step-index{flex-direction:row-reverse}
 .assembly-chapter p{color:#896e5e}
 .assembly-detail{pointer-events:auto;margin-top:32px}.assembly-detail strong{color:#75402c}.assembly-detail small{color:#997765}.detail-line{background:#c98359}.assembly-chapter:nth-child(odd) .detail-line{margin-left:auto}
 .explode-toggle{display:inline-block;width:max-content;max-width:100%;margin-top:15px;padding:10px 15px;border:1px solid #d49c76;border-radius:30px;color:#9a5634;background:#fff8ef;font-size:12px;transition:.2s}
@@ -35,5 +41,7 @@ footer{background:#f2e1cf;color:#8e6b57}.model-detail{border-color:#ead9c8;color
 @media(max-width:900px){.assembly-visual{height:calc(100vh - 76px);top:76px;margin-bottom:calc(-100vh + 76px);z-index:1}.assembly-chapter{height:calc(100vh - 76px);min-height:700px;justify-content:center;padding:5vw}.assembly-chapter>*{max-width:43%}.assembly-chapter h2{font-size:clamp(30px,4.5vw,48px);margin:10px 0}.assembly-detail{margin-top:15px}}
 @media(min-width:621px) and (max-width:900px){.assembly-chapter p{max-width:43%}}
 @media(max-width:620px){.assembly-visual{top:65px;height:45vh;margin-bottom:calc(-45vh);min-height:310px}.assembly-chapter{height:100vh;min-height:700px;padding:54vh 22px 50px;justify-content:flex-start;align-items:flex-start!important;text-align:left!important}.assembly-chapter>*{max-width:100%}.assembly-chapter h2{font-size:35px;margin:10px 0}.assembly-chapter p{font-size:13px;line-height:1.5}.assembly-detail{margin-top:8px}.assembly-chapter:nth-child(odd) .detail-line,.assembly-chapter:nth-child(odd) .explode-toggle{margin-left:0}#interaction-hand{width:90px}}
+@media(max-width:620px){.assembly-readout{display:none}}
+@media(max-width:620px){.assembly-chapter:nth-child(odd) .step-index{flex-direction:row}}
 @media(max-width:900px){.hero-intro{justify-content:flex-start;padding-top:10vh}.hero-intro h1{max-width:100%;position:relative;z-index:2;font-size:clamp(45px,6vw,70px)}#hero-canvas{top:42%;height:52%;width:100%;right:0;opacity:.9}.hero-intro p{font-size:14px}}
 @media(max-width:620px){.hero-intro{padding-top:8vh}.hero-intro h1{font-size:46px}#hero-canvas{top:41%;height:53%;width:105%;right:-7%}}

@@ -18,12 +18,12 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPr
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.88;
+renderer.toneMappingExposure = 0.76;
 host.append(renderer.domElement);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(33, 1, 0.01, 100);
-scene.add(new THREE.HemisphereLight(0xfff9f0, 0xa29488, 1.0));
-const key = new THREE.DirectionalLight(0xfffbf3, 1.65);
+scene.add(new THREE.HemisphereLight(0xfff9f0, 0x967c69, .75));
+const key = new THREE.DirectionalLight(0xfffbf3, 1.35);
 key.position.set(3, 5, 5);
 scene.add(key);
 const rim = new THREE.DirectionalLight(0xffd7b7, 0.8);
@@ -33,18 +33,30 @@ scene.add(rim);
 let model, pieces = [], center = new THREE.Vector3(), extent = 1;
 let heroRenderer, heroScene, heroCamera, heroModel, eyes;
 const sections = [
-  { indices: new Set([...Array.from({ length: 6 }, (_, i) => i + 6), 14, 15, ...Array.from({ length: 48 }, (_, i) => i + 18)]), step: 1, offset: new THREE.Vector3(0, -0.32, 0) },
-  { indices: new Set([12, 16]), step: 2, offset: new THREE.Vector3(0, 0.38, 0) },
-  { indices: new Set([2, 13, 17, 66]), step: 3, offset: new THREE.Vector3(0.5, 0.1, 0.15) },
-  { indices: new Set([0, 1]), step: 4, offset: new THREE.Vector3(0, 0.12, 0.45) },
-  { indices: new Set([3, 4, 5]), step: 5, offset: new THREE.Vector3(0, 0.72, -0.04) },
+  { indices: new Set([...Array.from({ length: 6 }, (_, i) => i + 6), 14, 15, ...Array.from({ length: 48 }, (_, i) => i + 18)]), step: 1, offset: new THREE.Vector3(0, -1.8, 0) },
+  { indices: new Set([12, 16]), step: 2, offset: new THREE.Vector3(0, 1.55, 0) },
+  { indices: new Set([2, 13, 17, 66]), step: 3, offset: new THREE.Vector3(1.8, 0.1, 0) },
+  { indices: new Set([0, 1]), step: 4, offset: new THREE.Vector3(0, 0, 1.7) },
+  { indices: new Set([3, 4, 5]), step: 5, offset: new THREE.Vector3(0, 1.8, 0) },
 ];
+const legClusters = [[6, 7, 8, 10, 11, 14, 15], [9, ...Array.from({ length: 13 }, (_, i) => i + 18)], Array.from({ length: 9 }, (_, i) => i + 31), Array.from({ length: 8 }, (_, i) => i + 40), Array.from({ length: 9 }, (_, i) => i + 48), Array.from({ length: 9 }, (_, i) => i + 57)];
+function explosionOffset(index, step) {
+  if (step === 1) {
+    const leg = legClusters.findIndex((cluster) => cluster.includes(index));
+    const angle = (Math.max(0, leg) / 6) * Math.PI * 2 + Math.PI / 6;
+    return new THREE.Vector3(Math.cos(angle) * .58, leg % 2 ? -.17 : .16, Math.sin(angle) * .52);
+  }
+  if (step === 2) return new THREE.Vector3(0, index === 12 ? -.52 : .56, index === 12 ? -.2 : .15);
+  if (step === 3) return new THREE.Vector3([13].includes(index) ? -.95 : .95, 0, .15);
+  if (step === 4) return new THREE.Vector3(0, index === 0 ? .1 : -.1, index === 0 ? .8 : 1.15);
+  return new THREE.Vector3(index === 3 ? -.15 : index === 4 ? .6 : .3, index === 5 ? 1.55 : index === 4 ? .9 : .85, index === 5 ? -.3 : .1);
+}
 function sectionOf(index) {
   return sections.find((group) => group.indices?.has(index) || (index >= group.from && index <= group.to)) || sections[1];
 }
 function whiteMaterial(original, face) {
   if (face) return new THREE.MeshStandardMaterial({ color: 0x30241f, roughness: 0.75, metalness: 0, transparent: true });
-  return new THREE.MeshToonMaterial({ color: 0xf2ece3, transparent: true, side: THREE.DoubleSide, depthWrite: true });
+  return new THREE.MeshToonMaterial({ color: 0xece7df, transparent: true, side: THREE.DoubleSide, depthWrite: true });
 }
 
 new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
@@ -58,17 +70,18 @@ new GLTFLoader().load('assets/craboo.glb', ({ scene: source }) => {
     if (!mesh.isMesh) return;
     const group = sectionOf(index);
     mesh.material = whiteMaterial(mesh.material, index === 0);
-    const outline = new THREE.Mesh(mesh.geometry, new THREE.MeshBasicMaterial({ color: 0x765f4f, side: THREE.BackSide, transparent: true, opacity: .7, depthWrite: false }));
+    const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x614b3e, side: THREE.BackSide, transparent: true, opacity: .92, depthWrite: false });
+    outlineMaterial.onBeforeCompile = (shader) => { shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += normalize(normal) * 0.009;'); };
+    const outline = new THREE.Mesh(mesh.geometry, outlineMaterial);
     outline.userData.outline = true;
-    outline.scale.setScalar(1.035);
     mesh.add(outline);
-    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, 42), new THREE.LineBasicMaterial({ color: 0x806454, transparent: true, opacity: .55, depthWrite: false }));
+    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, 65), new THREE.LineBasicMaterial({ color: 0x796354, transparent: true, opacity: .72, depthWrite: false }));
     mesh.add(edge);
     mesh.userData.assemblyStep = group.step;
-    pieces.push({ mesh, edge, outline, index, group, original: mesh.position.clone(), rotation: mesh.quaternion.clone() });
+    pieces.push({ mesh, edge, outline, index, group, original: mesh.position.clone(), rotation: mesh.quaternion.clone(), explosion: explosionOffset(index, group.step) });
   });
   eyes = new THREE.Group();
-  const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xffe4aa });
+  const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xffe4aa, transparent: true });
   for (const x of [-.025, .125]) {
     const eye = new THREE.Mesh(new THREE.CapsuleGeometry(.025, .045, 5, 16), eyeMaterial);
     eye.position.set(x, .007, .218);
@@ -119,7 +132,7 @@ function updateButtons() {
   document.querySelectorAll('.explode-toggle').forEach((button) => {
     const active = Number(button.closest('[data-assembly]').dataset.assembly) === state.step && state.expandTarget;
     button.setAttribute('aria-pressed', String(Boolean(active)));
-    button.textContent = active ? '合上部件 ↙' : '点击模型或这里，展开部件 ↗';
+    button.textContent = active ? '合上部件 ↙' : '查看爆炸结构 ↗';
   });
 }
 function toggleExploded(step) {
@@ -153,6 +166,17 @@ const axis = new THREE.Vector3(0, 0.783, -0.622).normalize();
 const twist = new THREE.Quaternion();
 const guideTargets = [null, 19, 16, 2, 0, 4];
 const pieceCenter = new THREE.Vector3();
+const partLabels = {
+  1: [[6, '转向'], [19, '抬落'], [64, '足端']],
+  2: [[12, '下承托'], [16, '主体']],
+  3: [[13, '左侧'], [17, '右侧']],
+  4: [[0, '面板'], [1, '内衬']],
+  5: [[3, '前壳'], [4, '中壳'], [5, '后壳']],
+};
+const labelLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+labelLayer.setAttribute('class', 'part-callouts');
+guide.append(labelLayer);
+let labelStep = -1;
 function updateGuide() {
   const step = state.step;
   if (!step || host.clientWidth < 620) { guide.style.opacity = '0'; return; }
@@ -171,6 +195,31 @@ function updateGuide() {
   guidePath.setAttribute('d', `M ${x} ${y} L ${(x + tx) / 2} ${y} L ${(x + tx) / 2} ${ty} L ${tx} ${ty}`);
   guideDot.setAttribute('cx', String(x)); guideDot.setAttribute('cy', String(y));
   guide.style.opacity = '1';
+  if (labelStep !== step) {
+    labelStep = step;
+    labelLayer.replaceChildren();
+    for (const [, name] of partLabels[step] || []) {
+      const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      group.innerHTML = `<path></path><circle r="3"></circle><text>${name}</text>`;
+      labelLayer.append(group);
+    }
+  }
+  labelLayer.style.opacity = String(clamp((state.expanded - .15) * 1.5, 0, 1));
+  (partLabels[step] || []).forEach(([index], i) => {
+    const item = pieces.find((entry) => entry.index === index);
+    if (!item) return;
+    item.mesh.geometry.boundingBox.getCenter(pieceCenter).applyMatrix4(item.mesh.matrixWorld).project(camera);
+    const px = (pieceCenter.x * .5 + .5) * bounds.width;
+    const py = (-pieceCenter.y * .5 + .5) * bounds.height;
+    const lx = clamp(px + (px < bounds.width / 2 ? -55 : 55), 38, bounds.width - 38);
+    const ly = clamp(py - 26, 85, bounds.height - 50);
+    const group = labelLayer.children[i];
+    group.querySelector('path').setAttribute('d', `M ${px} ${py} L ${lx} ${ly}`);
+    group.querySelector('circle').setAttribute('cx', String(px));
+    group.querySelector('circle').setAttribute('cy', String(py));
+    group.querySelector('text').setAttribute('x', String(lx));
+    group.querySelector('text').setAttribute('y', String(ly - 5));
+  });
 }
 function animate(now) {
   requestAnimationFrame(animate);
@@ -179,23 +228,24 @@ function animate(now) {
   state.expanded += (state.expandTarget - state.expanded) * .12;
   const p = state.progress;
   if (model) {
-    eyes.visible = state.step >= 4;
+    const faceArrival = ease(clamp(p - 3, 0, 1));
+    eyes.visible = faceArrival > .04;
+    eyes.children.forEach((eye) => { eye.material.opacity = faceArrival; });
     for (const piece of pieces) {
       const t = ease(clamp(p - piece.group.step + 1, 0, 1));
       const step = piece.group.step;
-      const visible = state.step === 5 || step === state.step;
-      piece.mesh.visible = visible;
-      if (!visible) continue;
+      piece.mesh.visible = t > .04;
+      if (!piece.mesh.visible) continue;
       const focus = step === state.step;
       const explode = focus ? state.expanded : 0;
-      const direction = new THREE.Vector3(Math.sin(piece.index * 2.7), Math.cos(piece.index * 1.9), Math.sin(piece.index * 1.3)).normalize();
-      const finalJoin = state.step === 5 ? ease(clamp((p - 4.05) / .95, 0, 1)) : t;
-      piece.mesh.position.copy(piece.original).addScaledVector(piece.group.offset, (1 - finalJoin) * extent);
-      piece.mesh.position.addScaledVector(direction, explode * extent * .05);
-      piece.mesh.material.opacity = state.step === 5 ? Math.max(.01, finalJoin) : Math.max(.01, t);
+      const entry = step === 3 && piece.index === 13 ? new THREE.Vector3(-1.8, .1, 0) : piece.group.offset;
+      piece.mesh.position.copy(piece.original).addScaledVector(entry, (1 - t) * extent);
+      const explodeScale = [0, .8, .7, .48, .6, .58][step];
+      piece.mesh.position.addScaledVector(piece.explosion, explode * extent * explodeScale);
+      piece.mesh.material.opacity = t;
       piece.mesh.material.depthWrite = piece.mesh.material.opacity > .5;
-      piece.edge.material.opacity = piece.mesh.material.opacity * .6;
-      piece.outline.material.opacity = piece.mesh.material.opacity * .7;
+      piece.edge.material.opacity = t * .72;
+      piece.outline.material.opacity = t * .92;
       piece.mesh.quaternion.copy(piece.rotation);
       if (piece.index === 4 || piece.index === 5) {
         twist.setFromAxisAngle(axis, Math.sin(now * 0.0008 + piece.index) * 0.09 * t);
@@ -206,13 +256,15 @@ function animate(now) {
     const i = Math.min(4, Math.floor(p));
     model.rotation.y = THREE.MathUtils.lerp(yaw[i], yaw[i + 1], ease(p - i)) + Math.sin(now * .00035) * .025;
     model.rotation.x = -0.04 + Math.sin(p * 0.65) * 0.075;
-    const sides = host.clientWidth > 900 ? [.1, .5, -.5, .5, -.5, .5] : host.clientWidth > 620 ? [.1, .15, -.15, .15, -.15, .38] : [.1, .1, -.1, .1, -.1, .1];
+    const sides = host.clientWidth > 900 ? [.1, .42, -.42, .42, -.42, .42] : host.clientWidth > 620 ? [.1, .21, -.21, .21, -.21, .4] : [.1, 0, 0, 0, 0, 0];
     model.position.x = -center.x + THREE.MathUtils.lerp(sides[i], sides[i + 1], ease(p - i)) * extent;
     model.position.y = -center.y + Math.sin(p * 0.7) * extent * 0.02;
   }
-  const distances = [2.8, 2.7, 2.9, 3.1, 2.05, 3.5];
+  const distances = [3.7, 3.3, 3.8, 3.8, 3.8, 3.7];
   const at = Math.min(4, Math.floor(p));
-  const distance = THREE.MathUtils.lerp(distances[at], distances[at + 1], ease(p - at));
+  const expansionDistance = [0, .9, .9, 1.65, .8, 1.35][state.step];
+  const mobileScale = host.clientWidth < 620 ? .74 : 1;
+  const distance = THREE.MathUtils.lerp(distances[at], distances[at + 1], ease(p - at)) * mobileScale + state.expanded * expansionDistance;
   camera.position.set(extent * .3, extent * .55, extent * distance);
   camera.lookAt(0, 0.05 * extent, 0);
   model?.updateMatrixWorld(true);
