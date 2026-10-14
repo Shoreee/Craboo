@@ -28,3 +28,7 @@ jobs:
           path: .
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Check published pages
+        run: |
+          curl --fail --silent --show-error --retry 8 --retry-delay 3 "${{ steps.deployment.outputs.page_url }}" | grep -q '一只足，三个关节'
+          curl --fail --silent --show-error --retry 8 --retry-delay 3 "${{ steps.deployment.outputs.page_url }}leg-demo.html" | grep -q '三个关节，一只足'
