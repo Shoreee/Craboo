@@ -368,10 +368,12 @@ function tinyWave(samples) {
 }
 function renderSegments() {
   const segments = draft?.segments || [];
-  $("#segment-status").textContent = segments.length
+  $("#segment-status").textContent = draft?.analyzing
+    ? `正在分析 ${segments.length}/${draft.totalCandidates} 个候选片段…`
+    : segments.length
     ? `从 ${draft.duration.toFixed(1)} 秒录音中找到 ${segments.length} 个候选片段；根据活动音量与停顿划分，可继续手动调整。`
     : '没有找到明显高于底噪的片段；仍可手动调整下面的起止位置。';
-  $("#save-selected").disabled = !segments.length;
+  $("#save-selected").disabled = draft?.analyzing || !segments.length;
   $("#segment-list").innerHTML = segments.map((segment, index) => `<article class="segment-card ${draft.activeSegment === index ? 'selected' : ''}" data-segment="${index}">
     <div class="segment-main"><label><input type="checkbox" data-segment-check="${index}" ${segment.checked ? 'checked' : ''}> 片段 ${index + 1} · ${segment.start.toFixed(1)}–${segment.end.toFixed(1)} 秒</label><button class="secondary" data-segment-preview="${index}">试听</button><button class="secondary" data-segment-use="${index}">手动微调</button></div>
     <div class="segment-wave" aria-hidden="true">${tinyWave(segment.samples)}</div>
@@ -435,11 +437,10 @@ async function openEditor(
     existing,
     synthetic: existing?.synthetic || syntheticFlag,
   };
-  draft.segments = detectSegments(decoded.samples, decoded.rate).map((segment, index) => {
-    const samples = decoded.samples.slice(Math.floor(segment.start * decoded.rate), Math.floor(segment.end * decoded.rate));
-    return { ...segment, samples, checked: true, name: `${name} · 片段 ${index + 1}`, category: '', preference: '',
-      insight: analyze(samples, decoded.rate, state.models, state.clips) };
-  });
+  const candidates = detectSegments(decoded.samples, decoded.rate);
+  draft.segments = [];
+  draft.totalCandidates = candidates.length;
+  draft.analyzing = true;
   $("#clip-name").value = name;
   $("#trim-start").value = 0;
   $("#trim-end").value = decoded.duration.toFixed(2);
@@ -451,6 +452,16 @@ async function openEditor(
   wave(decoded.samples);
   renderSegments();
   $("#editor").showModal();
+  const current = draft;
+  for (const [index, segment] of candidates.entries()) {
+    if (draft !== current || !$("#editor").open) break;
+    const samples = decoded.samples.slice(Math.floor(segment.start * decoded.rate), Math.floor(segment.end * decoded.rate));
+    draft.segments.push({ ...segment, samples, checked: true, name: `${name} · 片段 ${index + 1}`,
+      category: '', preference: '', insight: analyze(samples, decoded.rate, state.models, state.clips) });
+    renderSegments();
+    await new Promise((resolve) => setTimeout(resolve, 16));
+  }
+  if (draft === current) { draft.analyzing = false; renderSegments(); }
   respond({ features: f });
 }
 function selection() {
