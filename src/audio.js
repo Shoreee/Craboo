@@ -196,7 +196,7 @@ export class AudioEngine {
       };
     });
     recorder.start();
-    this.recordTimer = setTimeout(() => this.stopRecording(), 60000);
+    this.recordTimer = setTimeout(() => this.stopRecording(), 59000);
     return this.recording;
   }
   stopRecording() {

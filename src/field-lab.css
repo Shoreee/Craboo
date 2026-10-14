@@ -7,3 +7,16 @@
 .leg-study-heading p{margin:0;color:#65716a}
 .leg-study iframe{display:block;width:100%;height:940px;border:1px solid #d9dfd8;border-radius:22px;background:#f5f3ed}
 @media(max-width:700px){.leg-study{margin:48px 0}.leg-study iframe{height:1040px;border-radius:14px}}
+.live-stream{height:56px;display:flex;align-items:center;gap:2px;padding:5px 8px;border-radius:12px;background:#eee7dc;overflow:hidden}
+.live-stream span{flex:1;min-width:2px;height:8%;border-radius:3px;background:#bba78c;transition:height .08s}
+.live-stream span.active{background:#c97352}
+.live-results{border-top:1px solid #e7dbce;padding-top:12px;display:grid;gap:10px}
+.live-results>strong{font-size:13px;color:#584838}
+.live-event{border:1px solid #e3d4c0;border-radius:12px;padding:10px;background:#fffdf8;display:grid;gap:5px}
+.live-event>div:first-child{display:flex;justify-content:space-between;font-size:12px}
+.live-event p{font-size:11px;line-height:1.45;color:#725c4d;margin:0}
+.live-event button{justify-self:start;font-size:11px;padding:7px 10px}
+.capture-flow{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.capture-flow span{font-size:11px;padding:5px 8px;border-radius:20px;background:#e8ebdf;color:#576b55}
+.capture-flow span+span:before{content:'→ ';opacity:.7}
+#capture-summary{font-size:12px;line-height:1.55}

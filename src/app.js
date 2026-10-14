@@ -11,6 +11,8 @@ import {
 } from "./state.js";
 import { load, save, encode, decode } from "./storage.js";
 import { makeUtterance } from "./sound-language.js";
+import { detectSegments } from "./segments.js";
+import { analyze, modelLabel } from "./insights.js";
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const audio = new AudioEngine();
@@ -23,6 +25,7 @@ let profile = "personal",
   mode = "explore",
   training = false,
   saveQueue = Promise.resolve();
+const liveSegments = new Map();
 const escape = (s) =>
   String(s).replace(
     /[&<>"']/g,
@@ -130,12 +133,15 @@ function render() {
   updateTop();
   const filter = $("#filter").value;
   const clips = state.clips.filter((c) => !filter || c.preference === filter);
+  const sources = new Map();
+  for (const clip of clips) {
+    if (!sources.has(clip.sourceId)) sources.set(clip.sourceId, []);
+    sources.get(clip.sourceId).push(clip);
+  }
   $("#clips").innerHTML = clips.length
-    ? clips
-        .map(
-          (c) =>
-            `<article class="clip"><span style="color:#89937b;font-size:24px">⌁</span><div class="clip-info"><h3>${escape(c.name)}</h3><p>${c.duration.toFixed(1)} 秒 · ${escape(c.category || "待认识")} · ${escape(c.preference || "待教导")}${c.synthetic ? " · 合成示例" : ""}</p></div><div class="clip-actions"><button data-action="listen" data-id="${escape(c.id)}">试听</button><button data-action="edit" data-id="${escape(c.id)}">编辑</button><button data-action="add" data-id="${escape(c.id)}">＋序列</button><button data-action="delete" data-id="${escape(c.id)}">删除</button></div></article>`,
-        )
+    ? [...sources.values()]
+        .map((group, groupIndex) => `<div class="source-group"><h3>录音 ${groupIndex + 1} · ${escape(group[0].sourceName || group[0].name)} <small>${group.length} 段</small></h3>${group.map((c) =>
+            `<article class="clip"><span style="color:#89937b;font-size:24px">⌁</span><div class="clip-info"><h3>${escape(c.name)}</h3><p>${c.sourceStart == null ? '' : `${c.sourceStart.toFixed(1)}–${c.sourceEnd.toFixed(1)} 秒 · `}${c.duration.toFixed(1)} 秒 · ${escape(c.category || "待认识")} · ${escape(c.preference || "待教导")}${c.synthetic ? " · 合成示例" : ""}</p></div><div class="clip-actions"><button data-action="listen" data-id="${escape(c.id)}">试听</button><button data-action="edit" data-id="${escape(c.id)}">编辑</button><button data-action="add" data-id="${escape(c.id)}">＋序列</button><button data-action="delete" data-id="${escape(c.id)}">删除</button></div></article>`).join('')}</div>`)
         .join("")
     : '<div class="empty">这里还很安静。<br>录下一个声音，或从合成示例开始认识它。</div>';
   $("#models").innerHTML = ["category", "preference"]
@@ -161,6 +167,7 @@ function render() {
         .join("")
     : '<div class="empty">在收藏中点击「＋序列」，把声音串在一起。</div>';
   $("#loop").checked = state.loop;
+  $("#capture-summary").textContent = `已收藏 ${state.clips.length} 段，来自 ${new Set(state.clips.map((clip) => clip.sourceId)).size} 次录音；${state.clips.filter((clip) => clip.category || clip.preference).length} 段有人工标注。可在「声音手记」里按录音查看、训练模型、加入播放序列。`;
   $("#history").innerHTML = state.growth.history.length
     ? state.growth.history
         .map(
@@ -321,7 +328,12 @@ function wave(samples) {
 }
 for (const selector of ["#trim-start", "#trim-end"])
   on(selector, "input", () => {
-    if (draft) wave(draft.samples);
+    if (!draft) return;
+    wave(draft.samples);
+    try {
+      const part = selection();
+      $("#prediction").textContent = insightText(analyze(part.samples, part.rate, state.models, state.clips));
+    } catch { $("#prediction").textContent = '调整起止位置，选择至少 0.2 秒的声音。'; }
   });
 $$("[data-stop]").forEach((button) =>
   button.addEventListener("click", () => audio.stop()),
@@ -342,6 +354,62 @@ function predictionText(f) {
     })
     .join(" · ");
 }
+function insightText(result) {
+  return `音量 ${Math.round(result.level * 1000) / 10}% · 音色 ${result.texture} · 类别：${modelLabel(result.category)} · 偏好：${modelLabel(result.preference)}`;
+}
+function tinyWave(samples) {
+  return Array.from({ length: 28 }, (_, index) => {
+    let peak = 0;
+    const begin = Math.floor(index * samples.length / 28);
+    const end = Math.floor((index + 1) * samples.length / 28);
+    for (let i = begin; i < end; i++) peak = Math.max(peak, Math.abs(samples[i]));
+    return `<i style="height:${Math.max(8, Math.min(100, peak * 180))}%"></i>`;
+  }).join('');
+}
+function renderSegments() {
+  const segments = draft?.segments || [];
+  $("#segment-status").textContent = segments.length
+    ? `从 ${draft.duration.toFixed(1)} 秒录音中找到 ${segments.length} 个候选片段；根据活动音量与停顿划分，可继续手动调整。`
+    : '没有找到明显高于底噪的片段；仍可手动调整下面的起止位置。';
+  $("#save-selected").disabled = !segments.length;
+  $("#segment-list").innerHTML = segments.map((segment, index) => `<article class="segment-card ${draft.activeSegment === index ? 'selected' : ''}" data-segment="${index}">
+    <div class="segment-main"><label><input type="checkbox" data-segment-check="${index}" ${segment.checked ? 'checked' : ''}> 片段 ${index + 1} · ${segment.start.toFixed(1)}–${segment.end.toFixed(1)} 秒</label><button class="secondary" data-segment-preview="${index}">试听</button><button class="secondary" data-segment-use="${index}">手动微调</button></div>
+    <div class="segment-wave" aria-hidden="true">${tinyWave(segment.samples)}</div>
+    <p>${insightText(segment.insight)}</p>
+    <p>${segment.insight.nearest ? `声学上最接近已标注的「${escape(segment.insight.nearest.clip.name)}」（${escape(segment.insight.nearest.clip.preference)}）；这只是特征距离，仍需你判断。` : '还没有已标注声音可做相似比较。'}</p>
+    <div class="segment-labels"><label>类别 <select data-segment-category="${index}">${options(state.categories, segment.category)}</select></label><label>你的偏好 <select data-segment-preference="${index}">${options(preferences, segment.preference)}</select></label></div>
+  </article>`).join('');
+}
+function useSegment(index) {
+  const segment = draft.segments[index];
+  draft.activeSegment = index;
+  $("#trim-start").value = segment.start.toFixed(2);
+  $("#trim-end").value = segment.end.toFixed(2);
+  $("#clip-name").value = segment.name;
+  $("#clip-category").value = segment.category;
+  $("#clip-preference").value = segment.preference;
+  $("#prediction").textContent = insightText(segment.insight);
+  wave(draft.samples);
+  renderSegments();
+}
+on('#segment-list', 'change', (event) => {
+  const target = event.target;
+  const index = Number(target.dataset.segmentCheck ?? target.dataset.segmentCategory ?? target.dataset.segmentPreference);
+  if (!Number.isInteger(index) || !draft?.segments[index]) return;
+  const segment = draft.segments[index];
+  if (target.dataset.segmentCheck !== undefined) segment.checked = target.checked;
+  if (target.dataset.segmentCategory !== undefined) segment.category = target.value;
+  if (target.dataset.segmentPreference !== undefined) segment.preference = target.value;
+});
+on('#segment-list', 'click', async (event) => {
+  const use = event.target.closest('[data-segment-use]');
+  const preview = event.target.closest('[data-segment-preview]');
+  if (use) useSegment(Number(use.dataset.segmentUse));
+  if (preview) {
+    const segment = draft.segments[Number(preview.dataset.segmentPreview)];
+    await audio.play([{ audio: await dataURL(wav(segment.samples, draft.rate)), name: `片段 ${Number(preview.dataset.segmentPreview) + 1}` }]);
+  }
+});
 async function openEditor(
   blob,
   name = "新的小声音",
@@ -352,6 +420,7 @@ async function openEditor(
   const f = features(decoded.samples, decoded.rate);
   draft = {
     ...decoded,
+    sourceName: existing?.sourceName || name,
     sourceId:
       existing?.sourceId ||
       Array.from(
@@ -366,6 +435,11 @@ async function openEditor(
     existing,
     synthetic: existing?.synthetic || syntheticFlag,
   };
+  draft.segments = detectSegments(decoded.samples, decoded.rate).map((segment, index) => {
+    const samples = decoded.samples.slice(Math.floor(segment.start * decoded.rate), Math.floor(segment.end * decoded.rate));
+    return { ...segment, samples, checked: true, name: `${name} · 片段 ${index + 1}`, category: '', preference: '',
+      insight: analyze(samples, decoded.rate, state.models, state.clips) };
+  });
   $("#clip-name").value = name;
   $("#trim-start").value = 0;
   $("#trim-end").value = decoded.duration.toFixed(2);
@@ -375,6 +449,7 @@ async function openEditor(
   $("#clip-preference").value = existing?.preference || "";
   $("#prediction").textContent = predictionText(f);
   wave(decoded.samples);
+  renderSegments();
   $("#editor").showModal();
   respond({ features: f });
 }
@@ -448,6 +523,9 @@ on("#save-clip", "click", async () => {
       clip = {
         id: draft.existing?.id || crypto.randomUUID(),
         sourceId: draft.sourceId,
+        sourceName: draft.sourceName,
+        sourceStart: (draft.existing?.sourceStart || 0) + Number($("#trim-start").value),
+        sourceEnd: (draft.existing?.sourceStart || 0) + Number($("#trim-end").value),
         name,
         audio: await dataURL(wav(part.samples, part.rate)),
         duration: part.duration,
@@ -481,6 +559,61 @@ on("#save-clip", "click", async () => {
   } finally {
     button.disabled = false;
   }
+});
+on('#save-selected', 'click', async () => {
+  const chosen = draft.segments.filter((segment) => segment.checked);
+  if (!chosen.length) throw Error('请先勾选要收藏的片段。');
+  if (state.clips.length + chosen.length > 500) throw Error('收藏上限为 500 段，请减少勾选数量。');
+  const button = $('#save-selected');
+  button.disabled = true;
+  const before = structuredClone(state);
+  try {
+    const createdAt = Date.now();
+    for (const segment of chosen) {
+      const clip = {
+        id: crypto.randomUUID(), sourceId: draft.sourceId, sourceName: draft.sourceName,
+        sourceStart: (draft.existing?.sourceStart || 0) + segment.start,
+        sourceEnd: (draft.existing?.sourceStart || 0) + segment.end,
+        name: segment.name, audio: await dataURL(wav(segment.samples, draft.rate)),
+        duration: segment.samples.length / draft.rate, features: segment.insight.vector,
+        category: segment.category, preference: segment.preference,
+        synthetic: draft.synthetic, createdAt,
+      };
+      state.clips.push(clip);
+      if (clip.category || clip.preference)
+        reward(state, 'teach:' + clip.sourceId, `一起认识了「${clip.name}」`);
+    }
+    await persist();
+    audio.stop();
+    $('#editor').close();
+    render();
+    toast(`已收藏 ${chosen.length} 段；同一次录音的片段只算一个训练来源。`);
+  } catch (error) { state = before; throw error; }
+  finally { button.disabled = false; }
+});
+let liveCount = 0;
+window.addEventListener('craboo:live-segment', ({ detail }) => {
+  try {
+    const insight = analyze(detail.samples, detail.rate, state.models, state.clips);
+    const id = crypto.randomUUID();
+    liveSegments.set(id, detail);
+    while (liveSegments.size > 5) liveSegments.delete(liveSegments.keys().next().value);
+    const host = $('#live-events');
+    if (!liveCount) host.innerHTML = '';
+    liveCount++;
+    const item = document.createElement('article');
+    item.className = 'live-event';
+    item.innerHTML = `<div><strong>片段 ${liveCount}</strong><span>${detail.start.toFixed(1)}–${detail.end.toFixed(1)} 秒</span></div><div class="segment-wave" aria-hidden="true">${tinyWave(detail.samples)}</div><p>${insightText(insight)}</p><p>${insight.nearest ? `接近已标注的「${escape(insight.nearest.clip.name)}」 · 偏好 ${escape(insight.nearest.clip.preference)}（声学距离）` : '暂无已标注声音可比较'}</p><button class="secondary" data-live-id="${id}">试听、标注并收藏</button>`;
+    host.prepend(item);
+    while (host.children.length > 5) host.lastElementChild.remove();
+  } catch (error) { console.warn('实时片段分析失败', error); }
+});
+on('#live-events', 'click', async (event) => {
+  const id = event.target.closest('[data-live-id]')?.dataset.liveId;
+  if (!id) return;
+  const segment = liveSegments.get(id);
+  if (!segment) throw Error('该片段已从临时内存移除，请重新聆听。');
+  await openEditor(wav(segment.samples, segment.rate), `实时片段 ${id.slice(0, 4)}`);
 });
 on("#sample", "click", async () => {
   const kinds = state.categories.filter((c) =>

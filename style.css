@@ -672,6 +672,25 @@ select {
   border-radius: 10px;
   padding: 12px;
 }
+.segment-review{margin:16px 0;padding:16px;border:1px solid #e4dfd3;border-radius:16px;background:#f5f4ed}
+.segment-review-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.segment-review h3{font-size:15px;margin:0}
+.segment-review-head p,.segment-review>.muted{font-size:11px;line-height:1.5;color:#6f776f}
+#segment-list{display:grid;gap:10px;max-height:300px;overflow:auto;margin:12px 0}
+.segment-card{padding:12px;border:1px solid #e1e2d7;border-radius:12px;background:#fff}
+.segment-card.selected{border-color:#829878;box-shadow:0 0 0 2px #9db49533}
+.segment-main{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:600}
+.segment-main label{margin-right:auto}
+.segment-main button{font-size:11px;padding:6px 10px}
+.segment-card p{font-size:11px;line-height:1.5;margin:7px 0;color:#617061}
+.segment-wave{height:34px;display:flex;align-items:center;gap:2px;border-radius:7px;background:#edf0e7;padding:3px 5px;overflow:hidden}
+.segment-wave i{flex:1;display:block;min-width:2px;border-radius:2px;background:#8caa83}
+.segment-labels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.segment-labels label{font-size:11px;display:grid;gap:4px}
+.segment-labels select{width:100%;padding:6px;border:1px solid #d9ded3;border-radius:8px;background:#fff;color:#465348}
+.source-group{margin:16px 0;border:1px solid #e4e7db;border-radius:13px;padding:10px}
+.source-group>h3{font-size:13px;margin:3px 6px 8px;color:#52624f}
+.source-group>h3 small{font-weight:normal;color:#7f8a7a}
 .growth-summary {
   text-align: center;
   padding: 20px;

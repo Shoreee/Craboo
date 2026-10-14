@@ -51,6 +51,9 @@ export function validate(s) {
       c.sourceId.length > 100 ||
       typeof c.name !== "string" ||
       c.name.length > 100 ||
+      (c.sourceName !== undefined && (typeof c.sourceName !== "string" || c.sourceName.length > 100)) ||
+      (c.sourceStart !== undefined && (!Number.isFinite(c.sourceStart) || c.sourceStart < 0)) ||
+      (c.sourceEnd !== undefined && (!Number.isFinite(c.sourceEnd) || c.sourceEnd <= (c.sourceStart ?? 0) || c.sourceEnd > 60)) ||
       typeof c.audio !== "string" ||
       !/^data:audio\/wav;base64,[A-Za-z0-9+/=]+$/.test(c.audio) ||
       !Number.isFinite(c.duration) ||

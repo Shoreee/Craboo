@@ -1,62 +1,44 @@
+import { LiveAudioCapture } from './live-audio.js';
+
 const $ = (id) => document.getElementById(id);
-
-// This monitor never stores samples. The browser's capture processing is optional.
-class LiveMonitor {
-  async start(processing) {
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: {
-      echoCancellation: processing, noiseSuppression: processing, autoGainControl: processing,
-    } });
-    try {
-      this.context = new AudioContext();
-      this.source = this.context.createMediaStreamSource(this.stream);
-      this.analyser = this.context.createAnalyser();
-      this.analyser.fftSize = 1024;
-      this.source.connect(this.analyser);
-      this.buffer = new Float32Array(this.analyser.fftSize);
-      this.active = true;
-      this.tick();
-    } catch (error) { this.stop(); throw error; }
-  }
-  tick() {
-    if (!this.active) return;
-    this.analyser.getFloatTimeDomainData(this.buffer);
-    const rms = Math.sqrt(this.buffer.reduce((sum, x) => sum + x * x, 0) / this.buffer.length);
-    const level = Math.min(100, Math.round(rms * 350));
-    $('live-level').textContent = `${level}%`;
-    $('live-bar').style.width = `${level}%`;
-    const state = level < 7 ? '安静地陪着你' : level < 30 ? '听见身边的小声音' : '周围有些热闹';
-    $('live-state').textContent = state;
-    $('live-response').textContent = level < 7 ? '我在这里，静静等你。' : level < 30 ? '我听到了，再靠近一点好吗？' : '声音有点大，我们慢一点。';
-    if (this.lastLevel !== level) window.dispatchEvent(new CustomEvent('craboo:ambient', { detail: { level } }));
-    this.lastLevel = level;
-    this.frame = requestAnimationFrame(() => this.tick());
-  }
-  stop() {
-    this.active = false;
-    cancelAnimationFrame(this.frame);
-    this.stream?.getTracks().forEach((track) => track.stop());
-    this.source?.disconnect();
-    this.context?.close();
-    this.stream = this.source = this.context = null;
-  }
-}
-
-const monitor = new LiveMonitor();
+const bars = Array.from({ length: 42 }, () => {
+  const bar = document.createElement('span');
+  $('live-stream').append(bar);
+  return bar;
+});
+let lastFrame = 0;
+const monitor = new LiveAudioCapture(({ level: raw, noise, threshold, active }) => {
+  const now = performance.now();
+  if (now - lastFrame < 90) return;
+  lastFrame = now;
+  const level = Math.min(100, Math.round(raw * 350));
+  $('live-level').textContent = `${level}%`;
+  $('live-bar').style.width = `${level}%`;
+  bars.push(bars.shift());
+  $('live-stream').append(bars.at(-1));
+  bars.at(-1).style.height = `${Math.max(8, level)}%`;
+  bars.at(-1).classList.toggle('active', active);
+  const state = active ? '正在划分声音片段' : '正在等待高于环境底噪的声音';
+  $('live-state').textContent = state;
+  $('live-response').textContent = `输入 ${level}% · 底噪 ${Math.round(noise * 350)}% · 切段阈值 ${Math.round(threshold * 350)}%`;
+  window.dispatchEvent(new CustomEvent('craboo:ambient', { detail: { level } }));
+}, (segment) => window.dispatchEvent(new CustomEvent('craboo:live-segment', { detail: segment })));
 $('live-toggle').addEventListener('click', async () => {
   if (monitor.active) {
     monitor.stop();
     $('live-toggle').textContent = '开启实时聆听';
     $('live-state').textContent = '尚未开始聆听';
-    $('live-response').textContent = '开启后，环境音量会影响它的陪伴状态。';
+    $('live-response').textContent = '开启后会实时划分声音片段。';
     $('live-level').textContent = '0%';
     $('live-bar').style.width = '0%';
+    bars.forEach((bar) => { bar.style.height = '8%'; bar.classList.remove('active'); });
     return;
   }
   try {
     await monitor.start($('noise-filter').checked);
     $('live-toggle').textContent = '停止实时聆听';
   } catch (error) {
-    $('live-response').textContent = error.name === 'NotAllowedError' ? '麦克风权限未开启。' : '无法开启麦克风；请使用 localhost 或 HTTPS。';
+    $('live-response').textContent = error.name === 'NotAllowedError' ? '麦克风权限未开启。' : error.message || '无法开启麦克风；请使用 localhost 或 HTTPS。';
   }
 });
 window.addEventListener('pagehide', () => monitor.stop());
